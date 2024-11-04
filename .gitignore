@@ -47,4 +47,4 @@ Thumbs.db
 .runtimeconfig.json
 
 /src/environments
-.github/
+/.github/
