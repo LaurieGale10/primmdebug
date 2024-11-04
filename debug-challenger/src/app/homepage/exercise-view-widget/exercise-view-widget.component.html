@@ -1,0 +1,33 @@
+<button mat-raised-button color="grey" class="widget-pane" (click)="loadExercise()">
+    <div class="button-display">
+        <h2>{{exerciseData?.title}}</h2>
+        <h4>{{exerciseData?.description | limitString}}</h4>
+
+        <div class="bottom-pane">
+            @if (exerciseData?.difficulty) {
+                <div class="flex-row difficulty">
+                    <div *ngIf="exerciseData!.difficulty=='easy'" class="flex-row">
+                        <mat-icon>stars</mat-icon>
+                    </div>
+                    <div *ngIf="exerciseData!.difficulty=='intermediate'" class="flex-row">
+                        <mat-icon>stars</mat-icon>
+                        <mat-icon>stars</mat-icon>
+                    </div>
+                    <div *ngIf="exerciseData!.difficulty=='hard'" class="flex-row">
+                        <mat-icon>stars</mat-icon>
+                        <mat-icon>stars</mat-icon>
+                        <mat-icon>stars</mat-icon>
+                    </div>
+                    <h3><strong>{{exerciseData!.difficulty}}</strong></h3>
+                </div>
+            }
+            
+            @if (exerciseData?.language) {
+                <div class="flex-row language">
+                    <img src="../../../assets/img/python.png" class="python-icon">
+                    <h3><strong>{{exerciseData!.language}}</strong></h3>
+                </div>
+            }
+        </div>
+    </div>
+</button>

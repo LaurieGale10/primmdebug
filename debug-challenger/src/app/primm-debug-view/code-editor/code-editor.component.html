@@ -1,0 +1,17 @@
+<div #ide>
+    <iframe [@expandCodeEditorPane]="debuggingStage" #codeEditor title="Code Sandbox" class="code-editor-iframe left-hand-pane">
+    </iframe>
+</div>
+    @if (!iFrameLoading() && !iFrameSuccessfullyLoaded()) {
+        <div class="loading-feedback-pane left-hand-pane">
+            <img src="../../../assets/img/program_did_not_load.png" class="program-did-not-load-img">
+            <h2>Couldn't load the program 😔</h2>
+            <h2>Have you tried refreshing the page?</h2>
+        </div>
+    }
+    @else if (iFrameLoading()) {
+        <div class="loading-feedback-pane left-hand-pane">
+            <mat-spinner></mat-spinner>
+            <h2>Loading program...</h2>
+        </div>
+    }

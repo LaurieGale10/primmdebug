@@ -1,0 +1,25 @@
+@use '@angular/material' as mat
+
+@include mat.core()
+
+//$custom-theme: mat.define-theme(
+//    color: (
+//        primary: mat.$green-palette
+//    )
+//) //Currently incorrect syntax as I'm using sass but Angular documentation is in scss
+
+//html
+//  @include mat.all-component-themes($custom-theme)
+
+.page
+    margin: 1.5% 2.5%
+
+.bug-icon
+    align-self: center
+
+.test-case-display
+    font-family: monospace
+
+::ng-deep .ng-animating div mat-accordion mat-expansion-panel div.mat-expansion-panel-content 
+    height: 0px
+    visibility: hidden

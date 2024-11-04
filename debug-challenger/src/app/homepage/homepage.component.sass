@@ -1,0 +1,43 @@
+.title-pane
+    display: flex
+    flex-direction: row
+    justify-content: space-between
+    background-color: #5BB314
+    padding: 1.5% 2.5%
+
+.title-text
+    display: flex
+    flex-direction: row
+    gap: 2%
+
+.widgets-view
+    display: flex
+    gap: 2%
+    row-gap: 25px
+    flex-wrap: wrap
+
+.error-display
+    width: 50%
+    min-height: 150px
+    padding: 1%
+    border-radius: 15px
+    background-color: #e65f4ed5
+    display: flex
+    flex-direction: column
+
+app-exercise-view-widget
+    width: 23.5%
+
+//Media queries for adjusting numnber of exercise widgets per row
+
+@media (max-width: 1200px) 
+    app-exercise-view-widget
+        width: 31%
+
+@media (max-width: 900px) 
+    app-exercise-view-widget
+        width: 49%
+
+@media (max-width: 600px) 
+    app-exercise-view-widget
+        width: 100%
