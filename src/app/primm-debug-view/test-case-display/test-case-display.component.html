@@ -1,4 +1,4 @@
-<mat-expansion-panel [@.disabled]="disableAnimation" (opened)="panelOpenState.set(true)" (closed)="panelOpenState.set(false)">
+<mat-expansion-panel [@.disabled]="disableAnimation" (opened)="onPanelExpansionChange(true)" (closed)="onPanelExpansionChange(false)">
     <mat-expansion-panel-header>
         <!--Add icon experiment-->
         @if (!panelOpenState()) {

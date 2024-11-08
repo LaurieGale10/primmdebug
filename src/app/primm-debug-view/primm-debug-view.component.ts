@@ -23,7 +23,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { FirestoreService } from '../services/firestore.service';
 import { CodeEditorComponent } from "./code-editor/code-editor.component";
 import { LoggingService } from '../services/logging.service';
-import { ExerciseLog, StageLog } from '../services/logging.model';
+import { ExerciseLog, FocusType, StageLog } from '../services/logging.model';
 import { TestCaseDisplayComponent } from "./test-case-display/test-case-display.component";
 import { HintDisplayComponent } from "./hint-display/hint-display.component";
 
@@ -104,6 +104,9 @@ export class PrimmDebugViewComponent implements OnInit {
     if (!this.loggingService.getUserId()) {
       this.loggingService.createUserId();
     }
+    window.addEventListener("visibilitychange", () => {
+      this.loggingService.addFocusWindowEvent(document.visibilityState === "hidden" ? FocusType.focusOut : FocusType.focusIn);
+    });
     this.loggingService.setDebuggingStage(DebuggingStage.predict);
 
     let exerciseId: any;
