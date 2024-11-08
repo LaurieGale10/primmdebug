@@ -20,6 +20,8 @@ export class HintDisplayComponent {
 
   hintIndex: number = 0;
 
+  disableAnimation: boolean = true; //Fix to avoid expansion panel expanding on animation of parent div 
+
   constructor(private loggingService: LoggingService) {}
 
   onPanelExpansionChange(expanded: boolean) {

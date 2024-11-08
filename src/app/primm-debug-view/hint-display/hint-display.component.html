@@ -1,5 +1,5 @@
 @if (hints!.length > 0) {
-    <mat-expansion-panel (opened)="onPanelExpansionChange(true)" (closed)="onPanelExpansionChange(false)">
+    <mat-expansion-panel [@.disabled]="disableAnimation" (opened)="onPanelExpansionChange(true)" (closed)="onPanelExpansionChange(false)">
         <mat-expansion-panel-header>
             @if (!panelOpenState()) {
                 <mat-panel-title><mat-icon>lightbulb_2</mat-icon> Need a Hint?</mat-panel-title>
