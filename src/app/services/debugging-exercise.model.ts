@@ -7,7 +7,7 @@ export interface DebuggingExercise {
     program: string,
     testCases?: TestCase[],
     multipleChoiceOptions?: Map<DebuggingStage,string[]>,
-    difficulty?: string,
+    difficulty?: string, //This should be an enum
     language?: string,
     lineContainingError?: number,
     hints?: Map<DebuggingStage, string[]>

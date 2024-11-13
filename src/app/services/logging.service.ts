@@ -4,6 +4,8 @@ import { CollectionReference, DocumentReference, Firestore, addDoc, arrayUnion, 
 import { ChangeHelpPaneContentEvent, ExerciseLog, FocusType, HintPaneLog, StageLog, TestCasePaneLog, ToggleHelpPaneExpansionEvent, User, WindowFocusEvent } from './logging.model';
 import { DebuggingStage } from '../types/types';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment.development';
+
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +13,7 @@ import { HttpClient } from '@angular/common/http';
 export class LoggingService {
 
   private firestore: Firestore = inject(Firestore);
-  logChanges: boolean = true;
+  logChanges: boolean = true; //Perhaps configure as env variable for different types of deployment
   
   exerciseId: string | undefined;
   exerciseLogReference: DocumentReference | undefined;
@@ -44,9 +46,17 @@ export class LoggingService {
   windowFocusLogs: WindowFocusEvent[] = [];
 
   constructor(private http: HttpClient) { 
-    this.exerciseLogsCollection = collection(this.firestore, 'exercise_logs');
-    this.stageLogsCollection = collection(this.firestore, 'stage_logs'); //TODO: Implement error handling here
-    this.usersCollection = collection(this.firestore, "users");
+    if (!environment.mockData) {
+      this.exerciseLogsCollection = collection(this.firestore, 'exercise_logs');
+      this.stageLogsCollection = collection(this.firestore, 'stage_logs'); //TODO: Implement error handling here
+      this.usersCollection = collection(this.firestore, "users");
+    }
+    else {
+      this.exerciseLogsCollection = collection(this.firestore, 'mock_exercise_logs');
+      this.stageLogsCollection = collection(this.firestore, 'mock_stage_logs'); //TODO: Implement error handling here
+      this.usersCollection = collection(this.firestore, "mock_users");
+    }
+
   }
   
   /**
