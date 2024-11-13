@@ -13,7 +13,7 @@ import { environment } from '../../environments/environment.development';
 export class LoggingService {
 
   private firestore: Firestore = inject(Firestore);
-  logChanges: boolean = true; //Perhaps configure as env variable for different types of deployment
+  logChanges: boolean = environment.logChanges; //Perhaps configure as env variable for different types of deployment
   
   exerciseId: string | undefined;
   exerciseLogReference: DocumentReference | undefined;
@@ -45,7 +45,7 @@ export class LoggingService {
   hintsLogs: HintPaneLog | null = null;
   windowFocusLogs: WindowFocusEvent[] = [];
 
-  constructor(private http: HttpClient) { 
+  constructor(private http: HttpClient) {
     if (!environment.mockData) {
       this.exerciseLogsCollection = collection(this.firestore, 'exercise_logs');
       this.stageLogsCollection = collection(this.firestore, 'stage_logs'); //TODO: Implement error handling here
@@ -63,7 +63,7 @@ export class LoggingService {
    * Adds a user to the Firestore and sets the object's id to be the returned id
    */
   createUserId() {
-    if (this.logChanges && this.usersCollection) {
+    if (environment.logChanges && this.usersCollection) {
       const user: User = {
         dateCreated: new Date()
       };
@@ -79,7 +79,7 @@ export class LoggingService {
   }
 
   getUserId(): string | null {
-    return this.logChanges ? this.userId : null;
+    return environment.logChanges ? this.userId : null;
   }
 
   setExerciseId(id: string) {
@@ -87,7 +87,7 @@ export class LoggingService {
   }
 
   createExerciseLog() {
-    if (this.logChanges) {
+    if (environment.logChanges) {
       const exerciseLog: ExerciseLog = {
         userId: this.userId!,
         exerciseId: this.exerciseId!,
@@ -123,7 +123,7 @@ export class LoggingService {
   }
 
   async saveStageLog(stageLog: StageLog): Promise<DocumentReference | null> {
-    if (this.logChanges) {
+    if (environment.logChanges) {
       //Check if there's any more granular logs to add
       if (this.windowFocusLogs && this.windowFocusLogs.length > 0) {
         stageLog.focusEvents = this.windowFocusLogs;
@@ -145,7 +145,7 @@ export class LoggingService {
   }
 
   addProgramLogsToStageLogs(stageLogDocRef: DocumentReference, programLogs: any) {
-    if (this.logChanges) {
+    if (environment.logChanges) {
       updateDoc(stageLogDocRef, {
         programLogs: programLogs
       });
@@ -155,7 +155,7 @@ export class LoggingService {
   //Methods to do with finer grained logs
 
   addFocusWindowEvent(focus: FocusType) {
-    if (this.logChanges) {
+    if (environment.logChanges) {
       this.windowFocusLogs.push({
         time: new Date(),
         focus: focus
