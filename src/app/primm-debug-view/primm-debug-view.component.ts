@@ -23,7 +23,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { FirestoreService } from '../services/firestore.service';
 import { CodeEditorComponent } from "./code-editor/code-editor.component";
 import { LoggingService } from '../services/logging.service';
-import { ExerciseLog, StageLog } from '../services/logging.model';
+import { ExerciseLog, FocusType, StageLog } from '../services/logging.model';
 import { TestCaseDisplayComponent } from "./test-case-display/test-case-display.component";
 import { HintDisplayComponent } from "./hint-display/hint-display.component";
 
@@ -104,6 +104,9 @@ export class PrimmDebugViewComponent implements OnInit {
     if (!this.loggingService.getUserId()) {
       this.loggingService.createUserId();
     }
+    window.addEventListener("visibilitychange", () => {
+      this.loggingService.addFocusWindowEvent(document.visibilityState === "hidden" ? FocusType.focusOut : FocusType.focusIn);
+    });
     this.loggingService.setDebuggingStage(DebuggingStage.predict);
 
     let exerciseId: any;
@@ -184,8 +187,8 @@ export class PrimmDebugViewComponent implements OnInit {
    */
   passHintsToComponent(debuggingStage: DebuggingStage): string[] {
     const debuggingStageCounter: number = this.loggingService.getDebuggingStageCounter(debuggingStage);
-    if ((3 <= debuggingStageCounter) && (debuggingStageCounter <= 5)) {
-      return this.debuggingStage == DebuggingStage.inspectCode ? this.exercise!.hints!.get(DebuggingStage.findError)!.slice(0,debuggingStageCounter - 2) : this.exercise!.hints!.get(debuggingStage)!.slice(0,debuggingStageCounter - 2); //Function will only be called within HTML blocks where hints has been verified as truthy
+    if ((2 <= debuggingStageCounter) && (debuggingStageCounter <= 4)) {
+      return this.debuggingStage == DebuggingStage.inspectCode ? this.exercise!.hints!.get(DebuggingStage.findError)!.slice(0,debuggingStageCounter - 1) : this.exercise!.hints!.get(debuggingStage)!.slice(0,debuggingStageCounter - 1); //Function will only be called within HTML blocks where hints has been verified as truthy
     }
     return [];
   }
@@ -238,7 +241,12 @@ export class PrimmDebugViewComponent implements OnInit {
         this.sendToggleRunMessage(false);
         break;
       }
+      case DebuggingStage.completedTest: {
+        this.sendToggleRunMessage(true);
+        break;
+      }
       case DebuggingStage.modify: {
+        this.sendToggleRunMessage(false);
         this.sendToggleReadOnlyCode(false);
       }
     }
