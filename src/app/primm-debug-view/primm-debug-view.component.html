@@ -146,7 +146,7 @@
         
                             <div class="flex-column">
                                 <button mat-raised-button (click)="setDebuggingStage(DebuggingStageType.modify)" class="reflection-button" color="green">Continue with PRIMM</button>
-                                <button mat-raised-button (click)="returnToHomepage()" class="reflection-button" color="green">Try another PRIMMDebug exercise</button>
+                                <button mat-raised-button (click)="returnToHomepage()" class="reflection-button" color="green">Try another PRIMMDebug challenge</button>
                             </div>
                         </div>
                     }
@@ -163,7 +163,7 @@
         
                             <div class="flex-column">
                                 <button mat-raised-button (click)="setDebuggingStage(DebuggingStageType.inspectCode)" class="reflection-button" color="green">Re-inspect the code</button>
-                                <button mat-raised-button (click)="returnToHomepage()" class="reflection-button" color="green">Go back to home</button>
+                                <button mat-raised-button (click)="returnToHomepage()" class="reflection-button" color="green">Try another PRIMMDebug challenge</button>
                             </div>
                         </div>
                     }
@@ -214,9 +214,6 @@
                     <app-hint-display [hints]="passHintsToComponent(debuggingStage)"></app-hint-display>
                 }
             }
-            @if (debuggingStage == DebuggingStageType.findError && exercise.hints && exercise.hints.get(DebuggingStageType.findError)) {
-            }
-
             @if ([DebuggingStageType.predict, DebuggingStageType.spotDefect, DebuggingStageType.fixError].includes(debuggingStage) || (debuggingStage == DebuggingStageType.findError && !exercise.lineContainingError)) {
                 <button mat-raised-button color="green" (click)="nextDebuggingStage()" [disabled]="(exercise!.multipleChoiceOptions?.get(debuggingStage) && !userMultiChoiceInput && useMultipleChoiceOptions) || ((!useMultipleChoiceOptions || !exercise!.multipleChoiceOptions?.get(debuggingStage)) && (!userReflectionInput || userReflectionInput == ''))">{{debuggingStage == DebuggingStageType.predict ? "Let's find out" : debuggingStage == DebuggingStageType.fixError ? "Time to test!" : debuggingStage == DebuggingStageType.findError ? "Time to debug!" : "On to the next stage!"}}</button>
             }
@@ -224,7 +221,9 @@
                 <button mat-raised-button color="green" (click)="nextDebuggingStage()">{{debuggingStage == DebuggingStageType.inspectCode ? "I'm ready to find the error" : "Onto the next stage"}}</button>
             }
             @else if (debuggingStage == DebuggingStageType.findError && foundErroneousLine == null) {
-                <app-hint-display [hints]="passHintsToComponent(debuggingStage)"></app-hint-display>
+                @if (exercise.hints && exercise.hints.get(DebuggingStageType.findError)) {
+                    <app-hint-display [hints]="passHintsToComponent(debuggingStage)"></app-hint-display>
+                }
                 <button mat-raised-button color="green" (click)="checkLineNumber()" [disabled]="!selectedLineNumber">Check my answer</button>
             }
             @else if (debuggingStage == DebuggingStageType.make) {

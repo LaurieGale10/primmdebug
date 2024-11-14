@@ -386,9 +386,8 @@ export class PrimmDebugViewComponent implements OnInit {
 
   returnToHomepage() {
     let route = '';
+    this.loggingService.saveExitLog();
     this.router.navigate([route]);
-    //Update exercise log
-    //Add stage log
   }
 
 }
