@@ -2,9 +2,9 @@
     <mat-expansion-panel-header>
         <!--Add icon experiment-->
         @if (!panelOpenState()) {
-            <mat-panel-title><mat-icon>more_horiz</mat-icon> Click to Show Test Cases</mat-panel-title>
+            <mat-panel-title><mat-icon class="test-case-icon">science</mat-icon> Click to Show Test Cases</mat-panel-title>
         } @else { 
-            <mat-panel-title><mat-icon>more_horiz</mat-icon> Test Case {{testCaseIndex + 1}} of {{testCases!.length}}</mat-panel-title>
+            <mat-panel-title><mat-icon class="test-case-icon">science</mat-icon> Test Case {{testCaseIndex + 1}} of {{testCases!.length}}</mat-panel-title>
         }
     </mat-expansion-panel-header>
 

@@ -44,7 +44,7 @@
                 @else {
                     <h4>What do you think will happen when you press run?</h4>
                 }
-                <h4>Make sure you <strong>read the program description</strong> before predicting!</h4>
+                <h4>Make sure you <strong>read the program description</strong> first!</h4>
             </div>
 
             @if (debuggingStage == DebuggingStageType.run) {
@@ -55,10 +55,10 @@
                     </div>
                     @if (exercise.testCases) {
                         @if (exercise.testCases![predictRunIteration].input && exercise.testCases![predictRunIteration].input!.length == 1) {
-                            <h4>Time to run the code! Have a go at running the program with this input value:</h4>
+                            <h4>Time to run the program! Use the input value below:</h4>
                         }
                         @else if (exercise.testCases![predictRunIteration].input && exercise.testCases![predictRunIteration].input!.length > 1) {
-                            <h4>Time to run the code! Have a go at running the program with these input values:</h4>
+                            <h4>Time to run the program! Use the input values below:</h4>
                         }
                         @for (inputValue of exercise.testCases![predictRunIteration].input; track inputValue) {
                             <p class="test-case-display">{{inputValue}}</p>
@@ -92,12 +92,12 @@
                     <!--Ideally to appear with some animation-->
                     <div class="correct-line-feedback">
                         <mat-icon class="correct-line-tick">check_circle</mat-icon>
-                        <h4>Well done, you’ve found the line the error is on! Now it’s time to fix it...</h4>
+                        <h4>Well done, you’ve found the line the error is on! Time to fix it...</h4>
                     </div>
                     <button mat-raised-button color="green" (click)="setDebuggingStageFromFindError(DebuggingStageType.fixError)" class="reflection-button">Fix the error</button>
                 }
                 @if (foundErroneousLine === false) {
-                    <h4>Line {{selectedLineNumber}} is not actually where the error is located, but that’s ok! </h4>
+                    <h4>Line {{selectedLineNumber}} is not where the error is located, but that’s ok!</h4>
                     <h4>Before you have another go, try re-inspecting the code again to see where the error is.</h4>
                     <button mat-raised-button color="green" (click)="setDebuggingStageFromFindError(DebuggingStageType.inspectCode)" class="reflection-button">Re-inspect the code (recommended)</button>
                     <button mat-raised-button color="green" (click)="setDebuggingStageFromFindError(DebuggingStageType.findError)" class="reflection-button">Enter another line number</button>
@@ -136,7 +136,7 @@
                     @if (changesSuccessful) {
                         <ngx-confetti-explosion></ngx-confetti-explosion>
                         <div>
-                            <h4>Well done for completing the challenge!</h4>
+                            <h4>Well done! You completed the challenge! Debugging isn't easy - give yourself a pat on the back.</h4>
 
                             <div class="emoji-display-div">
                                 <h1 class="emoji-display-text">🥳</h1>
@@ -153,7 +153,7 @@
     
                     @if (!changesSuccessful) {
                         <div>
-                            <h4>Don't worry, it's compltely normal for debugging to take a few tries. Keep going!</h4> <!--Actually a pretty important sentence-->
+                            <h4>Don't worry, it's completely normal for debugging to take a few tries. Keep going!</h4>
 
                             <div class="emoji-display-div">
                                 <h1 class="emoji-display-text">💪</h1>
@@ -163,7 +163,7 @@
         
                             <div class="flex-column">
                                 <button mat-raised-button (click)="setDebuggingStage(DebuggingStageType.inspectCode)" class="reflection-button" color="green">Re-inspect the code</button>
-                                <button mat-raised-button (click)="returnToHomepage()" class="reflection-button" color="green">Move on to a different exercise</button>
+                                <button mat-raised-button (click)="returnToHomepage()" class="reflection-button" color="green">Go back to home</button>
                             </div>
                         </div>
                     }
@@ -186,7 +186,7 @@
                         <mat-icon>emoji_objects</mat-icon> 
                         <h2>Make</h2>
                     </div>
-                    <h4>You've successfully debugged a program - well done! Now move on to making your own program...</h4>
+                    <h4>Now that you've modified your own program, move on to making your own version. Don't be afraid to clear the program!</h4>
                 </div>
             }
 
@@ -210,21 +210,21 @@
                     }
                 }
 
-                @if ((debuggingStage == DebuggingStageType.inspectCode || debuggingStage == DebuggingStageType.findError) && exercise.hints && exercise.hints.get(DebuggingStageType.findError)) {
+                @if (debuggingStage == DebuggingStageType.inspectCode && exercise.hints && exercise.hints.get(DebuggingStageType.findError)) {
                     <app-hint-display [hints]="passHintsToComponent(debuggingStage)"></app-hint-display>
                 }
-                @if (debuggingStage == DebuggingStageType.fixError && exercise.hints && exercise.hints.get(DebuggingStageType.fixError)) {
-                    <app-hint-display [hints]="passHintsToComponent(DebuggingStageType.fixError)"></app-hint-display>
-                }
+            }
+            @if (debuggingStage == DebuggingStageType.findError && exercise.hints && exercise.hints.get(DebuggingStageType.findError)) {
             }
 
-            @if ([DebuggingStageType.predict, DebuggingStageType.spotDefect, DebuggingStageType.fixError, DebuggingStageType.modify].includes(debuggingStage) || (debuggingStage == DebuggingStageType.findError && !exercise.lineContainingError)) {
+            @if ([DebuggingStageType.predict, DebuggingStageType.spotDefect, DebuggingStageType.fixError].includes(debuggingStage) || (debuggingStage == DebuggingStageType.findError && !exercise.lineContainingError)) {
                 <button mat-raised-button color="green" (click)="nextDebuggingStage()" [disabled]="(exercise!.multipleChoiceOptions?.get(debuggingStage) && !userMultiChoiceInput && useMultipleChoiceOptions) || ((!useMultipleChoiceOptions || !exercise!.multipleChoiceOptions?.get(debuggingStage)) && (!userReflectionInput || userReflectionInput == ''))">{{debuggingStage == DebuggingStageType.predict ? "Let's find out" : debuggingStage == DebuggingStageType.fixError ? "Time to test!" : debuggingStage == DebuggingStageType.findError ? "Time to debug!" : "On to the next stage!"}}</button>
             }
-            @if (debuggingStage == DebuggingStageType.inspectCode) {
-                <button mat-raised-button color="green" (click)="nextDebuggingStage()">I'm ready to find the error</button>
+            @if (debuggingStage == DebuggingStageType.inspectCode || debuggingStage == DebuggingStageType.modify) {
+                <button mat-raised-button color="green" (click)="nextDebuggingStage()">{{debuggingStage == DebuggingStageType.inspectCode ? "I'm ready to find the error" : "Onto the next stage"}}</button>
             }
             @else if (debuggingStage == DebuggingStageType.findError && foundErroneousLine == null) {
+                <app-hint-display [hints]="passHintsToComponent(debuggingStage)"></app-hint-display>
                 <button mat-raised-button color="green" (click)="checkLineNumber()" [disabled]="!selectedLineNumber">Check my answer</button>
             }
             @else if (debuggingStage == DebuggingStageType.make) {
