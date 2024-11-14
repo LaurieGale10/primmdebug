@@ -2,9 +2,9 @@
     <mat-expansion-panel-header>
         <!--Add icon experiment-->
         @if (!panelOpenState()) {
-            <mat-panel-title><mat-icon>more_horiz</mat-icon> Click to Show Test Cases</mat-panel-title>
+            <mat-panel-title><mat-icon class="test-case-icon">science</mat-icon> Click to Show Test Cases</mat-panel-title>
         } @else { 
-            <mat-panel-title><mat-icon>more_horiz</mat-icon> Test Case {{testCaseIndex + 1}} of {{testCases!.length}}</mat-panel-title>
+            <mat-panel-title><mat-icon class="test-case-icon">science</mat-icon> Test Case {{testCaseIndex + 1}} of {{testCases!.length}}</mat-panel-title>
         }
     </mat-expansion-panel-header>
 
@@ -16,11 +16,11 @@
     }
 
     <h3>Expected output</h3>
-    <p class="test-case-display">"{{testCases![testCaseIndex].expected}}"</p>
+    <p class="test-case-display">"{{testCases![testCaseIndex].expected | whitespacePreserver}}"</p>
 
     @if (testCases![testCaseIndex].actual) {
         <h3>Actual output</h3>
-        <p class="test-case-display">"{{testCases![testCaseIndex].actual}}"</p>
+        <p class="test-case-display">"{{testCases![testCaseIndex].actual! | whitespacePreserver}}"</p>
     }
 
     <div class="expansion-panel-switch-buttons">

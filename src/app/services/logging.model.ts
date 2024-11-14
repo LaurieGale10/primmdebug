@@ -17,6 +17,12 @@ export interface StageLog {
     hintPaneLogs?: HintPaneLog
 }
 
+//When the user leaves the page for a particular PRIMMDebug challenge
+export interface ExitLog {
+    stage: string
+    time: Date
+}
+
 export interface TestCasePaneLog {
     expansionChanges?: ToggleHelpPaneExpansionEvent[],
     paneContentChanges?: ChangeHelpPaneContentEvent[]

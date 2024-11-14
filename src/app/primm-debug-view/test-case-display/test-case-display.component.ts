@@ -5,13 +5,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { TestCase } from '../../services/debugging-exercise.model';
 import { LoggingService } from '../../services/logging.service';
-import { expand } from 'rxjs';
 import { PaneView } from '../../services/logging.model';
+import { WhitespacePreserverPipe } from '../../pipes/whitespace-preserver.pipe';
 
 @Component({
   selector: 'app-test-case-display',
   standalone: true,
-  imports: [MatExpansionModule, MatIconModule, MatButtonModule],
+  imports: [MatExpansionModule, MatIconModule, MatButtonModule, WhitespacePreserverPipe],
   templateUrl: './test-case-display.component.html',
   styleUrl: './test-case-display.component.sass'
 })
@@ -26,7 +26,7 @@ export class TestCaseDisplayComponent implements OnInit {
 
   disableAnimation: boolean = true; //Fix to avoid expansion panel expanding on animation of parent div 
 
-  constructor(private loggingService: LoggingService) {}
+  constructor(private loggingService: LoggingService, private whitespacePreserverPipe: WhitespacePreserverPipe) {}
 
   ngOnInit(): void {
     setTimeout(() => this.disableAnimation = false);

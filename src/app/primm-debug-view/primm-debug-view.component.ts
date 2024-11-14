@@ -76,16 +76,16 @@ export class PrimmDebugViewComponent implements OnInit {
   ]);
   debugStepQuestions: Map<DebuggingStage, string> = new Map<DebuggingStage, string>([
     [DebuggingStage.spotDefect, "What was the program meant to do, and what did it actually do?\n\nIf there's an error message, what is it telling you?"],
-    [DebuggingStage.inspectCode, dedent(`Try and work out what the cause of the error could be.\n\nRead the code, run it with different inputs, and write down any thoughts that help you to figure out the cause of the error. Use the test cases if you need any help.\n\nOnce you think you have enough information about the defect, click the green button below.`)],
-    [DebuggingStage.findError, "Enter what line the error you think the error is located on."],
+    [DebuggingStage.inspectCode, dedent(`Try and work out what the cause of the error could be.\n\nRead the code, run it with different inputs, and write down your thoughts. Use the test cases if you need any help.`)],
+    [DebuggingStage.findError, "Enter what line you think the error is located on."],
     [DebuggingStage.fixError, "Now make the changes to the program that you think will fix the error. Then write down what you've changed."]
   ]);
   reflectionInputPlaceholders: Map<DebuggingStage, string> = new Map<DebuggingStage, string>([
-    [DebuggingStage.predict, "e.g. The program will print a sequence of integers to the screen."],
+    [DebuggingStage.predict, "e.g. The program will output a sequence of cities in alphabetical order."],
     [DebuggingStage.spotDefect, "e.g. The program was meant to output a sequence of integers in ascending order but actually printed them out unsorted."],
-    [DebuggingStage.inspectCode, "e.g. I’ve tried running the program with 0 and the program raises an error, so the defect could be to do with how the program handles negative numbers."],
-    [DebuggingStage.findError, "The equals sign on line 3."],
-    [DebuggingStage.fixError, "e.g. Added another equals sign to the if statement on line 5."]
+    [DebuggingStage.inspectCode, "e.g. After testing with four different variable values, I think the error is to do with the if statement on line 3."],
+    [DebuggingStage.findError, "e.g. The equals sign on line 3."],
+    [DebuggingStage.fixError, "e.g. Added a colon to the end of the while loop."]
   ])
   testCaseOutputs: Map<string, string> = new Map<string, string>();
   originalNumberOfLines: number[] | undefined;
@@ -176,7 +176,7 @@ export class PrimmDebugViewComponent implements OnInit {
     });
     this.codeEditor!.sendMessage({
       type: "initialise",
-      code:  this.exercise?.program,
+      code:  this.exercise!.program,
       language: "python",
       logChanges: true
     });
@@ -386,9 +386,8 @@ export class PrimmDebugViewComponent implements OnInit {
 
   returnToHomepage() {
     let route = '';
+    this.loggingService.saveExitLog();
     this.router.navigate([route]);
-    //Update exercise log
-    //Add stage log
   }
 
 }

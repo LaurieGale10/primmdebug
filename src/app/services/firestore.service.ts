@@ -6,6 +6,7 @@ import dedent from 'dedent';
 import { DebuggingExercise, TestCase } from './debugging-exercise.model';
 import { DebuggingStage } from '../types/types';
 import { orderBy, query } from 'firebase/firestore';
+import { WhitespacePreserverPipe } from '../pipes/whitespace-preserver.pipe';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,7 @@ export class FirestoreService {
   unparsedExercises$: Observable<DebuggingExercise[] | null> | undefined;
   exercises: DebuggingExercise[] | null = null;
 
-  constructor() {
+  constructor(private whitespacePreserverPipe: WhitespacePreserverPipe) {
     const exercisesCollection = collection(this.firestore, 'exercises');
     const exercisesQuery = query(exercisesCollection, orderBy('difficulty'));
     this.unparsedExercises$ = collectionData(
@@ -157,14 +158,6 @@ export class FirestoreService {
   }
   
   /**
-   * Maintains the whitespace (tabs and newlines) that is currently removed when saving a multi-line string
-   * @param doc The string to add newlines to, annotated with \\n's and \\t's
-   */
-  restoreWhitespace(doc: string): string {
-    return doc.replaceAll("\\t","\t").replaceAll("\\n", "\n").replaceAll(/\n\s/g, '\n');//Needs to remove any trailing spaces after \n's
-  }
-
-  /**
    * Checks whether debugging exercises contain the necessary information required for a valid debugging exercise.
    * @param exercise The debugging exercise
    * @returns Whethert
@@ -184,8 +177,8 @@ export class FirestoreService {
       const parsedExercise: DebuggingExercise = {
         id: unparsedExercise["id"],
         title: unparsedExercise["title"],
-        description: this.restoreWhitespace(unparsedExercise["description"]),
-        program: this.restoreWhitespace(unparsedExercise["program"])
+        description: this.whitespacePreserverPipe.transform(unparsedExercise["description"]),
+        program: this.whitespacePreserverPipe.transform(unparsedExercise["program"])
       };
       if (multiChoiceOptions) {
         parsedExercise.multipleChoiceOptions = multiChoiceOptions; 
