@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { CollectionReference, DocumentReference, Firestore, addDoc, arrayUnion, collection, collectionData, doc, updateDoc, where} from '@angular/fire/firestore';
 
-import { ChangeHelpPaneContentEvent, ExerciseLog, FocusType, HintPaneLog, StageLog, TestCasePaneLog, ToggleHelpPaneExpansionEvent, User, WindowFocusEvent } from './logging.model';
+import { ChangeHelpPaneContentEvent, ExerciseLog, FocusType, HintPaneLog, StageLog, TestCasePaneLog, ToggleHelpPaneExpansionEvent, User, WindowFocusEvent, ExitLog } from './logging.model';
 import { DebuggingStage } from '../types/types';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment.development';
@@ -124,7 +124,7 @@ export class LoggingService {
 
   async saveStageLog(stageLog: StageLog): Promise<DocumentReference | null> {
     if (environment.logChanges) {
-      //Check if there's any more granular logs to add
+      //Check if there's any granular logs to add
       if (this.windowFocusLogs && this.windowFocusLogs.length > 0) {
         stageLog.focusEvents = this.windowFocusLogs;
       }
@@ -142,6 +142,19 @@ export class LoggingService {
       return docRef;
     }
     return null;
+  }
+
+  async saveExitLog() {
+    if (environment.logChanges) {
+      const exitLog: ExitLog = {
+        stage: "exit",
+        time: new Date()
+      }
+      const docRef = await addDoc(this.stageLogsCollection!, exitLog);
+      updateDoc(this.exerciseLogReference!, {
+        stageLogIds: arrayUnion(docRef.id)
+      });
+    }
   }
 
   addProgramLogsToStageLogs(stageLogDocRef: DocumentReference, programLogs: any) {
