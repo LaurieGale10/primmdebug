@@ -176,7 +176,7 @@ export class PrimmDebugViewComponent implements OnInit {
     });
     this.codeEditor!.sendMessage({
       type: "initialise",
-      code:  this.exercise?.program,
+      code:  this.exercise!.program,
       language: "python",
       logChanges: true
     });
@@ -206,7 +206,6 @@ export class PrimmDebugViewComponent implements OnInit {
 
   setDebuggingStage(debuggingStage: DebuggingStage) {
     this.debuggingStage = debuggingStage;
-    console.log(debuggingStage)
     this.loggingService.setDebuggingStage(this.debuggingStage);
     switch (this.debuggingStage) {
       case DebuggingStage.predict: {

@@ -16,11 +16,11 @@
     }
 
     <h3>Expected output</h3>
-    <p class="test-case-display">"{{testCases![testCaseIndex].expected}}"</p>
+    <p class="test-case-display">"{{testCases![testCaseIndex].expected | whitespacePreserver}}"</p>
 
     @if (testCases![testCaseIndex].actual) {
         <h3>Actual output</h3>
-        <p class="test-case-display">"{{testCases![testCaseIndex].actual}}"</p>
+        <p class="test-case-display">"{{testCases![testCaseIndex].actual! | whitespacePreserver}}"</p>
     }
 
     <div class="expansion-panel-switch-buttons">
