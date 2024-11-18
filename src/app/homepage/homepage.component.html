@@ -18,6 +18,10 @@
             <app-exercise-view-widget [exerciseData]="exercise"></app-exercise-view-widget>
         }
     </div>
+
+    <div>
+        <button mat-raised-button color="grey" class="survey-link" style="font-size: large;" (click)="toQuestionnaire()"><mat-icon>menu_book</mat-icon> Take the Survey</button>
+    </div>
 </div>
 <!--<div *ngIf="!exercises" class="error-display">
     <h2>Oh no!</h2>

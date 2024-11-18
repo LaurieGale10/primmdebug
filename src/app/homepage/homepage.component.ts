@@ -5,6 +5,7 @@ import { DebuggingExercise } from '../services/debugging-exercise.model';
 
 import {MatIconModule} from '@angular/material/icon';
 import {MatToolbarModule} from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
 import { FirestoreService } from '../services/firestore.service';
 import { LoggingService } from '../services/logging.service';
 
@@ -13,7 +14,7 @@ import { LoggingService } from '../services/logging.service';
     standalone: true,
     templateUrl: './homepage.component.html',
     styleUrl: './homepage.component.sass',
-    imports: [NgIf, ExerciseViewWidgetComponent, MatIconModule, MatToolbarModule]
+    imports: [NgIf, ExerciseViewWidgetComponent, MatIconModule, MatToolbarModule, MatButtonModule]
 })
 export class HomepageComponent implements OnInit {
 
@@ -30,6 +31,10 @@ export class HomepageComponent implements OnInit {
         const unparsedExercises = data;
         this.exercises = this.firestoreService.parseDebuggingExercises(unparsedExercises);
       });
+    }
+
+    toQuestionnaire() {
+      window.open("https://cambridge.eu.qualtrics.com/jfe/form/SV_9SpFJbTkdaucDhY", "_blank");
     }
 
 }
