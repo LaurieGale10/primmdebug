@@ -33,8 +33,4 @@ export class HomepageComponent implements OnInit {
       });
     }
 
-    toQuestionnaire() {
-      window.open("https://cambridge.eu.qualtrics.com/jfe/form/SV_9SpFJbTkdaucDhY", "_blank");
-    }
-
 }
