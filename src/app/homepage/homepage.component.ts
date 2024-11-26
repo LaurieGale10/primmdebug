@@ -7,6 +7,8 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import { FirestoreService } from '../services/firestore.service';
 import { LoggingService } from '../services/logging.service';
+import { MatDialog } from '@angular/material/dialog';
+import { StudentIdDialogComponent } from '../student-id-dialog/student-id-dialog.component';
 
 @Component({
     selector: 'app-homepage',
@@ -19,7 +21,7 @@ export class HomepageComponent implements OnInit {
 
     exercises: Array<DebuggingExercise> | null = null; //TODO: Look up convention regarding whether to set var that might be null/undefined before it's setter function is called
 
-    constructor(private firestoreService: FirestoreService, private loggingService: LoggingService) { }
+    constructor(private firestoreService: FirestoreService, private loggingService: LoggingService, private dialog: MatDialog) { }
 
     ngOnInit(): void {
       if (!this.loggingService.getUserId()) {
@@ -30,6 +32,11 @@ export class HomepageComponent implements OnInit {
         const unparsedExercises = data;
         this.exercises = this.firestoreService.parseDebuggingExercises(unparsedExercises);
       });
+      this.openToStudentDialog();
+    }
+
+    openToStudentDialog() {
+      const dialogRef = this.dialog.open(StudentIdDialogComponent);
     }
 
 }
