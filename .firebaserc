@@ -5,12 +5,10 @@
   "targets": {
     "primmdebug": {
       "hosting": {
-        "main": [
-          "primmdebug"
+        "primmdebug-research": [
+          "primmdebug-research"
         ]
       }
     }
-  },
-  "etags": {},
-  "dataconnectEmulatorConfig": {}
+  }
 }
