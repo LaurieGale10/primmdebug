@@ -10,6 +10,7 @@ import { FirestoreService } from '../services/firestore.service';
 import { LoggingService } from '../services/logging.service';
 import { MatDialog } from '@angular/material/dialog';
 import { StudentIdDialogComponent } from '../student-id-dialog/student-id-dialog.component';
+import { environment } from '../../environments/environment.development';
 
 @Component({
     selector: 'app-homepage',
@@ -25,19 +26,18 @@ export class HomepageComponent implements OnInit {
     constructor(private firestoreService: FirestoreService, private loggingService: LoggingService, private dialog: MatDialog) { }
 
     ngOnInit(): void {
-      if (!this.loggingService.getUserId()) {
-        this.loggingService.createUserId();
-      }
       this.loggingService.resetDebuggingStage();
       this.firestoreService.getUnparsedExercises().subscribe(data => {
         const unparsedExercises = data;
         this.exercises = this.firestoreService.parseDebuggingExercises(unparsedExercises);
       });
-      this.openToStudentDialog();
+      if (environment.logChanges && !this.loggingService.getStudentId()) {
+        this.openToStudentDialog();
+      }
     }
 
     openToStudentDialog() {
-      const dialogRef = this.dialog.open(StudentIdDialogComponent);
+      const dialogRef = this.dialog.open(StudentIdDialogComponent, {disableClose: true});
     }
 
 }

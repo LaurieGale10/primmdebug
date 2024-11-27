@@ -1,1 +1,23 @@
+<h2 mat-dialog-title>
+    Enter Your ID
+</h2>
+<mat-dialog-content>
+    <p>If you’ve consented to using this version of the website, your teacher would’ve given you an ID. If you’ve forgot, ask your teacher for it again.</p>
 
+    <form (ngSubmit)="submitId()" #accessForm="ngForm">
+        <div class="enter-details">
+            <mat-form-field>
+                <mat-label>First part</mat-label>
+                <input [(ngModel)]="firstWord" matInput name="firstWord" placeholder="rotten" type="text">
+            </mat-form-field>
+            <mat-icon class="horizontal-rule">horizontal_rule</mat-icon>
+            <mat-form-field>
+                <mat-label>Second part</mat-label>
+                <input [(ngModel)]="secondWord" matInput name="secondWord" placeholder="tomato">
+            </mat-form-field>
+        </div>
+        <button mat-raised-button [disabled]="!firstWord || !secondWord" color="green" type="submit" color="primary">Enter</button>
+        <!--Ideally disable until a change has been made after the submit button-->
+    </form>
+
+</mat-dialog-content>

@@ -28,6 +28,8 @@ import { TestCaseDisplayComponent } from "./test-case-display/test-case-display.
 import { HintDisplayComponent } from "./hint-display/hint-display.component";
 
 import dedent from 'dedent';
+import { environment } from '../../environments/environment.development';
+import { StudentIdDialogComponent } from '../student-id-dialog/student-id-dialog.component';
 
 @Component({
   selector: 'app-primm-debug-view',
@@ -101,8 +103,8 @@ export class PrimmDebugViewComponent implements OnInit {
 
   ngOnInit(): void {
     //TODO: Add error handling so undefined assertions (!s) can be made
-    if (!this.loggingService.getUserId()) {
-      this.loggingService.createUserId();
+    if (environment.logChanges && !this.loggingService.getStudentId()) {
+      this.openToStudentDialog();
     }
     window.addEventListener("visibilitychange", () => {
       this.loggingService.addFocusWindowEvent(document.visibilityState === "hidden" ? FocusType.focusOut : FocusType.focusIn);
@@ -121,6 +123,10 @@ export class PrimmDebugViewComponent implements OnInit {
       }
     })
     this.loggingService.createExerciseLog();
+  }
+
+  openToStudentDialog() {
+    const dialogRef = this.dialog.open(StudentIdDialogComponent, {disableClose: true});
   }
 
   onKeydown($event: Event) {
