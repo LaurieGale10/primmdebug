@@ -103,7 +103,7 @@ export class PrimmDebugViewComponent implements OnInit {
 
   ngOnInit(): void {
     //TODO: Add error handling so undefined assertions (!s) can be made
-    if (environment.logChanges && !this.loggingService.getStudentId()) {
+    if (environment.logChanges && !this.loggingService.getStudentId() && !sessionStorage.getItem("enteredStudentId")) {
       this.openToStudentDialog();
     }
     window.addEventListener("visibilitychange", () => {

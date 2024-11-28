@@ -31,7 +31,8 @@ export class HomepageComponent implements OnInit {
         const unparsedExercises = data;
         this.exercises = this.firestoreService.parseDebuggingExercises(unparsedExercises);
       });
-      if (environment.logChanges && !this.loggingService.getStudentId()) {
+
+      if (environment.logChanges && !this.loggingService.getStudentId() && !sessionStorage.getItem("enteredStudentId")) {
         this.openToStudentDialog();
       }
     }

@@ -24,6 +24,7 @@ export class StudentIdDialogComponent {
   firstWord: string | null = null;
   secondWord: string | undefined;
   invalidInput: boolean = false;
+  validInput: boolean = false;
 
   constructor(private firestoreService: FirestoreService, private loggingService: LoggingService, private dialogRef: MatDialogRef<StudentIdDialogComponent>) { }
 
@@ -31,19 +32,22 @@ export class StudentIdDialogComponent {
     const id = this.firstWord!.toLowerCase() + "-" + this.secondWord!.toLowerCase();
     this.firestoreService.validateStudentId(id).then((validId) => {
       if (validId) {
+        //Add some animation here
         this.loggingService.setStudentId(id);
-        //Some feedback/animation needed here
-        this.dialogRef.close();
+        this.invalidInput = false;
+        this.validInput = true;
+        setTimeout(
+          () =>{
+            this.dialogRef.close();
+          }, 1500);
       }
       else {
-        console.log("Invalid student ID")
         this.invalidInput = true;
         this.submitButton!.disabled = true;
-
         setTimeout(
           () =>{
             this.submitButton!.disabled = false;
-          },1500);
+          }, 1500);
       }
     })
   }

@@ -2,6 +2,7 @@
     Enter Your ID
 </h2>
 <mat-dialog-content>
+    
     <p>If you’ve consented to using this version of the website, your teacher would’ve given you an ID. If you’ve forgot, ask your teacher for it again.</p>
 
     <form (ngSubmit)="submitId()" #accessForm="ngForm">
@@ -18,14 +19,23 @@
         </div>
 
         @if (invalidInput) {
-            <div class="error-display">
+            <div class="feedback-message-display">
                 <mat-icon class="error-color">cancel</mat-icon>
                 <p class="error-color">That isn’t a valid ID - are you sure you’ve spelt it correctly?</p>
             </div>
         }
 
-        <button mat-raised-button #submitButton [disabled]="!firstWord || !secondWord" color="green" type="submit" color="primary">Enter</button>
-        <!--Ideally disable until a change has been made after the submit button-->
-    </form>
+        @if (validInput) {
+            <div class="feedback-message-display">
+                <mat-icon class="success-color">check_circle</mat-icon>
+                <p>You're all in! Get ready to fix some bugs</p>
+            </div>
+        }
 
+        @if (!validInput) {
+            <button mat-raised-button #submitButton [disabled]="!firstWord || !secondWord || validInput" color="green" type="submit" color="primary">Enter</button>
+            <!--Ideally disable until a change has been made after the submit button-->
+        }
+
+    </form>
 </mat-dialog-content>
