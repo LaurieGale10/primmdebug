@@ -232,17 +232,17 @@ export class FirestoreService {
   addStudentMetadata(docRef: DocumentReference, docSnapshot: DocumentSnapshot) {
     const dataToAdd: any = {};
     if (!docSnapshot.data()!["ip"]) {
-      console.log("Add an IP here")
+      if (!docSnapshot.data()!["dateFirstAccessed"]) {
+        dataToAdd["date"] = new Date();
+      }
       this.http.get("https://api64.ipify.org?format=json").subscribe((result: any) => {
         if (result["ip"]) {
           dataToAdd["ip"] = result["ip"]; //Currently doesn't work; need to wait on this or write two separate updateDoc calls
         }
+        updateDoc(docRef, dataToAdd);
       });
+
     }
-    if (!docSnapshot.data()!["dateFirstAccessed"]) {
-      dataToAdd["date"] = new Date();
-    }
-    updateDoc(docRef, dataToAdd);
   }
 
   async validateStudentId(id: string): Promise<boolean | null> {
