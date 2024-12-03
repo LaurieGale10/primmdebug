@@ -229,9 +229,9 @@ export class FirestoreService {
     return docSnapshot.data() as DebuggingExercise | null; //How to get ID returning here?
   }
 
-  authenticateStudent(docRef: DocumentReference, docSnapshot: DocumentSnapshot) {
+  authenticateStudent(docRef: DocumentReference, docSnapshot: DocumentSnapshot, id: string) {
     const dataToAdd: any = {};
-    sessionStorage.setItem("enteredStudentId", JSON.stringify(true));
+    sessionStorage.setItem("studentId", id);
     if (!docSnapshot.data()!["ip"]) {
       if (!docSnapshot.data()!["dateFirstAccessed"]) {
         dataToAdd["date"] = new Date();
@@ -249,7 +249,7 @@ export class FirestoreService {
     const docRef = doc(this.studentIdsCollection!, id);
     const docSnapshot = await getDoc(docRef);
     if (docSnapshot.exists() && docSnapshot.data()) {
-      this.authenticateStudent(docRef, docSnapshot);
+      this.authenticateStudent(docRef, docSnapshot, id);
     }
     //If docSnapshot.exists() return true then add IP if this doesn't already exist (this will change each time but don't think I need to collect this every time)
     return docSnapshot.exists();

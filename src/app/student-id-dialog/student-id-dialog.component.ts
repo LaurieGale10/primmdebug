@@ -39,7 +39,7 @@ export class StudentIdDialogComponent {
         setTimeout(
           () =>{
             this.dialogRef.close();
-          }, 1500);
+          }, 2500);
       }
       else {
         this.invalidInput = true;

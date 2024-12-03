@@ -67,6 +67,7 @@ export class LoggingService {
   }
 
   createExerciseLog() {
+    console.log("Making exercise log")
     if (environment.logChanges) {
       const exerciseLog: ExerciseLog = {
         studentId: this.studentId!,
