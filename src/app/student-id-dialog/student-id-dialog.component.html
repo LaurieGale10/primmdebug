@@ -1,4 +1,5 @@
 <h2 mat-dialog-title>
+    <mat-icon id="login-icon">login</mat-icon>
     Enter Your ID
 </h2>
 <mat-dialog-content>
@@ -9,12 +10,12 @@
         <div class="enter-details">
             <mat-form-field>
                 <mat-label>First part</mat-label>
-                <input [(ngModel)]="firstWord" #firstWordValidator="ngModel" matInput name="firstWord" placeholder="rotten" type="text">
+                <input [(ngModel)]="firstWord" #firstWordValidator="ngModel" matInput name="firstWord" type="text" maxlength="8">
             </mat-form-field>
             <mat-icon class="horizontal-rule">horizontal_rule</mat-icon>
             <mat-form-field>
                 <mat-label>Second part</mat-label>
-                <input [(ngModel)]="secondWord" #secondWordValidator="ngModel" matInput name="secondWord" placeholder="tomato">
+                <input [(ngModel)]="secondWord" #secondWordValidator="ngModel" matInput name="secondWord" maxlength="8">
             </mat-form-field>
         </div>
 
