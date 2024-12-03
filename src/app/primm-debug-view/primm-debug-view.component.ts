@@ -116,7 +116,7 @@ export class PrimmDebugViewComponent implements OnInit {
     //TODO: Add error handling so undefined assertions (!s) can be made
     if (environment.logChanges && !this.loggingService.getStudentId()) {
       if (!sessionStorage.getItem("studentId")) {
-        this.openToStudentDialog();
+        this.router.navigate(['/']);
       }
       else {
         this.loggingService.setStudentId(sessionStorage.getItem("studentId")!);
@@ -136,13 +136,6 @@ export class PrimmDebugViewComponent implements OnInit {
     this.loggingService.setExerciseId(this.exerciseId!);
     this.loggingService.setDebuggingStage(DebuggingStage.predict);
     this.loggingService.createExerciseLog();
-  }
-
-  openToStudentDialog() {
-    const dialogRef = this.dialog.open(StudentIdDialogComponent, {disableClose: true});
-    dialogRef.afterClosed().subscribe(data => {
-      this.setupExerciseLogs();
-    })
   }
 
   onKeydown($event: Event) {
