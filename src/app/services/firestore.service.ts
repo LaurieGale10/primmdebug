@@ -234,7 +234,7 @@ export class FirestoreService {
     sessionStorage.setItem("studentId", id);
     if (!docSnapshot.data()!["ip"]) {
       if (!docSnapshot.data()!["dateFirstAccessed"]) {
-        dataToAdd["date"] = new Date();
+        dataToAdd["dateFirstAccessed"] = new Date();
       }
       this.http.get("https://api64.ipify.org?format=json").subscribe((result: any) => {
         if (result["ip"]) {
