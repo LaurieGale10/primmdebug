@@ -28,6 +28,8 @@ import { TestCaseDisplayComponent } from "./test-case-display/test-case-display.
 import { HintDisplayComponent } from "./hint-display/hint-display.component";
 
 import dedent from 'dedent';
+import { environment } from '../../environments/environment.development';
+import { StudentIdDialogComponent } from '../student-id-dialog/student-id-dialog.component';
 
 @Component({
   selector: 'app-primm-debug-view',
@@ -50,6 +52,7 @@ export class PrimmDebugViewComponent implements OnInit {
   codeEditor: CodeEditorComponent | undefined;
 
   exercise: DebuggingExercise | null = null;
+  exerciseId: string | null = null;
   predictRunIteration: number = 0;
   debuggingStage: DebuggingStage = DebuggingStage.predict;
   DebuggingStageType = DebuggingStage; //To allow reference to enum types in interpolation
@@ -94,32 +97,46 @@ export class PrimmDebugViewComponent implements OnInit {
 
   hasCodeEditorLoaded = signal(false);
 
-  //Variables for logging
   programLogs: any = null;
 
   constructor(private router: Router, private route: ActivatedRoute, private dialog: MatDialog, private firestoreService: FirestoreService, private loggingService: LoggingService) { };
 
   ngOnInit(): void {
-    //TODO: Add error handling so undefined assertions (!s) can be made
-    if (!this.loggingService.getUserId()) {
-      this.loggingService.createUserId();
-    }
-    window.addEventListener("visibilitychange", () => {
-      this.loggingService.addFocusWindowEvent(document.visibilityState === "hidden" ? FocusType.focusOut : FocusType.focusIn);
-    });
-    this.loggingService.setDebuggingStage(DebuggingStage.predict);
-
-    let exerciseId: any;
     this.route.queryParams.subscribe(params => {
-      exerciseId = params['id'];
-      this.loggingService.setExerciseId(exerciseId);
+      this.exerciseId = params['id'];
     });
 
-    this.firestoreService.getExerciseById(exerciseId).then(data => {
+    this.firestoreService.getExerciseById(this.exerciseId!).then(data => {
       if (data) {
         this.exercise = this.firestoreService.parseDebuggingExercise(data);
       }
     })
+    
+    //TODO: Add error handling so undefined assertions (!s) can be made
+    //Logic for when PRIMMDebug view page is being loaded anew (without routing from the homepage)
+    if (environment.logChanges) {
+      const studentId = this.loggingService.getStudentId() || sessionStorage.getItem("studentId");
+
+      if (!studentId) {
+        this.router.navigate(['/']);
+      } else {
+        if (!this.loggingService.getStudentId()) {
+          this.loggingService.setStudentId(studentId);
+        }
+        this.setupExerciseLogs();
+      }
+    }
+  }
+
+  /**
+   * Arranges all of the necessary logs on a user correctly entering a student ID or straightaway if they've previously entered a valid ID in their session
+   */
+  setupExerciseLogs() {
+    this.loggingService.setExerciseId(this.exerciseId!);
+    this.loggingService.setDebuggingStage(DebuggingStage.predict);
+    window.addEventListener("visibilitychange", () => {
+      this.loggingService.addFocusWindowEvent(document.visibilityState === "hidden" ? FocusType.focusOut : FocusType.focusIn);
+    });
     this.loggingService.createExerciseLog();
   }
 
