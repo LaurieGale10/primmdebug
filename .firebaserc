@@ -10,7 +10,5 @@
         ]
       }
     }
-  },
-  "etags": {},
-  "dataconnectEmulatorConfig": {}
+  }
 }

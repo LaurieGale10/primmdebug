@@ -5,8 +5,10 @@ import dedent from 'dedent';
 
 import { DebuggingExercise, TestCase } from './debugging-exercise.model';
 import { DebuggingStage } from '../types/types';
-import { orderBy, query } from 'firebase/firestore';
+import { CollectionReference, DocumentReference, DocumentSnapshot, orderBy, query, updateDoc } from 'firebase/firestore';
 import { WhitespacePreserverPipe } from '../pipes/whitespace-preserver.pipe';
+import { environment } from '../../environments/environment.development';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -14,10 +16,18 @@ import { WhitespacePreserverPipe } from '../pipes/whitespace-preserver.pipe';
 export class FirestoreService {
 
   private firestore: Firestore = inject(Firestore);
+  studentIdsCollection: CollectionReference | undefined;
   unparsedExercises$: Observable<DebuggingExercise[] | null> | undefined;
   exercises: DebuggingExercise[] | null = null;
 
-  constructor(private whitespacePreserverPipe: WhitespacePreserverPipe) {
+  constructor(private http: HttpClient, private whitespacePreserverPipe: WhitespacePreserverPipe) {
+    //Only want to fetch student_ids collection if we're wanting to log changes
+    if (environment.logChanges && !environment.mockData) {
+      this.studentIdsCollection = collection(this.firestore, 'student_ids');
+    }
+    else if (environment.logChanges && environment.mockData) {
+      this.studentIdsCollection = collection(this.firestore, 'mock_student_ids');
+    }
     const exercisesCollection = collection(this.firestore, 'exercises');
     const exercisesQuery = query(exercisesCollection, orderBy('difficulty'));
     this.unparsedExercises$ = collectionData(
@@ -36,7 +46,6 @@ export class FirestoreService {
       !!item && !this.isEmptyString(item)
     });
   }
-
   
   parseMultipleChoiceOptions(exercise: any): Map<DebuggingStage, Array<string>> | null {
     const multipleChoiceOptions: Map<DebuggingStage, Array<string>> = new Map<DebuggingStage, Array<string>>();
@@ -218,6 +227,32 @@ export class FirestoreService {
     const docRef = doc(this.firestore, "exercises", id);
     const docSnapshot = await getDoc(docRef);
     return docSnapshot.data() as DebuggingExercise | null; //How to get ID returning here?
+  }
+
+  authenticateStudent(docRef: DocumentReference, docSnapshot: DocumentSnapshot, id: string) {
+    const dataToAdd: any = {};
+    sessionStorage.setItem("studentId", id);
+    if (!docSnapshot.data()!["ip"]) {
+      if (!docSnapshot.data()!["dateFirstAccessed"]) {
+        dataToAdd["dateFirstAccessed"] = new Date();
+      }
+      this.http.get("https://api64.ipify.org?format=json").subscribe((result: any) => {
+        if (result["ip"]) {
+          dataToAdd["ip"] = result["ip"]; //Currently doesn't work; need to wait on this or write two separate updateDoc calls
+        }
+        updateDoc(docRef, dataToAdd);
+      });
+    }
+  }
+
+  async validateStudentId(id: string): Promise<boolean | null> {
+    const docRef = doc(this.studentIdsCollection!, id);
+    const docSnapshot = await getDoc(docRef);
+    if (docSnapshot.exists() && docSnapshot.data()) {
+      this.authenticateStudent(docRef, docSnapshot, id);
+    }
+    //If docSnapshot.exists() return true then add IP if this doesn't already exist (this will change each time but don't think I need to collect this every time)
+    return docSnapshot.exists();
   }
 
   getUnparsedExercises(): Observable<DebuggingExercise[] | null> {

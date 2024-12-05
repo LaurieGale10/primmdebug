@@ -1,9 +1,8 @@
 import { inject, Injectable } from '@angular/core';
-import { CollectionReference, DocumentReference, Firestore, addDoc, arrayUnion, collection, collectionData, doc, updateDoc, where} from '@angular/fire/firestore';
+import { CollectionReference, DocumentReference, Firestore, addDoc, arrayUnion, collection, updateDoc, where} from '@angular/fire/firestore';
 
-import { ChangeHelpPaneContentEvent, ExerciseLog, FocusType, HintPaneLog, StageLog, TestCasePaneLog, ToggleHelpPaneExpansionEvent, User, WindowFocusEvent, ExitLog } from './logging.model';
+import { ChangeHelpPaneContentEvent, ExerciseLog, FocusType, HintPaneLog, StageLog, TestCasePaneLog, ToggleHelpPaneExpansionEvent, WindowFocusEvent, ExitLog } from './logging.model';
 import { DebuggingStage } from '../types/types';
-import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment.development';
 
 
@@ -13,13 +12,11 @@ import { environment } from '../../environments/environment.development';
 export class LoggingService {
 
   private firestore: Firestore = inject(Firestore);
-  logChanges: boolean = environment.logChanges; //Perhaps configure as env variable for different types of deployment
   
   exerciseId: string | undefined;
   exerciseLogReference: DocumentReference | undefined;
 
   //Firestore collection references
-  usersCollection: CollectionReference | undefined;
   exerciseLogsCollection: CollectionReference | undefined;
   stageLogsCollection: CollectionReference | undefined;
 
@@ -40,46 +37,29 @@ export class LoggingService {
   currentDebuggingStage: DebuggingStage | null = null;
 
   //Properties whose state is maintained within the logging service
-  userId: string | null = null;
+  studentId: string | null = null;
   testCaseLogs: TestCasePaneLog | null = null;
   hintsLogs: HintPaneLog | null = null;
   windowFocusLogs: WindowFocusEvent[] = [];
 
-  constructor(private http: HttpClient) {
+  constructor() {
     if (!environment.mockData) {
       this.exerciseLogsCollection = collection(this.firestore, 'exercise_logs');
       this.stageLogsCollection = collection(this.firestore, 'stage_logs'); //TODO: Implement error handling here
-      this.usersCollection = collection(this.firestore, "users");
     }
     else {
       this.exerciseLogsCollection = collection(this.firestore, 'mock_exercise_logs');
       this.stageLogsCollection = collection(this.firestore, 'mock_stage_logs'); //TODO: Implement error handling here
-      this.usersCollection = collection(this.firestore, "mock_users");
     }
 
   }
-  
-  /**
-   * Adds a user to the Firestore and sets the object's id to be the returned id
-   */
-  createUserId() {
-    if (environment.logChanges && this.usersCollection) {
-      const user: User = {
-        dateCreated: new Date()
-      };
-      this.http.get("https://api64.ipify.org?format=json").subscribe((result: any) => {
-        if (result["ip"]) {
-          user.ip = result["ip"];
-        }
-        addDoc(this.usersCollection!, user).then((documentReference: DocumentReference) => {
-          this.userId = documentReference.id;
-        }); //What about if http request takes ages to load? Might be the chance that students move on without getting assigned an ID?
-      });
-    }
+
+  getStudentId(): string | null {
+    return this.studentId;
   }
 
-  getUserId(): string | null {
-    return environment.logChanges ? this.userId : null;
+  setStudentId(id: string) {
+    this.studentId = id;
   }
 
   setExerciseId(id: string) {
@@ -89,7 +69,7 @@ export class LoggingService {
   createExerciseLog() {
     if (environment.logChanges) {
       const exerciseLog: ExerciseLog = {
-        userId: this.userId!,
+        studentId: this.studentId!,
         exerciseId: this.exerciseId!,
         time: new Date(),
         stageLogIds: []
