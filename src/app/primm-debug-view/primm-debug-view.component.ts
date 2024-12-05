@@ -113,7 +113,6 @@ export class PrimmDebugViewComponent implements OnInit {
     })
     
     //TODO: Add error handling so undefined assertions (!s) can be made
-    console.log(this.loggingService.getStudentId())
     //Logic for when PRIMMDebug view page is being loaded anew (without routing from the homepage)
     if (environment.logChanges) {
       const studentId = this.loggingService.getStudentId() || sessionStorage.getItem("studentId");
