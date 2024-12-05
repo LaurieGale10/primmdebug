@@ -74,7 +74,6 @@ export class LoggingService {
         time: new Date(),
         stageLogIds: []
       }
-      console.log(exerciseLog)
       addDoc(this.exerciseLogsCollection!, exerciseLog).then((documentReference: DocumentReference) => {
         this.exerciseLogReference = documentReference;
       });
@@ -116,7 +115,6 @@ export class LoggingService {
         stageLog.hintPaneLogs = this.hintsLogs;
       }
       const docRef = await addDoc(this.stageLogsCollection!, stageLog);
-      console.log(this.exerciseLogReference)
       updateDoc(this.exerciseLogReference!, {
         stageLogIds: arrayUnion(docRef.id)
       });
