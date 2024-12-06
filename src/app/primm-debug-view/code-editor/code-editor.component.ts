@@ -17,7 +17,6 @@ import { expandBorderAnimation } from '../../animations/animations';
   animations: [
     trigger('expandCodeEditorPane', [
       transition('* => '+DebuggingStage.run, [expandBorderAnimation]),
-      transition('* => '+DebuggingStage.inspectCode, [expandBorderAnimation]),
       transition('* => '+DebuggingStage.fixError, [expandBorderAnimation]),
       transition('* => '+DebuggingStage.test, [expandBorderAnimation])
     ])

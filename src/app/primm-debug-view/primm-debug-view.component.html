@@ -201,9 +201,14 @@
                 <div *ngIf="!exercise.multipleChoiceOptions?.get(debuggingStage) || !useMultipleChoiceOptions" class="flex-column">
                     <mat-form-field class="reflect-prompt-input">
                         <mat-label>Write your thoughts</mat-label>
-                        <textarea matInput [(ngModel)]="userReflectionInput" [disabled]="!hasCodeEditorLoaded()" (keydown.enter)="onKeydown($event)" class="user-reflection-input" placeholder="{{reflectionInputPlaceholders.get(debuggingStage)}}"></textarea>
+                        <textarea matInput [(ngModel)]="userReflectionInput" [disabled]="!hasCodeEditorLoaded()" (keydown.enter)="onKeydown($event)" class="user-reflection-input" appearence="outline" placeholder="{{reflectionInputPlaceholders.get(debuggingStage)}}"></textarea>
                     </mat-form-field>
                 </div>
+
+                @if (debuggingStage == DebuggingStageType.predict) {
+                    <p class="shift-enter-tip">If you want to add a new line, hold Shift+Enter</p>
+                }
+
                 @if (debuggingStage == DebuggingStageType.inspectCode) {
                     @if (exercise.testCases) {
                         <app-test-case-display [testCases]="exercise.testCases"></app-test-case-display>
