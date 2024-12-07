@@ -91,6 +91,10 @@ export class LoggingService {
   }
 
   resetDebuggingStage() {
+    //Check if an exit log needs saving (if currentDebuggingStage was being actively tracked)
+    if (this.currentDebuggingStage) {
+      this.saveExitLog();
+    }
     this.currentDebuggingStage = null;
     this.overallStageCounter = 0;
     this.debuggingStageCounters.forEach((val, key) => {
