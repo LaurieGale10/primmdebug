@@ -21,7 +21,6 @@ export class ToHomeDialogComponent {
   constructor(@Inject(MAT_DIALOG_DATA) public data: DialogData, private router: Router, private loggingService: LoggingService) {}
 
   returnToHomepage(): void {
-    this.loggingService.saveExitLog();
     let route = '';
     this.router.navigate([route]);
   }

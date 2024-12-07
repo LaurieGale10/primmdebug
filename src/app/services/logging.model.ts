@@ -1,5 +1,5 @@
 export interface ExerciseLog {
-    userId: string,
+    studentId: string,
     exerciseId: string,
     time: Date,
     stageLogIds: string[],
@@ -62,10 +62,4 @@ export interface WindowFocusEvent {
 export enum FocusType {
     focusIn = "focus_in",
     focusOut = "focus_out"
-}
-
-export interface User {
-    dateCreated: Date,
-    ip?: string,
-    schoolId?: string //To be added post-hoc
 }

@@ -28,11 +28,13 @@ import { TestCaseDisplayComponent } from "./test-case-display/test-case-display.
 import { HintDisplayComponent } from "./hint-display/hint-display.component";
 
 import dedent from 'dedent';
+import { environment } from '../../environments/environment.development';
+import { StudentIdDialogComponent } from '../student-id-dialog/student-id-dialog.component';
 
 @Component({
   selector: 'app-primm-debug-view',
   standalone: true,
-  imports: [NgIf, NgFor, RouterOutlet, NgxConfettiExplosionComponent, MatButtonModule, MatInputModule, MatFormFieldModule, MatIconModule, FormsModule, MatRadioModule, MatToolbarModule, MatDividerModule, MatSelectModule, CodeEditorComponent, TestCaseDisplayComponent, HintDisplayComponent],
+  imports: [NgIf, NgxConfettiExplosionComponent, MatButtonModule, MatInputModule, MatFormFieldModule, MatIconModule, FormsModule, MatRadioModule, MatToolbarModule, MatDividerModule, MatSelectModule, CodeEditorComponent, TestCaseDisplayComponent, HintDisplayComponent],
   templateUrl: './primm-debug-view.component.html',
   styleUrl: './primm-debug-view.component.sass',
   animations: [
@@ -50,6 +52,7 @@ export class PrimmDebugViewComponent implements OnInit {
   codeEditor: CodeEditorComponent | undefined;
 
   exercise: DebuggingExercise | null = null;
+  exerciseId: string | null = null;
   predictRunIteration: number = 0;
   debuggingStage: DebuggingStage = DebuggingStage.predict;
   DebuggingStageType = DebuggingStage; //To allow reference to enum types in interpolation
@@ -76,9 +79,9 @@ export class PrimmDebugViewComponent implements OnInit {
   ]);
   debugStepQuestions: Map<DebuggingStage, string> = new Map<DebuggingStage, string>([
     [DebuggingStage.spotDefect, "What was the program meant to do, and what did it actually do?\n\nIf there's an error message, what is it telling you?"],
-    [DebuggingStage.inspectCode, dedent(`Try and work out what the cause of the error could be.\n\nRead the code, run it with different inputs, and write down your thoughts. Use the test cases if you need any help.`)],
+    [DebuggingStage.inspectCode, dedent(`Try and work out what the cause of the error could be.\n\nRead the code, run it with different inputs, and write down your thoughts. Use the test cases if you need help.`)],
     [DebuggingStage.findError, "Enter what line you think the error is located on."],
-    [DebuggingStage.fixError, "Now make the changes to the program that you think will fix the error. Then write down what you've changed."]
+    [DebuggingStage.fixError, "Now try and fix the error. Then write down what you've changed."]
   ]);
   reflectionInputPlaceholders: Map<DebuggingStage, string> = new Map<DebuggingStage, string>([
     [DebuggingStage.predict, "e.g. The program will output a sequence of cities in alphabetical order."],
@@ -94,32 +97,46 @@ export class PrimmDebugViewComponent implements OnInit {
 
   hasCodeEditorLoaded = signal(false);
 
-  //Variables for logging
   programLogs: any = null;
 
   constructor(private router: Router, private route: ActivatedRoute, private dialog: MatDialog, private firestoreService: FirestoreService, private loggingService: LoggingService) { };
 
   ngOnInit(): void {
-    //TODO: Add error handling so undefined assertions (!s) can be made
-    if (!this.loggingService.getUserId()) {
-      this.loggingService.createUserId();
-    }
-    window.addEventListener("visibilitychange", () => {
-      this.loggingService.addFocusWindowEvent(document.visibilityState === "hidden" ? FocusType.focusOut : FocusType.focusIn);
-    });
-    this.loggingService.setDebuggingStage(DebuggingStage.predict);
-
-    let exerciseId: any;
     this.route.queryParams.subscribe(params => {
-      exerciseId = params['id'];
-      this.loggingService.setExerciseId(exerciseId);
+      this.exerciseId = params['id'];
     });
 
-    this.firestoreService.getExerciseById(exerciseId).then(data => {
+    this.firestoreService.getExerciseById(this.exerciseId!).then(data => {
       if (data) {
         this.exercise = this.firestoreService.parseDebuggingExercise(data);
       }
     })
+    
+    //TODO: Add error handling so undefined assertions (!s) can be made
+    //Logic for when PRIMMDebug view page is being loaded anew (without routing from the homepage)
+    if (environment.logChanges) {
+      const studentId = this.loggingService.getStudentId() || sessionStorage.getItem("studentId");
+
+      if (!studentId) {
+        this.router.navigate(['/']);
+      } else {
+        if (!this.loggingService.getStudentId()) {
+          this.loggingService.setStudentId(studentId);
+        }
+        this.setupExerciseLogs();
+      }
+    }
+  }
+
+  /**
+   * Arranges all of the necessary logs on a user correctly entering a student ID or straightaway if they've previously entered a valid ID in their session
+   */
+  setupExerciseLogs() {
+    this.loggingService.setExerciseId(this.exerciseId!);
+    this.loggingService.setDebuggingStage(DebuggingStage.predict);
+    window.addEventListener("visibilitychange", () => {
+      this.loggingService.addFocusWindowEvent(document.visibilityState === "hidden" ? FocusType.focusOut : FocusType.focusIn);
+    });
     this.loggingService.createExerciseLog();
   }
 
@@ -187,10 +204,29 @@ export class PrimmDebugViewComponent implements OnInit {
    */
   passHintsToComponent(debuggingStage: DebuggingStage): string[] {
     const debuggingStageCounter: number = this.loggingService.getDebuggingStageCounter(debuggingStage);
-    if ((2 <= debuggingStageCounter) && (debuggingStageCounter <= 4)) {
-      return this.debuggingStage == DebuggingStage.inspectCode ? this.exercise!.hints!.get(DebuggingStage.findError)!.slice(0,debuggingStageCounter - 1) : this.exercise!.hints!.get(debuggingStage)!.slice(0,debuggingStageCounter - 1); //Function will only be called within HTML blocks where hints has been verified as truthy
+
+    // Handle the special case for inspect the code
+    if (debuggingStage == DebuggingStage.inspectCode) {
+      const findErrorHints = this.exercise!.hints!.get(DebuggingStage.findError);
+      const findErrorCounter = this.loggingService.getDebuggingStageCounter(DebuggingStage.findError);
+    
+      console.log(debuggingStageCounter)
+      if (findErrorHints && (debuggingStageCounter >= 2)) {
+        if ((findErrorCounter >= 2) && (findErrorCounter > debuggingStageCounter)) {
+          return findErrorHints.slice(0, findErrorCounter - 1);
+        }
+        return findErrorHints.slice(0, debuggingStageCounter - 1);
+      }
     }
+    
+    const stageHints = this.exercise!.hints!.get(debuggingStage);
+    if (stageHints && debuggingStageCounter >= 2) {
+      return stageHints.slice(0, debuggingStageCounter - 1);
+    }
+    
+    // Return an empty array if no conditions are met.
     return [];
+    
   }
 
   /**
@@ -314,7 +350,7 @@ export class PrimmDebugViewComponent implements OnInit {
 
   nextDebuggingStage() {
     this.loggingService.saveStageLog(this.createStageLog()).then((docRef: DocumentReference | null) => {
-      if (docRef && this.programLogs && this.programLogs.length > 1) {
+      if (docRef && this.programLogs && this.programLogs.length > 0) { //TODO: Ideally log program logs with stage logs to avoid having update permission of stage logs
         this.loggingService.addProgramLogsToStageLogs(docRef, this.programLogs!);
       }
       this.programLogs = null;
@@ -379,7 +415,7 @@ export class PrimmDebugViewComponent implements OnInit {
     const dialogRef = this.dialog.open(ToHomeDialogComponent, {
       data: {
         title: "Are you sure?",
-        content: "Are you sure you want to return to the homepage? All your progress on this exercise will be lost!"
+        content: "Are you sure you want to go back? All your progress on this exercise will be lost!"
       }
     });
   }
