@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { NgIf } from '@angular/common';
 import { ExerciseViewWidgetComponent } from "./exercise-view-widget/exercise-view-widget.component";
 import { DebuggingExercise } from '../services/debugging-exercise.model';
 
@@ -17,7 +16,7 @@ import { environment } from '../../environments/environment.development';
     standalone: true,
     templateUrl: './homepage.component.html',
     styleUrl: './homepage.component.sass',
-    imports: [NgIf, ExerciseViewWidgetComponent, MatIconModule, MatToolbarModule, MatButtonModule]
+    imports: [ExerciseViewWidgetComponent, MatIconModule, MatToolbarModule, MatButtonModule]
 })
 export class HomepageComponent implements OnInit {
 

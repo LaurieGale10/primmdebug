@@ -194,7 +194,7 @@
                 </div>
             }
 
-            @if ([DebuggingStageType.predict, DebuggingStageType.spotDefect, DebuggingStageType.inspectCode, DebuggingStageType.fixError, DebuggingStageType.modify].includes(debuggingStage) || debuggingStage == DebuggingStageType.findError && !exercise.lineContainingError) {
+            @if ([DebuggingStageType.predict, DebuggingStageType.spotDefect, DebuggingStageType.inspectCode, DebuggingStageType.fixError, DebuggingStageType.modify].includes(debuggingStage) || (debuggingStage == DebuggingStageType.findError && !exercise.lineContainingError)) {
                 <div *ngIf="exercise.multipleChoiceOptions?.get(debuggingStage) && useMultipleChoiceOptions" id="multiple-choice-options">
                     <mat-radio-group [(ngModel)]="userMultiChoiceInput" class="flex-column">
                     @for (option of this.exercise!.multipleChoiceOptions!.get(debuggingStage); track option) {
@@ -205,30 +205,31 @@
                 <div *ngIf="!exercise.multipleChoiceOptions?.get(debuggingStage) || !useMultipleChoiceOptions" class="flex-column">
                     <mat-form-field class="reflect-prompt-input">
                         <mat-label>Write your thoughts</mat-label>
-                        <textarea matInput [(ngModel)]="userReflectionInput" [disabled]="!hasCodeEditorLoaded()" (keydown.enter)="onKeydown($event)" class="user-reflection-input" placeholder="{{reflectionInputPlaceholders.get(debuggingStage)}}"></textarea>
+                        <textarea matInput [(ngModel)]="userReflectionInput" [disabled]="!hasCodeEditorLoaded()" (keydown.enter)="onKeydown($event)" class="user-reflection-input" appearence="outline" placeholder="{{reflectionInputPlaceholders.get(debuggingStage)}}"></textarea>
                     </mat-form-field>
                 </div>
+
+                @if (debuggingStage == DebuggingStageType.predict) {
+                    <p class="shift-enter-tip">If you want to add a new line, hold Shift+Enter</p>
+                }
+
                 @if (debuggingStage == DebuggingStageType.inspectCode) {
                     @if (exercise.testCases) {
                         <app-test-case-display [testCases]="exercise.testCases"></app-test-case-display>
                     }
                 }
-
-                @if (debuggingStage == DebuggingStageType.inspectCode && exercise.hints && exercise.hints.get(DebuggingStageType.findError)) {
-                    <app-hint-display [hints]="passHintsToComponent(debuggingStage)"></app-hint-display>
-                }
+            }
+            @if (exercise.hints && ([DebuggingStageType.inspectCode, DebuggingStageType.fixError].includes(debuggingStage) || (debuggingStage == DebuggingStageType.findError && foundErroneousLine == null))) {
+                <app-hint-display [hints]="passHintsToComponent(debuggingStage)"></app-hint-display>
+            }
+            @if (debuggingStage == DebuggingStageType.findError && exercise.lineContainingError && foundErroneousLine == null) {
+                <button mat-raised-button color="green" (click)="checkLineNumber()" [disabled]="!selectedLineNumber">Check my answer</button>
             }
             @if ([DebuggingStageType.predict, DebuggingStageType.spotDefect, DebuggingStageType.fixError].includes(debuggingStage) || (debuggingStage == DebuggingStageType.findError && !exercise.lineContainingError)) {
                 <button mat-raised-button color="green" (click)="nextDebuggingStage()" [disabled]="(exercise!.multipleChoiceOptions?.get(debuggingStage) && !userMultiChoiceInput && useMultipleChoiceOptions) || ((!useMultipleChoiceOptions || !exercise!.multipleChoiceOptions?.get(debuggingStage)) && (!userReflectionInput || userReflectionInput == ''))">{{debuggingStage == DebuggingStageType.predict ? "Let's find out" : debuggingStage == DebuggingStageType.fixError ? "Time to test!" : debuggingStage == DebuggingStageType.findError ? "Time to debug!" : "On to the next stage!"}}</button>
             }
             @if (debuggingStage == DebuggingStageType.inspectCode || debuggingStage == DebuggingStageType.modify) {
                 <button mat-raised-button color="green" (click)="nextDebuggingStage()">{{debuggingStage == DebuggingStageType.inspectCode ? "I'm ready to find the error" : "Onto the next stage"}}</button>
-            }
-            @else if (debuggingStage == DebuggingStageType.findError && foundErroneousLine == null) {
-                @if (exercise.hints && exercise.hints.get(DebuggingStageType.findError)) {
-                    <app-hint-display [hints]="passHintsToComponent(debuggingStage)"></app-hint-display>
-                }
-                <button mat-raised-button color="green" (click)="checkLineNumber()" [disabled]="!selectedLineNumber">Check my answer</button>
             }
             @else if (debuggingStage == DebuggingStageType.make) {
                 <button mat-raised-button (click)="returnToHomepage()" color="green" class="reflection-button">Move on to a different exercise</button>
