@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { DebuggingExercise } from '../../services/debugging-exercise.model';
+import { DebuggingExercise, Difficulty } from '../../services/debugging-exercise.model';
 import { Router } from '@angular/router';
 import { LimitStringPipe  } from '../../pipes/limit-string.pipe';
 
@@ -16,6 +16,8 @@ import { LimitStringPipe  } from '../../pipes/limit-string.pipe';
 export class ExerciseViewWidgetComponent {
 
   @Input() exerciseData: DebuggingExercise | null = null;
+
+  DifficultyType = Difficulty; //To allow reference to enum types in interpolation
 
   constructor(private router: Router) { };
 

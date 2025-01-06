@@ -6,14 +6,14 @@
         <div class="bottom-pane">
             @if (exerciseData?.difficulty) {
                 <div class="flex-row difficulty">
-                    <div *ngIf="exerciseData!.difficulty=='easy'" class="flex-row">
+                    <div *ngIf="exerciseData!.difficulty==DifficultyType.easy" class="flex-row">
                         <mat-icon>stars</mat-icon>
                     </div>
-                    <div *ngIf="exerciseData!.difficulty=='intermediate'" class="flex-row">
+                    <div *ngIf="exerciseData!.difficulty==DifficultyType.intermediate" class="flex-row">
                         <mat-icon>stars</mat-icon>
                         <mat-icon>stars</mat-icon>
                     </div>
-                    <div *ngIf="exerciseData!.difficulty=='hard'" class="flex-row">
+                    <div *ngIf="exerciseData!.difficulty==DifficultyType.hard" class="flex-row">
                         <mat-icon>stars</mat-icon>
                         <mat-icon>stars</mat-icon>
                         <mat-icon>stars</mat-icon>
