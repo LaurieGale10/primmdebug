@@ -29,12 +29,11 @@ import { HintDisplayComponent } from "./hint-display/hint-display.component";
 
 import dedent from 'dedent';
 import { environment } from '../../environments/environment.development';
-import { StudentIdDialogComponent } from '../student-id-dialog/student-id-dialog.component';
 
 @Component({
   selector: 'app-primm-debug-view',
   standalone: true,
-  imports: [NgIf, NgxConfettiExplosionComponent, MatButtonModule, MatInputModule, MatFormFieldModule, MatIconModule, FormsModule, MatRadioModule, MatToolbarModule, MatDividerModule, MatSelectModule, CodeEditorComponent, TestCaseDisplayComponent, HintDisplayComponent],
+  imports: [NgxConfettiExplosionComponent, MatButtonModule, MatInputModule, MatFormFieldModule, MatIconModule, FormsModule, MatRadioModule, MatToolbarModule, MatDividerModule, MatSelectModule, CodeEditorComponent, TestCaseDisplayComponent, HintDisplayComponent],
   templateUrl: './primm-debug-view.component.html',
   styleUrl: './primm-debug-view.component.sass',
   animations: [
