@@ -10,226 +10,242 @@
     </div>
 </mat-toolbar>
 
-<div *ngIf="exercise" class="page">
-    <h1><strong>{{exercise!.title}}</strong></h1>
+@if (exercise) {
+    <div class="page">
+        <h1><strong>{{exercise!.title}}</strong></h1>
 
-    <h3>Program Description</h3>
-    <p class="exercise-description">{{exercise!.description}}</p>
+        <h3>Program Description</h3>
+        <p class="exercise-description">{{exercise!.description}}</p>
 
-    <div class="code-reflection-split-display">
-        <div class="code-editor-display">
-            <app-code-editor #codeEditor [program]="this.exercise.program!" [debuggingStage]="debuggingStage" (runButtonPressed)="runButtonPressed($event)" (logsReceived)="onLogsReceived($event)" (codeEditorLoaded)="codeEditorLoaded($event)"></app-code-editor>
-        </div>
-
-        <mat-divider vertical></mat-divider>
-
-        <div [@expandReflectionPaneBorder]="debuggingStage" class="reflect-prompt-display">
-            <div *ngIf="debuggingStage == DebuggingStageType.predict">
-                <div class="reflect-prompt-display-title">
-                    <mat-icon class="predict-icon">psychology</mat-icon>
-                    <h2 *ngIf="exercise.testCases">Predict ({{predictRunIteration + 1}} of {{exercise!.testCases!.length > 0 ? exercise!.testCases!.length : 1}})</h2>
-                    <h2 *ngIf="!exercise.testCases">Predict (1 of 1)</h2>
-                </div>
-                @if (exercise.testCases) {
-                    @if (exercise.testCases![predictRunIteration].input && exercise.testCases![predictRunIteration].input!.length == 1) {
-                        <h4>What do you think will happen when you press run with the input value below?</h4>
-                    }
-                    @else if (exercise.testCases![predictRunIteration].input && exercise.testCases![predictRunIteration].input!.length > 1) {
-                        <h4>What do you think will happen when you press run with the input values below?</h4>
-                    }
-                    @for (inputValue of exercise.testCases![predictRunIteration].input; track inputValue) {
-                        <p class="test-case-display">{{inputValue}}</p>
-                    }
-                }
-                @else {
-                    <h4>What do you think will happen when you press run?</h4>
-                }
-                <h4>Make sure you <strong>read the program description</strong> first!</h4>
+        <div class="code-reflection-split-display">
+            <div class="code-editor-display">
+                <app-code-editor #codeEditor [program]="this.exercise.program!" [debuggingStage]="debuggingStage" (runButtonPressed)="runButtonPressed($event)" (logsReceived)="onLogsReceived($event)" (codeEditorLoaded)="codeEditorLoaded($event)"></app-code-editor>
             </div>
 
-            @if (debuggingStage == DebuggingStageType.run) {
-                <div>
-                    <div class="reflect-prompt-display-title">
-                        <mat-icon>settings</mat-icon>
-                        <h2>Run</h2>
-                    </div>
-                    @if (exercise.testCases) {
-                        @if (exercise.testCases![predictRunIteration].input && exercise.testCases![predictRunIteration].input!.length == 1) {
-                            <h4>Time to run the program! Use the input value below:</h4>
-                        }
-                        @else if (exercise.testCases![predictRunIteration].input && exercise.testCases![predictRunIteration].input!.length > 1) {
-                            <h4>Time to run the program! Use the input values below:</h4>
-                        }
-                        @for (inputValue of exercise.testCases![predictRunIteration].input; track inputValue) {
-                            <p class="test-case-display">{{inputValue}}</p>
-                        }
-                    }
-                    @else {
-                        <h4 *ngIf="!exercise?.testCases">Time to run the code! Have a go at running the program.</h4>
-                    }
-                </div>
-            }
+            <mat-divider vertical></mat-divider>
 
-            <div *ngIf="[DebuggingStageType.spotDefect, DebuggingStageType.inspectCode, DebuggingStageType.findError, DebuggingStageType.fixError].includes(debuggingStage)">
-                <div class="reflect-prompt-display-title">
-                    <mat-icon>search</mat-icon>
-                    <h2>{{debugStepNames.get(debuggingStage)}}</h2>
-                </div>
-                <h4 class="debug-stage-description">{{debugStepQuestions.get(debuggingStage)}}</h4>
-            </div>
-
-            @if (debuggingStage == DebuggingStageType.findError && exercise.lineContainingError) {
-                <mat-form-field class="reflection-prompt-input">
-                    <mat-label>Select line number</mat-label>
-                    <mat-select [(value)]="selectedLineNumber" [disabled]="foundErroneousLine != null">
-                        @for (lineNumber of originalNumberOfLines; track lineNumber) {
-                            <mat-option [value]="lineNumber">Line {{lineNumber}}</mat-option>
-                        }
-                    </mat-select>
-                </mat-form-field>
-
-                @if (foundErroneousLine === true) {
-                    <!--Ideally to appear with some animation-->
-                    <div class="correct-line-feedback">
-                        <mat-icon class="correct-line-tick">check_circle</mat-icon>
-                        <h4>Well done, you’ve found the line the error is on! Time to fix it...</h4>
-                    </div>
-                    <button mat-raised-button color="green" (click)="setDebuggingStageFromFindError(DebuggingStageType.fixError)" class="reflection-button">Fix the error</button>
-                }
-                @if (foundErroneousLine === false) {
-                    <h4>Line {{selectedLineNumber}} is not where the error is located, but that’s ok!</h4>
-                    <h4>Before you have another go, try re-inspecting the code again to see where the error is.</h4>
-                    <button mat-raised-button color="green" (click)="setDebuggingStageFromFindError(DebuggingStageType.inspectCode)" class="reflection-button">Re-inspect the code (recommended)</button>
-                    <button mat-raised-button color="green" (click)="setDebuggingStageFromFindError(DebuggingStageType.findError)" class="reflection-button">Enter another line number</button>
-                }
-            }
-
-            @if (debuggingStage == DebuggingStageType.test) {
-                <div class="flex-column">
-                    <div class="reflect-prompt-display-title">
-                        <mat-icon>psychology</mat-icon>
-                        <h2>Test</h2>
-                    </div>
-                    @if (exercise.testCases) {
-                        <h4>Now run the code and see what happens. Try the values you entered in the Predict stage to see if they work now.</h4>
-                        <app-test-case-display *ngIf="exercise.testCases" [testCases]="exercise.testCases"></app-test-case-display>
-                    }
-                    @else {
-                        <h4>Now run the code and see what happens.</h4>
-                    }
-                    <h4>Does the program now work as it should?</h4>
-    
-                    <div class="flex-column">
-                        <button mat-raised-button (click)="enterSuccessOfChanges(true)" class="reflection-button" color="green">Yes</button>
-                        <button mat-raised-button (click)="enterSuccessOfChanges(false)" class="reflection-button" color="green">No</button>
-                    </div>
-                </div>
-            }
-
-            @if (debuggingStage == DebuggingStageType.completedTest) {
-                <div class="flex-column">
-                    <div class="reflect-prompt-display-title">
-                        <mat-icon>next_plan</mat-icon>
-                        <h2>Next Steps</h2>
-                    </div>
-    
-                    @if (changesSuccessful) {
-                        <ngx-confetti-explosion></ngx-confetti-explosion>
-                        <div>
-                            <h4>Well done! You completed the challenge! Debugging isn't easy - give yourself a pat on the back.</h4>
-
-                            <div class="emoji-display-div">
-                                <h1 class="emoji-display-text">🥳</h1>
-                            </div>
-                            
-                            <h4>What would you like to do next?</h4>
-        
-                            <div class="flex-column">
-                                <button mat-raised-button (click)="setDebuggingStage(DebuggingStageType.modify)" class="reflection-button" color="green">Continue with PRIMM</button>
-                                <button mat-raised-button (click)="returnToHomepage()" class="reflection-button" color="green">Try another PRIMMDebug challenge</button>
-                            </div>
-                        </div>
-                    }
-    
-                    @if (!changesSuccessful) {
-                        <div>
-                            <h4>Don't worry, it's completely normal for debugging to take a few tries. Keep going!</h4>
-
-                            <div class="emoji-display-div">
-                                <h1 class="emoji-display-text">💪</h1>
-                            </div>
-
-                            <h4>What would you like to do next?</h4>
-        
-                            <div class="flex-column">
-                                <button mat-raised-button (click)="setDebuggingStage(DebuggingStageType.inspectCode)" class="reflection-button" color="green">Re-inspect the code</button>
-                                <button mat-raised-button (click)="returnToHomepage()" class="reflection-button" color="green">Try another PRIMMDebug challenge</button>
-                            </div>
-                        </div>
-                    }
-                </div>
-            }
-
-            @if (debuggingStage == DebuggingStageType.modify) {
-                <div>
-                    <div class="reflect-prompt-display-title">
-                        <mat-icon>edit</mat-icon>
-                        <h2>Modify</h2>
-                    </div>
-                    <h4>Now change the program so that it does something different. Write down what you've changed.</h4>
-                </div>
-            }
-
-            @if (debuggingStage == DebuggingStageType.make) {
-                <div>
-                    <div class="reflect-prompt-display-title">
-                        <mat-icon>emoji_objects</mat-icon> 
-                        <h2>Make</h2>
-                    </div>
-                    <h4>Now that you've modified your own program, move on to making your own version. Don't be afraid to clear the program!</h4>
-                </div>
-            }
-
-            @if ([DebuggingStageType.predict, DebuggingStageType.spotDefect, DebuggingStageType.inspectCode, DebuggingStageType.fixError, DebuggingStageType.modify].includes(debuggingStage) || (debuggingStage == DebuggingStageType.findError && !exercise.lineContainingError)) {
-                <div *ngIf="exercise.multipleChoiceOptions?.get(debuggingStage) && useMultipleChoiceOptions" id="multiple-choice-options">
-                    <mat-radio-group [(ngModel)]="userMultiChoiceInput" class="flex-column">
-                    @for (option of this.exercise!.multipleChoiceOptions!.get(debuggingStage); track option) {
-                        <mat-radio-button [value]="option">{{option}}</mat-radio-button>
-                    }
-                    </mat-radio-group>
-                </div>
-                <div *ngIf="!exercise.multipleChoiceOptions?.get(debuggingStage) || !useMultipleChoiceOptions" class="flex-column">
-                    <mat-form-field class="reflect-prompt-input">
-                        <mat-label>Write your thoughts</mat-label>
-                        <textarea matInput [(ngModel)]="userReflectionInput" [disabled]="!hasCodeEditorLoaded()" (keydown.enter)="onKeydown($event)" class="user-reflection-input" appearence="outline" placeholder="{{reflectionInputPlaceholders.get(debuggingStage)}}"></textarea>
-                    </mat-form-field>
-                </div>
-
+            <div [@expandReflectionPaneBorder]="debuggingStage" class="reflect-prompt-display">
                 @if (debuggingStage == DebuggingStageType.predict) {
-                    <p class="shift-enter-tip">If you want to add a new line, hold Shift+Enter</p>
+                    <div>
+                        <div class="reflect-prompt-display-title">
+                            <mat-icon class="predict-icon">psychology</mat-icon>
+                            @if (exercise.testCases) {
+                                <h2>Predict ({{predictRunIteration + 1}} of {{exercise!.testCases!.length > 0 ? exercise!.testCases!.length : 1}})</h2>
+                            }
+                            @else {
+                                <h2>Predict (1 of 1)</h2>
+                            }
+                        </div>
+                        @if (exercise.testCases) {
+                            @if (exercise.testCases![predictRunIteration].input && exercise.testCases![predictRunIteration].input!.length == 1) {
+                                <h4>What do you think will happen when you press run with the input value below?</h4>
+                            }
+                            @else if (exercise.testCases![predictRunIteration].input && exercise.testCases![predictRunIteration].input!.length > 1) {
+                                <h4>What do you think will happen when you press run with the input values below?</h4>
+                            }
+                            @for (inputValue of exercise.testCases![predictRunIteration].input; track inputValue) {
+                                <p class="test-case-display">{{inputValue}}</p>
+                            }
+                        }
+                        @else {
+                            <h4>What do you think will happen when you press run?</h4>
+                        }
+                        <h4>Make sure you <strong>read the program description</strong> first!</h4>
+                    </div>
                 }
 
-                @if (debuggingStage == DebuggingStageType.inspectCode) {
-                    @if (exercise.testCases) {
-                        <app-test-case-display [testCases]="exercise.testCases"></app-test-case-display>
+
+                @if (debuggingStage == DebuggingStageType.run) {
+                    <div>
+                        <div class="reflect-prompt-display-title">
+                            <mat-icon>settings</mat-icon>
+                            <h2>Run</h2>
+                        </div>
+                        @if (exercise.testCases) {
+                            @if (exercise.testCases![predictRunIteration].input && exercise.testCases![predictRunIteration].input!.length == 1) {
+                                <h4>Time to run the program! Use the input value below:</h4>
+                            }
+                            @else if (exercise.testCases![predictRunIteration].input && exercise.testCases![predictRunIteration].input!.length > 1) {
+                                <h4>Time to run the program! Use the input values below:</h4>
+                            }
+                            @for (inputValue of exercise.testCases![predictRunIteration].input; track inputValue) {
+                                <p class="test-case-display">{{inputValue}}</p>
+                            }
+                        }
+                        @else if (!exercise.testCases) {
+                            <h4>Time to run the code! Have a go at running the program.</h4>
+                        }
+                    </div>
+                }
+
+                @if ([DebuggingStageType.spotDefect, DebuggingStageType.inspectCode, DebuggingStageType.findError, DebuggingStageType.fixError].includes(debuggingStage)) {
+                    <div>
+                        <div class="reflect-prompt-display-title">
+                            <mat-icon>search</mat-icon>
+                            <h2>{{debugStepNames.get(debuggingStage)}}</h2>
+                        </div>
+                        <h4 class="debug-stage-description">{{debugStepQuestions.get(debuggingStage)}}</h4>
+                    </div>
+                }
+
+                @if (debuggingStage == DebuggingStageType.findError && exercise.lineContainingError) {
+                    <mat-form-field class="reflection-prompt-input">
+                        <mat-label>Select line number</mat-label>
+                        <mat-select [(value)]="selectedLineNumber" [disabled]="foundErroneousLine != null">
+                            @for (lineNumber of originalNumberOfLines; track lineNumber) {
+                                <mat-option [value]="lineNumber">Line {{lineNumber}}</mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+
+                    @if (foundErroneousLine === true) {
+                        <!--Ideally to appear with some animation-->
+                        <div class="correct-line-feedback">
+                            <mat-icon class="correct-line-tick">check_circle</mat-icon>
+                            <h4>Well done, you’ve found the line the error is on! Time to fix it...</h4>
+                        </div>
+                        <button mat-raised-button color="green" (click)="setDebuggingStageFromFindError(DebuggingStageType.fixError)" class="reflection-button">Fix the error</button>
+                    }
+                    @if (foundErroneousLine === false) {
+                        <h4>Line {{selectedLineNumber}} is not where the error is located, but that’s ok!</h4>
+                        <h4>Before you have another go, try re-inspecting the code again to see where the error is.</h4>
+                        <button mat-raised-button color="green" (click)="setDebuggingStageFromFindError(DebuggingStageType.inspectCode)" class="reflection-button">Re-inspect the code (recommended)</button>
+                        <button mat-raised-button color="green" (click)="setDebuggingStageFromFindError(DebuggingStageType.findError)" class="reflection-button">Enter another line number</button>
                     }
                 }
-            }
-            @if (exercise.hints && ([DebuggingStageType.inspectCode, DebuggingStageType.fixError].includes(debuggingStage) || (debuggingStage == DebuggingStageType.findError && foundErroneousLine == null))) {
-                <app-hint-display [hints]="passHintsToComponent(debuggingStage)"></app-hint-display>
-            }
-            @if (debuggingStage == DebuggingStageType.findError && exercise.lineContainingError && foundErroneousLine == null) {
-                <button mat-raised-button color="green" (click)="checkLineNumber()" [disabled]="!selectedLineNumber">Check my answer</button>
-            }
-            @if ([DebuggingStageType.predict, DebuggingStageType.spotDefect, DebuggingStageType.fixError].includes(debuggingStage) || (debuggingStage == DebuggingStageType.findError && !exercise.lineContainingError)) {
-                <button mat-raised-button color="green" (click)="nextDebuggingStage()" [disabled]="(exercise!.multipleChoiceOptions?.get(debuggingStage) && !userMultiChoiceInput && useMultipleChoiceOptions) || ((!useMultipleChoiceOptions || !exercise!.multipleChoiceOptions?.get(debuggingStage)) && (!userReflectionInput || userReflectionInput == ''))">{{debuggingStage == DebuggingStageType.predict ? "Let's find out" : debuggingStage == DebuggingStageType.fixError ? "Time to test!" : debuggingStage == DebuggingStageType.findError ? "Time to debug!" : "On to the next stage!"}}</button>
-            }
-            @if (debuggingStage == DebuggingStageType.inspectCode || debuggingStage == DebuggingStageType.modify) {
-                <button mat-raised-button color="green" (click)="nextDebuggingStage()">{{debuggingStage == DebuggingStageType.inspectCode ? "I'm ready to find the error" : "Onto the next stage"}}</button>
-            }
-            @else if (debuggingStage == DebuggingStageType.make) {
-                <button mat-raised-button (click)="returnToHomepage()" color="green" class="reflection-button">Move on to a different exercise</button>
-            }
+
+                @if (debuggingStage == DebuggingStageType.test) {
+                    <div class="flex-column">
+                        <div class="reflect-prompt-display-title">
+                            <mat-icon>psychology</mat-icon>
+                            <h2>Test</h2>
+                        </div>
+                        @if (exercise.testCases) {
+                            <h4>Now run the code and see what happens. Try the values you entered in the Predict stage to see if they work now.</h4>
+                            @if (exercise.testCases) {
+                                <app-test-case-display [testCases]="exercise.testCases"></app-test-case-display>
+                            }
+                        }
+                        @else {
+                            <h4>Now run the code and see what happens.</h4>
+                        }
+                        <h4>Does the program now work as it should?</h4>
+        
+                        <div class="flex-column">
+                            <button mat-raised-button (click)="enterSuccessOfChanges(true)" class="reflection-button" color="green">Yes</button>
+                            <button mat-raised-button (click)="enterSuccessOfChanges(false)" class="reflection-button" color="green">No</button>
+                        </div>
+                    </div>
+                }
+
+                @if (debuggingStage == DebuggingStageType.completedTest) {
+                    <div class="flex-column">
+                        <div class="reflect-prompt-display-title">
+                            <mat-icon>next_plan</mat-icon>
+                            <h2>Next Steps</h2>
+                        </div>
+        
+                        @if (changesSuccessful) {
+                            <ngx-confetti-explosion></ngx-confetti-explosion>
+                            <div>
+                                <h4>Well done! You completed the challenge! Debugging isn't easy - give yourself a pat on the back.</h4>
+
+                                <div class="emoji-display-div">
+                                    <h1 class="emoji-display-text">🥳</h1>
+                                </div>
+                                
+                                <h4>What would you like to do next?</h4>
+            
+                                <div class="flex-column">
+                                    <button mat-raised-button (click)="setDebuggingStage(DebuggingStageType.modify)" class="reflection-button" color="green">Continue with PRIMM</button>
+                                    <button mat-raised-button (click)="returnToHomepage()" class="reflection-button" color="green">Try another PRIMMDebug challenge</button>
+                                </div>
+                            </div>
+                        }
+        
+                        @if (!changesSuccessful) {
+                            <div>
+                                <h4>Don't worry, it's completely normal for debugging to take a few tries. Keep going!</h4>
+
+                                <div class="emoji-display-div">
+                                    <h1 class="emoji-display-text">💪</h1>
+                                </div>
+
+                                <h4>What would you like to do next?</h4>
+            
+                                <div class="flex-column">
+                                    <button mat-raised-button (click)="setDebuggingStage(DebuggingStageType.inspectCode)" class="reflection-button" color="green">Re-inspect the code (recommended)</button>
+                                    <button mat-raised-button (click)="setDebuggingStage(DebuggingStageType.fixError)" class="reflection-button" color="green">Try another fix</button>
+                                    <button mat-raised-button (click)="returnToHomepage()" class="reflection-button" color="green">Try another PRIMMDebug challenge</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+
+                @if (debuggingStage == DebuggingStageType.modify) {
+                    <div>
+                        <div class="reflect-prompt-display-title">
+                            <mat-icon>edit</mat-icon>
+                            <h2>Modify</h2>
+                        </div>
+                        <h4>Now change the program so that it does something different. Write down what you've changed.</h4>
+                    </div>
+                }
+
+                @if (debuggingStage == DebuggingStageType.make) {
+                    <div>
+                        <div class="reflect-prompt-display-title">
+                            <mat-icon>emoji_objects</mat-icon> 
+                            <h2>Make</h2>
+                        </div>
+                        <h4>Now that you've modified your own program, move on to making your own version. Don't be afraid to clear the program!</h4>
+                    </div>
+                }
+
+                @if ([DebuggingStageType.predict, DebuggingStageType.spotDefect, DebuggingStageType.inspectCode, DebuggingStageType.fixError, DebuggingStageType.modify].includes(debuggingStage) || (debuggingStage == DebuggingStageType.findError && !exercise.lineContainingError)) {
+                    @if (exercise.multipleChoiceOptions?.get(debuggingStage) && useMultipleChoiceOptions) {
+                        <div id="multiple-choice-options">
+                            <mat-radio-group [(ngModel)]="userMultiChoiceInput" class="flex-column">
+                            @for (option of this.exercise!.multipleChoiceOptions!.get(debuggingStage); track option) {
+                                <mat-radio-button [value]="option">{{option}}</mat-radio-button>
+                            }
+                            </mat-radio-group>
+                        </div>
+                    }
+                    @else {
+                        <div class="flex-column">
+                            <mat-form-field class="reflect-prompt-input">
+                                <mat-label>Write your thoughts</mat-label>
+                                <textarea matInput [(ngModel)]="userReflectionInput" [disabled]="!hasCodeEditorLoaded()" (keydown.enter)="onKeydown($event)" class="user-reflection-input" appearence="outline" placeholder="{{reflectionInputPlaceholders.get(debuggingStage)}}"></textarea>
+                            </mat-form-field>
+                        </div>
+                    }
+
+                    <p class="shift-enter-tip">If you want to add a new line, hold Shift+Enter</p>
+
+                    @if (debuggingStage == DebuggingStageType.inspectCode) {
+                        @if (exercise.testCases) {
+                            <app-test-case-display [testCases]="exercise.testCases"></app-test-case-display>
+                        }
+                    }
+                }
+                @if (exercise.hints && ([DebuggingStageType.inspectCode, DebuggingStageType.fixError].includes(debuggingStage) || (debuggingStage == DebuggingStageType.findError && foundErroneousLine == null))) {
+                    <app-hint-display [hints]="passHintsToComponent(debuggingStage)"></app-hint-display>
+                }
+                @if (debuggingStage == DebuggingStageType.findError && exercise.lineContainingError && foundErroneousLine == null) {
+                    <button mat-raised-button color="green" (click)="checkLineNumber()" [disabled]="!selectedLineNumber">Check my answer</button>
+                }
+                @if ([DebuggingStageType.predict, DebuggingStageType.spotDefect, DebuggingStageType.fixError].includes(debuggingStage) || (debuggingStage == DebuggingStageType.findError && !exercise.lineContainingError)) {
+                    <button mat-raised-button color="green" (click)="nextDebuggingStage()" [disabled]="(exercise!.multipleChoiceOptions?.get(debuggingStage) && !userMultiChoiceInput && useMultipleChoiceOptions) || ((!useMultipleChoiceOptions || !exercise!.multipleChoiceOptions?.get(debuggingStage)) && (!userReflectionInput || userReflectionInput == ''))">{{debuggingStage == DebuggingStageType.predict ? "Let's find out" : debuggingStage == DebuggingStageType.fixError ? "Time to test!" : debuggingStage == DebuggingStageType.findError ? "Time to debug!" : "On to the next stage!"}}</button>
+                }
+                @if (debuggingStage == DebuggingStageType.inspectCode || debuggingStage == DebuggingStageType.modify) {
+                    <button mat-raised-button color="green" (click)="nextDebuggingStage()">{{debuggingStage == DebuggingStageType.inspectCode ? "I'm ready to find the error" : "Onto the next stage"}}</button>
+                }
+                @else if (debuggingStage == DebuggingStageType.make) {
+                    <button mat-raised-button (click)="returnToHomepage()" color="green" class="reflection-button">Move on to a different exercise</button>
+                }
+            </div>
         </div>
     </div>
-</div>
+}

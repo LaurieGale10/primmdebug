@@ -269,6 +269,7 @@ export class PrimmDebugViewComponent implements OnInit {
         break;
       }
       case DebuggingStage.fixError: {
+        this.resetCodeInEditor();
         this.sendToggleReadOnlyCode(false);
         break;
       }
