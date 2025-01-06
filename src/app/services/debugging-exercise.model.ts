@@ -10,7 +10,8 @@ export interface DebuggingExercise {
     difficulty?: string, //This should be an enum
     language?: string,
     lineContainingError?: number,
-    hints?: Map<DebuggingStage, string[]>
+    hints?: Map<DebuggingStage, string[]>,
+    modifyText?: string
 }
 
 export interface TestCase {

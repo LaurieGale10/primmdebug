@@ -165,6 +165,10 @@ export class FirestoreService {
     }
     return null;
   }
+
+  parseModifyText(exercise: any): string | null {
+    return exercise["modify_text"] ? exercise["modify_text"] : null;
+  }
   
   /**
    * Checks whether debugging exercises contain the necessary information required for a valid debugging exercise.
@@ -183,6 +187,7 @@ export class FirestoreService {
       const language: string | null = this.parseLanguage(unparsedExercise);
       const lineContainingError: number | null = this.parseLineContainingError(unparsedExercise);
       const hints: Map<DebuggingStage, string[]> | null = this.parseHints(unparsedExercise);
+      const modifyText: string | null = this.parseModifyText(unparsedExercise);
       const parsedExercise: DebuggingExercise = {
         id: unparsedExercise["id"],
         title: unparsedExercise["title"],
@@ -206,6 +211,10 @@ export class FirestoreService {
       }
       if (hints) {
         parsedExercise.hints = hints;
+      }
+      if (modifyText) {
+        console.log(modifyText);
+        parsedExercise.modifyText = modifyText;
       }
       return parsedExercise;
     }
