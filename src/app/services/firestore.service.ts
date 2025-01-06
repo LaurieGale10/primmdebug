@@ -3,7 +3,7 @@ import { Firestore, collection, collectionData, doc, getDoc, where} from '@angul
 import { Observable } from 'rxjs';
 import dedent from 'dedent';
 
-import { DebuggingExercise, TestCase } from './debugging-exercise.model';
+import { DebuggingExercise, Difficulty, TestCase } from './debugging-exercise.model';
 import { DebuggingStage } from '../types/types';
 import { CollectionReference, DocumentReference, DocumentSnapshot, orderBy, query, updateDoc } from 'firebase/firestore';
 import { WhitespacePreserverPipe } from '../pipes/whitespace-preserver.pipe';
@@ -88,16 +88,16 @@ export class FirestoreService {
     return multipleChoiceOptions.size > 0 ? multipleChoiceOptions : null; 
   }
 
-  parseDifficulty(exercise: any): string | null {
+  parseDifficulty(exercise: any): Difficulty | null {
     if (exercise["difficulty"]) {
       const difficulty: number = exercise["difficulty"];
       switch (difficulty) {
         case 1:
-          return "easy";
+          return Difficulty.easy;
         case 2:
-          return "intermediate";
+          return Difficulty.intermediate;
         case 3:
-          return "hard";
+          return Difficulty.hard;
       }
     }
     return null;
@@ -165,6 +165,10 @@ export class FirestoreService {
     }
     return null;
   }
+
+  parseModifyText(exercise: any): string | null {
+    return exercise["modify_text"] ? exercise["modify_text"] : null;
+  }
   
   /**
    * Checks whether debugging exercises contain the necessary information required for a valid debugging exercise.
@@ -178,11 +182,12 @@ export class FirestoreService {
   parseDebuggingExercise(unparsedExercise: any): DebuggingExercise | null {
     if (this.exerciseContainsNecessaryData(unparsedExercise)) {
       const multiChoiceOptions: Map<DebuggingStage, string[]> | null = this.parseMultipleChoiceOptions(unparsedExercise);
-      const difficulty: string | null = this.parseDifficulty(unparsedExercise);
+      const difficulty: Difficulty | null = this.parseDifficulty(unparsedExercise);
       const testCases: TestCase[] | null = this.parseTestCases(unparsedExercise);
       const language: string | null = this.parseLanguage(unparsedExercise);
       const lineContainingError: number | null = this.parseLineContainingError(unparsedExercise);
       const hints: Map<DebuggingStage, string[]> | null = this.parseHints(unparsedExercise);
+      const modifyText: string | null = this.parseModifyText(unparsedExercise);
       const parsedExercise: DebuggingExercise = {
         id: unparsedExercise["id"],
         title: unparsedExercise["title"],
@@ -206,6 +211,10 @@ export class FirestoreService {
       }
       if (hints) {
         parsedExercise.hints = hints;
+      }
+      if (modifyText) {
+        console.log(modifyText);
+        parsedExercise.modifyText = modifyText;
       }
       return parsedExercise;
     }

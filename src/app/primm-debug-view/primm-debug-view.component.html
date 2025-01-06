@@ -193,7 +193,12 @@
                             <mat-icon>edit</mat-icon>
                             <h2>Modify</h2>
                         </div>
-                        <h4>Now change the program so that it does something different. Write down what you've changed.</h4>
+                        @if (exercise.modifyText) {
+                            <h4>{{exercise.modifyText}} Write down what you've changed.</h4>
+                        }
+                        @else {
+                            <h4>Now change the program so that it does something different. Write down what you've changed.</h4>
+                        }
                     </div>
                 }
 
