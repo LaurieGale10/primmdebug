@@ -213,7 +213,6 @@ export class FirestoreService {
         parsedExercise.hints = hints;
       }
       if (modifyText) {
-        console.log(modifyText);
         parsedExercise.modifyText = modifyText;
       }
       return parsedExercise;
@@ -262,6 +261,18 @@ export class FirestoreService {
     }
     //If docSnapshot.exists() return true then add IP if this doesn't already exist (this will change each time but don't think I need to collect this every time)
     return docSnapshot.exists();
+  }
+
+  async getStudentSchool(studentId: string): Promise<string | null> {
+    if (environment.logChanges) {
+      const studentIdDbName: string = environment.mockData ? "mock_student_ids" : "student_ids";
+      const docRef = doc(this.firestore, studentIdDbName, studentId);
+      const docSnapshot = await getDoc(docRef);
+      if (docSnapshot.exists() && docSnapshot.data()) {
+        return docSnapshot.data()["school"];
+      }
+    }
+    return null;
   }
 
   getUnparsedExercises(): Observable<DebuggingExercise[] | null> {

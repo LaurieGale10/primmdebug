@@ -37,8 +37,24 @@ export class HomepageComponent implements OnInit {
         }
         else {
           this.loggingService.setStudentId(sessionStorage.getItem("studentId")!);
+          this.firestoreService.getStudentSchool(this.loggingService.getStudentId()!).then((school) => {
+            console.log(school)
+            if (school && environment.surveyDates.has(school)) {
+              const surveyStartDate: Date = environment.surveyDates.get(school)!.get("startDate")!;
+              const surveyEndDate: Date = environment.surveyDates.get(school)!.get("endDate")!;
+              const now: Date = new Date();
+              if (now >= surveyStartDate && now <= surveyEndDate) {
+                console.log("Displaying survey!!")
+              }
+            }
+
+          });
         }
       }
+    }
+
+    openSurvey() {
+      window.open(environment.surveyLink+"?student_id="+this.loggingService.getStudentId(), "_blank");
     }
 
     openToStudentDialog() {
