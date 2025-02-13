@@ -1,8 +1,9 @@
 <mat-toolbar class="title-pane">
     <div class="title-text">
-        <h1>PRIMMDebug</h1>
+        <h1>PRIMMDebug (Research Version)</h1>
         <mat-icon class="bug-icon">bug_report</mat-icon>
     </div>
+
     @if (displaySurveyButton) {
         <button mat-raised-button color="grey" class="button-display" (click)="openSurvey()">
             <div class="survey-text">
@@ -11,7 +12,6 @@
             </div>
         </button>
     }
-
 </mat-toolbar>
 
 <!--<div *ngIf="exercises">-->

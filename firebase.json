@@ -4,7 +4,7 @@
     "indexes": "firestore.indexes.json"
   },
   "hosting": {
-    "target": "main",
+    "target": "primmdebug-research",
     "public": "dist/debug-challenger/browser",
     "ignore": [
       "firebase.json",
