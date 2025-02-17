@@ -65,7 +65,7 @@ export class PrimmDebugViewComponent implements OnInit {
     [DebuggingStage.modify, []]
   ]); //How will I go about saving this information to a database? Create a separate method for doing this? JSONify this?
 
-  changesSuccessful: boolean | undefined;
+  changesSuccessful: boolean | null = null;
   useMultipleChoiceOptions: boolean = false;
 
   userReflectionInput: string | null = null;
@@ -341,6 +341,9 @@ export class PrimmDebugViewComponent implements OnInit {
       stageLog.response = "Line "+this.selectedLineNumber;
       stageLog.correct = this.foundErroneousLine!;
     }
+    if (this.debuggingStage == DebuggingStage.test) {
+      stageLog.correct = this.changesSuccessful!;
+    }
     this.codeEditor!.sendMessage({
       type: "logs",
       timestamp: Date.now()
@@ -422,7 +425,6 @@ export class PrimmDebugViewComponent implements OnInit {
 
   returnToHomepage() {
     let route = '';
-    this.loggingService.saveExitLog();
     this.router.navigate([route]);
   }
 
