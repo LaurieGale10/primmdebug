@@ -41,32 +41,10 @@ export class HomepageComponent implements OnInit {
           this.loggingService.setStudentId(sessionStorage.getItem("studentId")!);
         }
       }
-      this.verifyDisplayStudentButton();
-    }
-
-    verifyDisplayStudentButton() {
-      if (environment.logChanges && this.loggingService.getStudentId()) {
-        this.firestoreService.getStudentSchool(this.loggingService.getStudentId()!).then((school) => {
-          if (school && environment.surveyDates.has(school)) {
-            const surveyStartDate: Date = environment.surveyDates.get(school)!.get("startDate")!;
-            const surveyEndDate: Date = environment.surveyDates.get(school)!.get("endDate")!;
-            const now: Date = new Date();
-            if (now >= surveyStartDate && now <= surveyEndDate) {
-              this.displaySurveyButton = true;
-            }
-          }
-        });
-      }
-    }
-
-    openSurvey() {
-      window.open(environment.surveyLink+"?student_id="+this.loggingService.getStudentId(), "_blank");
     }
 
     openToStudentDialog() {
-      const dialogRef = this.dialog.open(StudentIdDialogComponent, {disableClose: true}).afterClosed().subscribe(result => {
-        this.verifyDisplayStudentButton();
-      });
+      const dialogRef = this.dialog.open(StudentIdDialogComponent, {disableClose: true});
     }
 
 }
