@@ -17,3 +17,7 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 Pedagogical/technical/UX suggestions are welcome! Just open up an [issue](https://github.com/LaurieGale10/primmdebug/issues) and tag it appropriately.
 
 Pull requests are welcome but unlikely to be incorporated until September 2025.
+
+## License
+
+This repository is licensed under the terms of the Apache 2.0 license.
