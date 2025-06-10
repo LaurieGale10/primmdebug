@@ -20,4 +20,4 @@ Pull requests are welcome but unlikely to be incorporated until September 2025.
 
 ## License
 
-This repository is licensed under the terms of the Apache 2.0 license.
+This repository is licensed under the terms of the [Apache 2.0 license](https://github.com/LaurieGale10/primmdebug/blob/main/LICENSE.md).
