@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ExerciseViewWidgetComponent } from "./exercise-view-widget/exercise-view-widget.component";
+import { ToolbarComponent } from '../toolbar/toolbar.component';
 import { DebuggingExercise } from '../services/debugging-exercise.model';
 
 import {MatIconModule} from '@angular/material/icon';
-import {MatToolbarModule} from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { FirestoreService } from '../services/firestore.service';
 import { LoggingService } from '../services/logging.service';
@@ -16,7 +16,7 @@ import { environment } from '../../environments/environment.development';
     standalone: true,
     templateUrl: './homepage.component.html',
     styleUrl: './homepage.component.sass',
-    imports: [ExerciseViewWidgetComponent, MatIconModule, MatToolbarModule, MatButtonModule]
+    imports: [ExerciseViewWidgetComponent, ToolbarComponent, MatIconModule, MatButtonModule]
 })
 export class HomepageComponent implements OnInit {
 

@@ -1,14 +1,4 @@
-<mat-toolbar class="title-pane">
-    <div class="title-text">
-        <h1>PRIMMDebug</h1>
-        <mat-icon class="bug-icon">bug_report</mat-icon>
-    </div>
-    <div class="title-text">
-        <button mat-icon-button (click)="openToHomeDialog()">
-            <mat-icon>home</mat-icon>
-        </button>
-    </div>
-</mat-toolbar>
+<app-toolbar [displayHomeButton]="true"></app-toolbar>
 
 @if (exercise) {
     <div class="page">

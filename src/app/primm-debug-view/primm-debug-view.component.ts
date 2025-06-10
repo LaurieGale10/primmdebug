@@ -14,11 +14,9 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {FormsModule} from '@angular/forms';
 import {MatRadioModule} from '@angular/material/radio';
-import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatSelectModule} from '@angular/material/select';
 
-import { ToHomeDialogComponent } from './to-home-dialog/to-home-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { FirestoreService } from '../services/firestore.service';
 import { CodeEditorComponent } from "./code-editor/code-editor.component";
@@ -26,6 +24,7 @@ import { LoggingService } from '../services/logging.service';
 import { ExerciseLog, FocusType, StageLog } from '../services/logging.model';
 import { TestCaseDisplayComponent } from "./test-case-display/test-case-display.component";
 import { HintDisplayComponent } from "./hint-display/hint-display.component";
+import { ToolbarComponent } from '../toolbar/toolbar.component';
 
 import dedent from 'dedent';
 import { environment } from '../../environments/environment.development';
@@ -33,7 +32,7 @@ import { environment } from '../../environments/environment.development';
 @Component({
   selector: 'app-primm-debug-view',
   standalone: true,
-  imports: [NgxConfettiExplosionComponent, MatButtonModule, MatInputModule, MatFormFieldModule, MatIconModule, FormsModule, MatRadioModule, MatToolbarModule, MatDividerModule, MatSelectModule, CodeEditorComponent, TestCaseDisplayComponent, HintDisplayComponent],
+  imports: [NgxConfettiExplosionComponent, MatButtonModule, MatInputModule, MatFormFieldModule, MatIconModule, FormsModule, MatRadioModule, MatDividerModule, MatSelectModule, CodeEditorComponent, TestCaseDisplayComponent, HintDisplayComponent, ToolbarComponent],
   templateUrl: './primm-debug-view.component.html',
   styleUrl: './primm-debug-view.component.sass',
   animations: [
@@ -412,15 +411,6 @@ export class PrimmDebugViewComponent implements OnInit {
 
   retryExercise() {
     this.resetPredictUI();
-  }
-
-  openToHomeDialog() {
-    const dialogRef = this.dialog.open(ToHomeDialogComponent, {
-      data: {
-        title: "Are you sure?",
-        content: "Are you sure you want to go back? All your progress on this exercise will be lost!"
-      }
-    });
   }
 
   returnToHomepage() {
