@@ -188,7 +188,7 @@
 
                 <!--Where any additional elements are displayed (e.g., test cases and hints)-->
                 <div class="articulation-pane--additional-info">
-                    @if (exercise.testCases && (debuggingStage == DebuggingStageType.inspectCode || debuggingStage == DebuggingStageType.test)) {
+                    @if (exercise.testCases && [DebuggingStageType.spotDefect, DebuggingStageType.inspectCode, debuggingStage == DebuggingStageType.test].includes(debuggingStage)) {
                         <app-test-case-display [testCases]="exercise.testCases" [studentPredictions]="studentResponses.get(DebuggingStageType.predict)"></app-test-case-display>
                     }
                     @if (exercise.hints && ([DebuggingStageType.inspectCode, DebuggingStageType.fixError].includes(debuggingStage) || (debuggingStage == DebuggingStageType.findError && foundErroneousLine == null))) {
