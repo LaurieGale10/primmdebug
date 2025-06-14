@@ -2,7 +2,7 @@ import { Component, OnInit, signal, ViewChild } from '@angular/core';
 import { NgIf, NgFor } from '@angular/common';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { DebuggingStage } from '../types/types';
-import { DebuggingExercise } from '../services/debugging-exercise.model';
+import { DebuggingExercise, TestCase } from '../services/debugging-exercise.model';
 import { DocumentReference } from '@angular/fire/firestore';
 import { trigger, transition } from '@angular/animations';
 import { expandBorderAnimation } from '../animations/animations';
@@ -89,7 +89,6 @@ export class PrimmDebugViewComponent implements OnInit {
     [DebuggingStage.findError, "e.g. The equals sign on line 3."],
     [DebuggingStage.fixError, "e.g. Added a colon to the end of the while loop."]
   ])
-  testCaseOutputs: Map<string, string> = new Map<string, string>();
   originalNumberOfLines: number[] | undefined;
   selectedLineNumber: number | undefined;
   foundErroneousLine: boolean | null = null;
@@ -145,6 +144,10 @@ export class PrimmDebugViewComponent implements OnInit {
       this.nextDebuggingStage();
     }
     return false;
+  }
+
+  testCasesContainInputs(testCases: TestCase[]): boolean {
+    return testCases.some(testCase => testCase.input && testCase.input.length > 0);
   }
 
   codeEditorLoaded(event: void) {
@@ -224,7 +227,6 @@ export class PrimmDebugViewComponent implements OnInit {
     
     // Return an empty array if no conditions are met.
     return [];
-    
   }
 
   /**
@@ -293,7 +295,6 @@ export class PrimmDebugViewComponent implements OnInit {
   saveStudentResponse(response: string) {
     const currentList: string[] = this.studentResponses.get(this.debuggingStage)!;
     currentList.push(response);
-    console.log(this.studentResponses)
   }
 
   /**
@@ -371,7 +372,7 @@ export class PrimmDebugViewComponent implements OnInit {
         break;
       }
       case DebuggingStage.run: {
-        if (this.exercise?.testCases && this.predictRunIteration < this.exercise?.testCases.length) {
+        if (this.predictRunIteration < this.exercise!.testCases!.length) {
           this.setDebuggingStage(DebuggingStage.predict);
         }
         else {

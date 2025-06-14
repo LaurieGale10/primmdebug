@@ -18,8 +18,10 @@
     <h3>Your prediction</h3>
     <p><em>{{studentPredictions![testCaseIndex]}}</em></p>
 
-    <h3>Expected output</h3>
-    <p class="test-case-display">"{{testCases![testCaseIndex].expected | whitespacePreserver}}"</p>
+    @if (testCases![testCaseIndex].expected) {
+        <h3>Expected output</h3>
+        <p class="test-case-display">"{{testCases![testCaseIndex].expected! | whitespacePreserver}}"</p>
+    }
 
     @if (testCases![testCaseIndex].actual) {
         <h3>Actual output</h3>

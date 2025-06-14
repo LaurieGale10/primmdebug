@@ -19,12 +19,8 @@
                     <!--Icon and title of articulation prompt-->
                     @if (debuggingStage == DebuggingStageType.predict) {
                         <mat-icon class="predict-icon">psychology</mat-icon>
-                        @if (exercise.testCases) {
-                            <h2>Predict ({{predictRunIteration + 1}} of {{exercise!.testCases!.length > 0 ? exercise!.testCases!.length : 1}})</h2>
-                        }
-                        @else {
-                            <h2>Predict (1 of 1)</h2>
-                        }
+                        <h2>Predict ({{predictRunIteration + 1}} of {{exercise!.testCases!.length > 0 ? exercise!.testCases!.length : 1}})</h2>
+
                     }
                     @else if (debuggingStage == DebuggingStageType.run) {
                         <mat-icon>settings</mat-icon>
@@ -55,11 +51,11 @@
                 <!--Prompt text specific to PRIMMDebug stage-->
                 <div class="articulation-pane-stage--prompt">
                     @if (debuggingStage == DebuggingStageType.predict) {
-                        @if (exercise.testCases) {
-                            @if (exercise.testCases![predictRunIteration].input && exercise.testCases![predictRunIteration].input!.length == 1) {
+                        @if (exercise.testCases![predictRunIteration].input) {
+                            @if (exercise.testCases![predictRunIteration].input!.length == 1) {
                                 <h4>What do you think will happen when you press run with the input value below?</h4>
                             }
-                            @else if (exercise.testCases![predictRunIteration].input && exercise.testCases![predictRunIteration].input!.length > 1) {
+                            @else if (exercise.testCases![predictRunIteration].input!.length > 1) {
                                 <h4>What do you think will happen when you press run with the input values below?</h4>
                             }
                         }
@@ -69,18 +65,18 @@
                         <h4>Make sure you <strong>read the program description</strong> first!</h4>
                     }
                     @else if (debuggingStage == DebuggingStageType.run) {
-                        @if (exercise.testCases && exercise.testCases![predictRunIteration].input) {
+                        @if (exercise.testCases![predictRunIteration].input) {
                             @if (exercise.testCases![predictRunIteration].input!.length == 1) {
                                 <h4>Time to run the program! Use the input value below:</h4>
                             }
-                            @else if ( exercise.testCases![predictRunIteration].input!.length > 1) {
+                            @else {
                                 <h4>Time to run the program! Use the input values below:</h4>
                             }
                             @for (inputValue of exercise.testCases![predictRunIteration].input; track inputValue) {
                                 <p class="test-case-display">{{inputValue}}</p>
                             }
                         }
-                        @else if (!exercise.testCases) {
+                        @else{
                             <h4>Time to run the code! Have a go at running the program.</h4>
                         }
                     }
@@ -89,7 +85,7 @@
                     }
                     @else if (debuggingStage == DebuggingStageType.test) {
                         <div class="flex-column">
-                            @if (exercise.testCases) {
+                            @if (testCasesContainInputs(exercise.testCases!)) {
                                 <h4>Now run the code and see what happens. Try the values you entered in the Predict stage to see if they work now.</h4>
                             }
                             @else {
@@ -188,7 +184,7 @@
 
                 <!--Where any additional elements are displayed (e.g., test cases and hints)-->
                 <div class="articulation-pane--additional-info">
-                    @if (exercise.testCases && [DebuggingStageType.spotDefect, DebuggingStageType.inspectCode, debuggingStage == DebuggingStageType.test].includes(debuggingStage)) {
+                    @if (exercise.testCases && [DebuggingStageType.spotDefect, DebuggingStageType.inspectCode, DebuggingStageType.test].includes(debuggingStage)) {
                         <app-test-case-display [testCases]="exercise.testCases" [studentPredictions]="studentResponses.get(DebuggingStageType.predict)"></app-test-case-display>
                     }
                     @if (exercise.hints && ([DebuggingStageType.inspectCode, DebuggingStageType.fixError].includes(debuggingStage) || (debuggingStage == DebuggingStageType.findError && foundErroneousLine == null))) {
