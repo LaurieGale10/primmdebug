@@ -1,0 +1,27 @@
+<div class="test-case-pane">
+    <div class="test-case-pane--title">
+        <mat-icon class="test-case-pane--title--icon">science</mat-icon>
+        <p class="test-case-pane-title--text">Test Case</p>
+    </div>
+    
+    <div class="test-case-pane--content">
+        @if (testCaseInput) {
+            <h3>Input values</h3>
+            @for (inputValue of testCaseInput; track inputValue) {
+                <p class="test-case-display">{{inputValue}}</p>
+            }
+        }
+
+        <h3>Your prediction</h3>
+        <!--TODO: Add animation when debugging stage changes-->
+        @if (debuggingStage == DebuggingStageType.predict) {
+            <mat-form-field class="test-case-pane--content--input-form">
+                <mat-label>Write your thoughts</mat-label>
+                <textarea matInput [(ngModel)]="prediction" (keydown.enter)="onKeydown($event)" class="test-case-pane--content--input" appearence="outline" placeholder="e.g. The program will output a sequence of cities in alphabetical order."></textarea>
+            </mat-form-field>
+        }
+        @if (debuggingStage == DebuggingStageType.run) {
+            <p><em>{{studentPrediction}}</em></p>
+        }
+    </div>
+</div>

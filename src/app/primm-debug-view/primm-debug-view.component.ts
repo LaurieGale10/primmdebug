@@ -1,5 +1,4 @@
 import { Component, OnInit, signal, ViewChild } from '@angular/core';
-import { NgIf, NgFor } from '@angular/common';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { DebuggingStage } from '../types/types';
 import { DebuggingExercise, TestCase } from '../services/debugging-exercise.model';
@@ -25,7 +24,7 @@ import { ExerciseLog, FocusType, StageLog } from '../services/logging.model';
 import { TestCaseDisplayComponent } from "./test-case-display/test-case-display.component";
 import { HintDisplayComponent } from "./hint-display/hint-display.component";
 import { ToolbarComponent } from '../toolbar/toolbar.component';
-import { PredictTestCasePaneComponent } from "./predict-test-case-pane/predict-test-case-pane.component";
+import { PredictRunTestCasePaneComponent } from "./predict-run-test-case-pane/predict-run-test-case-pane.component";
 
 import dedent from 'dedent';
 import { environment } from '../../environments/environment.development';
@@ -33,7 +32,7 @@ import { environment } from '../../environments/environment.development';
 @Component({
   selector: 'app-primm-debug-view',
   standalone: true,
-  imports: [NgxConfettiExplosionComponent, MatButtonModule, MatInputModule, MatFormFieldModule, MatIconModule, FormsModule, MatRadioModule, MatDividerModule, MatSelectModule, CodeEditorComponent, TestCaseDisplayComponent, HintDisplayComponent, ToolbarComponent, PredictTestCasePaneComponent],
+  imports: [NgxConfettiExplosionComponent, MatButtonModule, MatInputModule, MatFormFieldModule, MatIconModule, FormsModule, MatRadioModule, MatDividerModule, MatSelectModule, CodeEditorComponent, TestCaseDisplayComponent, HintDisplayComponent, ToolbarComponent, PredictRunTestCasePaneComponent],
   templateUrl: './primm-debug-view.component.html',
   styleUrl: './primm-debug-view.component.sass',
   animations: [
