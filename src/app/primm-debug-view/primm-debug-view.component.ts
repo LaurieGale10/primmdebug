@@ -25,6 +25,7 @@ import { ExerciseLog, FocusType, StageLog } from '../services/logging.model';
 import { TestCaseDisplayComponent } from "./test-case-display/test-case-display.component";
 import { HintDisplayComponent } from "./hint-display/hint-display.component";
 import { ToolbarComponent } from '../toolbar/toolbar.component';
+import { PredictTestCasePaneComponent } from "./predict-test-case-pane/predict-test-case-pane.component";
 
 import dedent from 'dedent';
 import { environment } from '../../environments/environment.development';
@@ -32,7 +33,7 @@ import { environment } from '../../environments/environment.development';
 @Component({
   selector: 'app-primm-debug-view',
   standalone: true,
-  imports: [NgxConfettiExplosionComponent, MatButtonModule, MatInputModule, MatFormFieldModule, MatIconModule, FormsModule, MatRadioModule, MatDividerModule, MatSelectModule, CodeEditorComponent, TestCaseDisplayComponent, HintDisplayComponent, ToolbarComponent],
+  imports: [NgxConfettiExplosionComponent, MatButtonModule, MatInputModule, MatFormFieldModule, MatIconModule, FormsModule, MatRadioModule, MatDividerModule, MatSelectModule, CodeEditorComponent, TestCaseDisplayComponent, HintDisplayComponent, ToolbarComponent, PredictTestCasePaneComponent],
   templateUrl: './primm-debug-view.component.html',
   styleUrl: './primm-debug-view.component.sass',
   animations: [
@@ -208,7 +209,6 @@ export class PrimmDebugViewComponent implements OnInit {
       const findErrorHints = this.exercise!.hints!.get(DebuggingStage.findError);
       const findErrorCounter = this.loggingService.getDebuggingStageCounter(DebuggingStage.findError);
     
-      console.log(debuggingStageCounter)
       if (findErrorHints && (debuggingStageCounter >= 2)) {
         if ((findErrorCounter >= 2) && (findErrorCounter > debuggingStageCounter)) {
           return findErrorHints.slice(0, findErrorCounter - 1);

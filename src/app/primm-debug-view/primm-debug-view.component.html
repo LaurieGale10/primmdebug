@@ -62,9 +62,6 @@
                             @else if (exercise.testCases![predictRunIteration].input && exercise.testCases![predictRunIteration].input!.length > 1) {
                                 <h4>What do you think will happen when you press run with the input values below?</h4>
                             }
-                            @for (inputValue of exercise.testCases![predictRunIteration].input; track inputValue) {
-                                <p class="test-case-display">{{inputValue}}</p>
-                            }
                         }
                         @else {
                             <h4>What do you think will happen when you press run?</h4>
@@ -138,7 +135,14 @@
 
                 <!--Formatting of student response pane (with option of future multiple choice display)-->
                 <div class="articulation-pane--student-response-pane">
-                    @if ([DebuggingStageType.predict, DebuggingStageType.spotDefect, DebuggingStageType.inspectCode, DebuggingStageType.fixError, DebuggingStageType.modify].includes(debuggingStage) || (debuggingStage == DebuggingStageType.findError && !exercise.lineContainingError)) {
+                    @if (debuggingStage == DebuggingStageType.predict) {
+                        <app-predict-test-case-pane 
+                            [testCaseInput]="exercise.testCases ? exercise.testCases![predictRunIteration].input : undefined" 
+                            (onKeyDown)="onKeydown($event)" 
+                            [(prediction)]="userReflectionInput">
+                        </app-predict-test-case-pane>
+                    }
+                    @if ([DebuggingStageType.spotDefect, DebuggingStageType.inspectCode, DebuggingStageType.fixError, DebuggingStageType.modify].includes(debuggingStage) || (debuggingStage == DebuggingStageType.findError && !exercise.lineContainingError)) {
                         @if (exercise.multipleChoiceOptions?.get(debuggingStage) && useMultipleChoiceOptions) {
                             <div id="multiple-choice-options">
                                 <mat-radio-group [(ngModel)]="userMultiChoiceInput" class="flex-column">
@@ -203,7 +207,6 @@
                             @switch (foundErroneousLine) {
                                 @case (true) {
                                     <button mat-raised-button color="green" (click)="setDebuggingStageFromFindError(DebuggingStageType.fixError)" class="articulation-pane--button-container--button">Fix the error</button>
-
                                 }
                                 @case (false) {
                                     <button mat-raised-button color="green" (click)="setDebuggingStageFromFindError(DebuggingStageType.inspectCode)" class="articulation-pane--button-container--button">Re-inspect the code (recommended)</button>
