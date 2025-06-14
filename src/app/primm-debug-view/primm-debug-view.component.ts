@@ -56,7 +56,7 @@ export class PrimmDebugViewComponent implements OnInit {
   debuggingStage: DebuggingStage = DebuggingStage.predict;
   DebuggingStageType = DebuggingStage; //To allow reference to enum types in interpolation
   
-  studentAnswers: Map<DebuggingStage, string[]> = new Map<DebuggingStage, string[]>([
+  studentResponses: Map<DebuggingStage, string[]> = new Map<DebuggingStage, string[]>([
     [DebuggingStage.predict, []],
     [DebuggingStage.spotDefect, []],
     [DebuggingStage.inspectCode, []],
@@ -288,11 +288,12 @@ export class PrimmDebugViewComponent implements OnInit {
   }
 
   /**
-   * Saves a students' response to a particular prompt to the studentAnswers variable (and soon to be logging the answer as well)
+   * Saves a students' response to a particular prompt to the studentResponses variable #TODO: Why is this not done where the logging is?
    */
   saveStudentResponse(response: string) {
-    const currentList: string[] = this.studentAnswers.get(this.debuggingStage)!;
+    const currentList: string[] = this.studentResponses.get(this.debuggingStage)!;
     currentList.push(response);
+    console.log(this.studentResponses)
   }
 
   /**
