@@ -28,12 +28,14 @@
         <p class="test-case-display">"{{testCases![testCaseIndex].actual! | whitespacePreserver}}"</p>
     }
 
-    <div class="expansion-panel-switch-buttons">
-        <button mat-icon-button [disabled]="testCaseIndex == 0" (click)="setCurrentTestCaseValue(testCaseIndex - 1)">
-            <mat-icon>chevron_left</mat-icon>
-        </button>
-        <button mat-icon-button [disabled]="testCaseIndex == testCases!.length - 1" (click)="setCurrentTestCaseValue(testCaseIndex + 1)">
-            <mat-icon>chevron_right</mat-icon>
-        </button>
-    </div>
+    @if (testCases!.length > 1) {
+        <div class="expansion-panel-switch-buttons">
+            <button mat-icon-button [disabled]="testCaseIndex == 0" (click)="setCurrentTestCaseValue(testCaseIndex - 1)">
+                <mat-icon>chevron_left</mat-icon>
+            </button>
+            <button mat-icon-button [disabled]="testCaseIndex == testCases!.length - 1" (click)="setCurrentTestCaseValue(testCaseIndex + 1)">
+                <mat-icon>chevron_right</mat-icon>
+            </button>
+        </div>
+    }
 </mat-expansion-panel>

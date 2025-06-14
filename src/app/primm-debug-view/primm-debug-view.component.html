@@ -133,7 +133,7 @@
                 <div class="articulation-pane--student-response-pane">
                     @if (debuggingStage == DebuggingStageType.predict) {
                         <app-predict-test-case-pane 
-                            [testCaseInput]="exercise.testCases ? exercise.testCases![predictRunIteration].input : undefined" 
+                            [testCaseInput]="exercise.testCases![predictRunIteration].input" 
                             (onKeyDown)="onKeydown($event)" 
                             [(prediction)]="userReflectionInput">
                         </app-predict-test-case-pane>
@@ -184,7 +184,7 @@
 
                 <!--Where any additional elements are displayed (e.g., test cases and hints)-->
                 <div class="articulation-pane--additional-info">
-                    @if (exercise.testCases && [DebuggingStageType.spotDefect, DebuggingStageType.inspectCode, DebuggingStageType.test].includes(debuggingStage)) {
+                    @if ([DebuggingStageType.spotDefect, DebuggingStageType.inspectCode, DebuggingStageType.test].includes(debuggingStage)) {
                         <app-test-case-display [testCases]="exercise.testCases" [studentPredictions]="studentResponses.get(DebuggingStageType.predict)"></app-test-case-display>
                     }
                     @if (exercise.hints && ([DebuggingStageType.inspectCode, DebuggingStageType.fixError].includes(debuggingStage) || (debuggingStage == DebuggingStageType.findError && foundErroneousLine == null))) {
