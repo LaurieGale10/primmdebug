@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 
 import { PrimmDebugViewComponent } from './primm-debug-view.component';
@@ -25,7 +26,9 @@ describe('PrimmDebugViewComponent', () => {
   const mockExercise: DebuggingExercise = {
     id: 'test-exercise',
     program: 'print("Hello World")',
-    testCases: [],
+    testCases: [
+      { input: ['test input'], expected: 'expected output', actual: 'actual output' }
+    ],
     lineContainingError: 1,
     hints: new Map(),
     multipleChoiceOptions: new Map(),
@@ -76,7 +79,10 @@ describe('PrimmDebugViewComponent', () => {
     mockLoggingService.stringifyDebuggingStageLog.and.returnValue('mock-stage-log');
 
     await TestBed.configureTestingModule({
-      imports: [PrimmDebugViewComponent],
+      imports: [
+        PrimmDebugViewComponent,
+        NoopAnimationsModule
+      ],
       providers: [
         { provide: SessionManagerService, useValue: mockSessionManagerService },
         { provide: FirestoreService, useValue: mockFirestoreService },
@@ -605,6 +611,217 @@ describe('PrimmDebugViewComponent', () => {
         
         // Assert
         expect(component.checkSessionStorage).not.toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('Input Validation', () => {
+    
+    beforeEach(() => {
+      setupComponentWithExercise();
+    });
+
+    describe('isStudentResponseValid', () => {
+      
+      it('should return false when userReflectionInput is null', () => {
+        // Arrange
+        component.userReflectionInput = null;
+        
+        // Act & Assert
+        expect(component.isStudentResponseValid()).toBe(false);
+      });
+
+      it('should return false when userReflectionInput is empty string', () => {
+        // Arrange
+        component.userReflectionInput = '';
+        
+        // Act & Assert
+        expect(component.isStudentResponseValid()).toBe(false);
+      });
+
+      it('should return false when userReflectionInput contains only whitespace', () => {
+        // Arrange
+        component.userReflectionInput = '   ';
+        
+        // Act & Assert
+        expect(component.isStudentResponseValid()).toBe(false);
+      });
+
+      it('should return false when userReflectionInput contains only special characters', () => {
+        // Arrange
+        component.userReflectionInput = '!@#$%^&*()';
+        
+        // Act & Assert
+        expect(component.isStudentResponseValid()).toBe(false);
+      });
+
+      it('should return false when userReflectionInput contains only spaces and special characters', () => {
+        // Arrange
+        component.userReflectionInput = '  !@# $%^  ';
+        
+        // Act & Assert
+        expect(component.isStudentResponseValid()).toBe(false);
+      });
+
+      it('should return true when userReflectionInput contains a number', () => {
+        // Arrange
+        component.userReflectionInput = 'test 123';
+        
+        // Act & Assert
+        expect(component.isStudentResponseValid()).toBe(true);
+      });
+
+      it('should return true when userReflectionInput contains only a single number', () => {
+        // Arrange
+        component.userReflectionInput = '5';
+        
+        // Act & Assert
+        expect(component.isStudentResponseValid()).toBe(true);
+      });
+
+      it('should return true when userReflectionInput contains uppercase letters', () => {
+        // Arrange
+        component.userReflectionInput = 'HELLO WORLD';
+        
+        // Act & Assert
+        expect(component.isStudentResponseValid()).toBe(true);
+      });
+
+      it('should return true when userReflectionInput contains lowercase letters', () => {
+        // Arrange
+        component.userReflectionInput = 'hello world';
+        
+        // Act & Assert
+        expect(component.isStudentResponseValid()).toBe(true);
+      });
+
+      it('should return true when userReflectionInput contains mixed case letters', () => {
+        // Arrange
+        component.userReflectionInput = 'Hello World';
+        
+        // Act & Assert
+        expect(component.isStudentResponseValid()).toBe(true);
+      });
+
+      it('should return true when userReflectionInput contains letters and numbers', () => {
+        // Arrange
+        component.userReflectionInput = 'abc123';
+        
+        // Act & Assert
+        expect(component.isStudentResponseValid()).toBe(true);
+      });
+
+      it('should return true when userReflectionInput has alphanumeric with leading/trailing whitespace', () => {
+        // Arrange
+        component.userReflectionInput = '  hello  ';
+        
+        // Act & Assert
+        expect(component.isStudentResponseValid()).toBe(true);
+      });
+
+      it('should return true when userReflectionInput has alphanumeric with special characters', () => {
+        // Arrange
+        component.userReflectionInput = 'hello! world?';
+        
+        // Act & Assert
+        expect(component.isStudentResponseValid()).toBe(true);
+      });
+
+      it('should return true when userReflectionInput contains single character', () => {
+        // Arrange
+        component.userReflectionInput = 'a';
+        
+        // Act & Assert
+        expect(component.isStudentResponseValid()).toBe(true);
+      });
+
+      it('should return true when userReflectionInput contains single uppercase character', () => {
+        // Arrange
+        component.userReflectionInput = 'A';
+        
+        // Act & Assert
+        expect(component.isStudentResponseValid()).toBe(true);
+      });
+    });
+
+    describe('Button State Integration', () => {
+      
+      beforeEach(() => {
+        setupComponentWithExercise();
+        component.debuggingStage = DebuggingStage.predict;
+        component.useMultipleChoiceOptions = false;
+      });
+
+      it('should return correct validation state for button disabled condition with invalid input', () => {
+        // Arrange
+        component.userReflectionInput = '!@#$';
+        
+        // Act & Assert
+        expect(component.isStudentResponseValid()).toBe(false);
+      });
+
+      it('should return correct validation state for button enabled condition with valid input', () => {
+        // Arrange
+        component.userReflectionInput = 'valid response';
+        
+        // Act & Assert
+        expect(component.isStudentResponseValid()).toBe(true);
+      });
+
+      it('should handle validation state changes from invalid to valid', () => {
+        // Arrange - Start with invalid input
+        component.userReflectionInput = '###';
+        expect(component.isStudentResponseValid()).toBe(false);
+        
+        // Act - Change to valid input
+        component.userReflectionInput = 'now valid';
+        
+        // Assert
+        expect(component.isStudentResponseValid()).toBe(true);
+      });
+
+      it('should handle validation state changes from valid to invalid', () => {
+        // Arrange - Start with valid input
+        component.userReflectionInput = 'valid input';
+        expect(component.isStudentResponseValid()).toBe(true);
+        
+        // Act - Change to invalid input
+        component.userReflectionInput = '!!!';
+        
+        // Assert
+        expect(component.isStudentResponseValid()).toBe(false);
+      });
+
+      it('should validate correctly when multiple choice options exist but are enabled', () => {
+        // Arrange
+        component.useMultipleChoiceOptions = true;
+        component.exercise!.multipleChoiceOptions!.set(DebuggingStage.predict, ['Option 1', 'Option 2']);
+        component.userMultiChoiceInput = null;
+        component.userReflectionInput = 'valid text';
+        
+        // Act & Assert - Text validation should still work but won't be used for button state
+        expect(component.isStudentResponseValid()).toBe(true);
+      });
+
+      it('should validate correctly when multiple choice is disabled', () => {
+        // Arrange
+        component.useMultipleChoiceOptions = false;
+        component.exercise!.multipleChoiceOptions!.set(DebuggingStage.predict, ['Option 1', 'Option 2']);
+        component.userMultiChoiceInput = null;
+        component.userReflectionInput = 'valid text';
+        
+        // Act & Assert
+        expect(component.isStudentResponseValid()).toBe(true);
+      });
+
+      it('should handle edge case with empty input when multiple choice is disabled', () => {
+        // Arrange
+        component.useMultipleChoiceOptions = false;
+        component.userMultiChoiceInput = null;
+        component.userReflectionInput = '';
+        
+        // Act & Assert
+        expect(component.isStudentResponseValid()).toBe(false);
       });
     });
   });

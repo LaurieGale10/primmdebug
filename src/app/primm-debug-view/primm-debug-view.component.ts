@@ -165,7 +165,12 @@ export class PrimmDebugViewComponent implements OnInit {
 
   onKeydown($event: Event) {
     //event?.preventDefault();
-    if ((this.exercise!.multipleChoiceOptions?.get(this.debuggingStage) && this.userMultiChoiceInput && this.useMultipleChoiceOptions) || (!this.exercise!.multipleChoiceOptions?.get(this.debuggingStage) && this.userReflectionInput && !this.firestoreService.isEmptyString(this.userReflectionInput))) {
+    if (
+      (this.exercise!.multipleChoiceOptions?.get(this.debuggingStage) && this.userMultiChoiceInput && this.useMultipleChoiceOptions) ||
+      (!this.exercise!.multipleChoiceOptions?.get(this.debuggingStage) && this.isStudentResponseValid()) ||
+      ([DebuggingStage.inspectCode, DebuggingStage.modify].includes(this.debuggingStage)) ||
+      (this.debuggingStage == DebuggingStage.findError && this.selectedLineNumber)
+    ) {
       this.nextDebuggingStage();
     }
     return false;
@@ -179,7 +184,6 @@ export class PrimmDebugViewComponent implements OnInit {
   }
 
   onSelectedLineNumberChange() {
-    console.log("Setting selected line number to: ", this.selectedLineNumber);
     this.sessionManagerService.setSelectedLineNumber(this.selectedLineNumber!);
   }
 
@@ -265,6 +269,10 @@ export class PrimmDebugViewComponent implements OnInit {
     
     // Return an empty array if no conditions are met.
     return [];
+  }
+
+  isStudentResponseValid(): boolean {
+    return this.userReflectionInput !== null && /[0-9A-Za-z]/.test(this.userReflectionInput);
   }
 
   /**

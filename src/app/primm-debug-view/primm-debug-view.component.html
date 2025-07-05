@@ -144,7 +144,7 @@
                                 [testCaseInput]="exercise.testCases![predictRunIteration].input"
                                 [debuggingStage]="debuggingStage"
                                 [studentPrediction]="studentResponses.get(DebuggingStageType.predict)![predictRunIteration]"
-                                (onKeyDown)="onKeydown($event)" 
+                                (onKeyDown)="onKeydown($event)"
                                 (predictionChange)="onStudentInputChange($event)"
                                 [(prediction)]="userReflectionInput"> <!--TODO: Pass has code editor loaded down to here-->
                             </app-predict-run-test-case-pane>
@@ -211,7 +211,12 @@
                     <div class="articulation-pane--button-container">
                         <!--Stages requiring a written response-->
                         @if ([DebuggingStageType.predict, DebuggingStageType.spotDefect, DebuggingStageType.fixError].includes(debuggingStage)) {
-                            <button mat-raised-button color="green" (click)="nextDebuggingStage()" class="articulation-pane--button-container--button" [disabled]="(exercise!.multipleChoiceOptions?.get(debuggingStage) && !userMultiChoiceInput && useMultipleChoiceOptions) || ((!useMultipleChoiceOptions || !exercise!.multipleChoiceOptions?.get(debuggingStage)) && (!userReflectionInput || userReflectionInput == ''))">{{debuggingStage == DebuggingStageType.predict ? "Let's find out" : debuggingStage == DebuggingStageType.fixError ? "Time to test!" : "On to the next stage!"}}</button>
+                            <button
+                                mat-raised-button color="green" class="articulation-pane--button-container--button"
+                                (click)="nextDebuggingStage()"
+                                [disabled]="(exercise!.multipleChoiceOptions?.get(debuggingStage) && !userMultiChoiceInput && useMultipleChoiceOptions) || ((!useMultipleChoiceOptions || !exercise!.multipleChoiceOptions?.get(debuggingStage)) && !isStudentResponseValid())">
+                                {{debuggingStage == DebuggingStageType.predict ? "Let's find out" : debuggingStage == DebuggingStageType.fixError ? "Time to test!" : "On to the next stage!"}}
+                            </button>
                         }
                         @if (debuggingStage == DebuggingStageType.findError) {
                             @if (exercise.lineContainingError) {
@@ -229,7 +234,12 @@
                                 }
                             }
                             @else {
-                                <button mat-raised-button color="green" (click)="nextDebuggingStage()" class="articulation-pane--button-container--button" [disabled]="(exercise!.multipleChoiceOptions?.get(debuggingStage) && !userMultiChoiceInput && useMultipleChoiceOptions) || ((!useMultipleChoiceOptions || !exercise!.multipleChoiceOptions?.get(debuggingStage)) && (!userReflectionInput || userReflectionInput == ''))">Time to debug!</button>
+                                <button mat-raised-button color="green"
+                                    (click)="nextDebuggingStage()"
+                                    [disabled]="(useMultipleChoiceOptions && exercise!.multipleChoiceOptions?.get(debuggingStage) && !userMultiChoiceInput) || ((!useMultipleChoiceOptions || !exercise!.multipleChoiceOptions?.get(debuggingStage)) && !isStudentResponseValid())"
+                                    class="articulation-pane--button-container--button">
+                                    Time to debug!
+                                </button>
                             }
                         }
                         <!--Stages not requiring a response-->
