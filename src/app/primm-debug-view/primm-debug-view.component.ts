@@ -15,11 +15,13 @@ import {FormsModule} from '@angular/forms';
 import {MatRadioModule} from '@angular/material/radio';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatSelectModule} from '@angular/material/select';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { MatDialog } from '@angular/material/dialog';
 import { FirestoreService } from '../services/firestore.service';
-import { CodeEditorComponent } from "./code-editor/code-editor.component";
 import { LoggingService } from '../services/logging.service';
+import { SessionManagerService } from '../services/session-manager.service';
+import { CodeEditorComponent } from "./code-editor/code-editor.component";
 import { ExerciseLog, FocusType, StageLog } from '../services/logging.model';
 import { TestCaseDisplayComponent } from "./test-case-display/test-case-display.component";
 import { HintDisplayComponent } from "./hint-display/hint-display.component";
@@ -32,7 +34,7 @@ import { environment } from '../../environments/environment.development';
 @Component({
   selector: 'app-primm-debug-view',
   standalone: true,
-  imports: [NgxConfettiExplosionComponent, MatButtonModule, MatInputModule, MatFormFieldModule, MatIconModule, FormsModule, MatRadioModule, MatDividerModule, MatSelectModule, CodeEditorComponent, TestCaseDisplayComponent, HintDisplayComponent, ToolbarComponent, PredictRunTestCasePaneComponent],
+  imports: [NgxConfettiExplosionComponent, MatButtonModule, MatInputModule, MatFormFieldModule, MatIconModule, FormsModule, MatRadioModule, MatDividerModule, MatSelectModule, MatProgressSpinnerModule, CodeEditorComponent, TestCaseDisplayComponent, HintDisplayComponent, ToolbarComponent, PredictRunTestCasePaneComponent],
   templateUrl: './primm-debug-view.component.html',
   styleUrl: './primm-debug-view.component.sass',
   animations: [
@@ -62,7 +64,7 @@ export class PrimmDebugViewComponent implements OnInit {
     [DebuggingStage.findError, []],
     [DebuggingStage.fixError, []],
     [DebuggingStage.modify, []]
-  ]); //How will I go about saving this information to a database? Create a separate method for doing this? JSONify this?
+  ]);
 
   changesSuccessful: boolean | null = null;
   useMultipleChoiceOptions: boolean = false;
@@ -96,7 +98,7 @@ export class PrimmDebugViewComponent implements OnInit {
 
   programLogs: any = null;
 
-  constructor(private router: Router, private route: ActivatedRoute, private dialog: MatDialog, private firestoreService: FirestoreService, private loggingService: LoggingService) { };
+  constructor(private router: Router, private route: ActivatedRoute, private dialog: MatDialog, private firestoreService: FirestoreService, private loggingService: LoggingService, private sessionManagerService: SessionManagerService) { };
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
@@ -123,6 +125,30 @@ export class PrimmDebugViewComponent implements OnInit {
         this.setupExerciseLogs();
       }
     }
+    if (!this.sessionManagerService.getDebuggingStage()) {
+        this.sessionManagerService.setDebuggingStage(DebuggingStage.predict);
+    }
+  }
+
+  checkSessionStorage() {
+    //Items in session storage can only exist when if the debuggingStage field exists
+    if (this.sessionManagerService.getDebuggingStage()) {
+      if (this.sessionManagerService.getPredictRunIteration()) {
+        this.predictRunIteration = this.sessionManagerService.getPredictRunIteration()!;
+      }
+
+      if (this.sessionManagerService.getSelectedLineNumber()) {
+        this.selectedLineNumber = this.sessionManagerService.getSelectedLineNumber()!;
+      }
+      else if (this.sessionManagerService.getCurrentResponse()) {
+        this.userReflectionInput = this.sessionManagerService.getCurrentResponse();
+      }
+
+      if (this.sessionManagerService.getPreviousResponses()) {
+        this.studentResponses = this.sessionManagerService.getPreviousResponses()!;
+      }
+      this.setDebuggingStage(this.sessionManagerService.getDebuggingStage()!);
+    }
   }
 
   /**
@@ -145,17 +171,30 @@ export class PrimmDebugViewComponent implements OnInit {
     return false;
   }
 
+  onStudentInputChange(studentInput: string | null = null) {
+    if (studentInput) {
+      this.userReflectionInput = studentInput;
+    }
+    this.sessionManagerService.setCurrentResponse(this.userReflectionInput!);
+  }
+
+  onSelectedLineNumberChange() {
+    console.log("Setting selected line number to: ", this.selectedLineNumber);
+    this.sessionManagerService.setSelectedLineNumber(this.selectedLineNumber!);
+  }
+
   testCasesContainInputs(testCases: TestCase[]): boolean {
     return testCases.some(testCase => testCase.input && testCase.input.length > 0);
   }
 
   codeEditorLoaded(event: void) {
     this.hasCodeEditorLoaded.set(true);
+    this.checkSessionStorage();
   }
 
   runButtonPressed(event: void) {
-    this.predictRunIteration++;
     if (this.debuggingStage == DebuggingStage.run) {
+      this.predictRunIteration++;
       this.nextDebuggingStage();
     }
   }
@@ -236,11 +275,16 @@ export class PrimmDebugViewComponent implements OnInit {
   setDebuggingStageFromFindError(debuggingStage: DebuggingStage) {
     this.foundErroneousLine = null;
     this.selectedLineNumber = undefined;
+    this.sessionManagerService.setSelectedLineNumber(null);
     this.setDebuggingStage(debuggingStage);
   }
 
   setDebuggingStage(debuggingStage: DebuggingStage) {
     this.debuggingStage = debuggingStage;
+    this.sessionManagerService.setDebuggingStage(debuggingStage);
+    if (debuggingStage == DebuggingStage.predict || debuggingStage == DebuggingStage.run) {
+      this.sessionManagerService.setPredictRunIteration(this.predictRunIteration);
+    }
     this.loggingService.setDebuggingStage(this.debuggingStage);
     switch (this.debuggingStage) {
       case DebuggingStage.predict: {
@@ -253,6 +297,7 @@ export class PrimmDebugViewComponent implements OnInit {
         break;
       }
       case DebuggingStage.spotDefect: {
+        this.sessionManagerService.setPredictRunIteration(null);
         this.sendToggleRunMessage(true);
         break;
       }
@@ -289,7 +334,7 @@ export class PrimmDebugViewComponent implements OnInit {
   }
 
   /**
-   * Saves a students' response to a particular prompt to the studentResponses variable #TODO: Why is this not done where the logging is?
+   * Saves a students' response to a particular prompt to the studentResponses variable
    */
   saveStudentResponse(response: string) {
     const currentList: string[] = this.studentResponses.get(this.debuggingStage)!;
@@ -316,6 +361,7 @@ export class PrimmDebugViewComponent implements OnInit {
     }
     else {
       this.foundErroneousLine = false;
+      this.sessionManagerService.setSelectedLineNumber(null);
     }
     this.loggingService.saveStageLog(this.createStageLog());
   }
@@ -364,6 +410,8 @@ export class PrimmDebugViewComponent implements OnInit {
     else if (this.userReflectionInput) {
       this.saveStudentResponse(this.userReflectionInput!);
     }
+    this.sessionManagerService.setCurrentResponse(null);
+    this.sessionManagerService.setPreviousResponses(JSON.stringify(Array.from(this.studentResponses.entries())));
     this.resetUserInput();
     switch (this.debuggingStage) {
       case DebuggingStage.predict: {

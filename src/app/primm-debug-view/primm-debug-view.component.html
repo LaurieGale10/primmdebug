@@ -9,243 +9,257 @@
 
         <div class="code-articulation-split-display">
             <div class="code-editor-display">
-                <app-code-editor #codeEditor [program]="this.exercise.program!" [debuggingStage]="debuggingStage" (runButtonPressed)="runButtonPressed($event)" (logsReceived)="onLogsReceived($event)" (codeEditorLoaded)="codeEditorLoaded($event)"></app-code-editor>
+                <app-code-editor #codeEditor [program]="this.exercise.program!" [debuggingStage]="debuggingStage"
+                    (runButtonPressed)="runButtonPressed($event)" (logsReceived)="onLogsReceived($event)" (codeEditorLoaded)="codeEditorLoaded($event)">
+                </app-code-editor>
             </div>
 
             <mat-divider vertical></mat-divider>
 
             <div [@expandReflectionPaneBorder]="debuggingStage" class="articulation-pane">
-                <div class="articulation-pane--title">
-                    <!--Icon and title of articulation prompt-->
-                    @if (debuggingStage == DebuggingStageType.predict) {
-                        <mat-icon class="predict-icon">psychology</mat-icon>
-                        <h2>Predict ({{predictRunIteration + 1}} of {{exercise!.testCases!.length > 0 ? exercise!.testCases!.length : 1}})</h2>
+                @if (!this.hasCodeEditorLoaded()) {
+                    <div class="articulation-pane--loading-display">
+                        <mat-spinner></mat-spinner>
+                    </div>
+                }
+                @else {
+                    <div class="articulation-pane--title">
+                        <!--Icon and title of articulation prompt-->
+                        @if (debuggingStage == DebuggingStageType.predict) {
+                            <mat-icon class="predict-icon">psychology</mat-icon>
+                            <h2>Predict ({{predictRunIteration + 1}} of {{exercise!.testCases!.length > 0 ? exercise!.testCases!.length : 1}})</h2>
 
-                    }
-                    @else if (debuggingStage == DebuggingStageType.run) {
-                        <mat-icon>settings</mat-icon>
-                        <h2>Run</h2>
-                    }
-                    @else if ([DebuggingStageType.spotDefect, DebuggingStageType.inspectCode, DebuggingStageType.findError, DebuggingStageType.fixError].includes(debuggingStage)) {
-                        <mat-icon>search</mat-icon>
-                        <h2>{{debugStepNames.get(debuggingStage)}}</h2>
-                    }
-                    @else if (debuggingStage == DebuggingStageType.test) {
-                        <mat-icon>psychology</mat-icon>
-                        <h2>Test</h2>
-                    }
-                    @else if (debuggingStage == DebuggingStageType.completedTest) {
-                        <mat-icon>next_plan</mat-icon>
-                        <h2>Next Steps</h2>
-                    }
-                    @else if (debuggingStage == DebuggingStageType.modify) {
-                        <mat-icon>edit</mat-icon>
-                        <h2>Modify</h2>
-                    }
-                    @else if (debuggingStage == DebuggingStageType.make) {
-                        <mat-icon>emoji_objects</mat-icon>
-                        <h2>Make</h2>
-                    }
-                </div>
-                
-                <!--Prompt text specific to PRIMMDebug stage-->
-                <div class="articulation-pane-stage--prompt">
-                    @if (debuggingStage == DebuggingStageType.predict) {
-                        @if (exercise.testCases![predictRunIteration].input) {
-                            @if (exercise.testCases![predictRunIteration].input!.length == 1) {
-                                <h4>What do you think will happen when you press run with the input value below?</h4>
-                            }
-                            @else if (exercise.testCases![predictRunIteration].input!.length > 1) {
-                                <h4>What do you think will happen when you press run with the input values below?</h4>
-                            }
                         }
-                        @else {
-                            <h4>What do you think will happen when you press run?</h4>
+                        @else if (debuggingStage == DebuggingStageType.run) {
+                            <mat-icon>settings</mat-icon>
+                            <h2>Run</h2>
                         }
-                        <h4>Make sure you <strong>read the program description</strong> first!</h4>
-                    }
-                    @else if (debuggingStage == DebuggingStageType.run) {
-                        @if (exercise.testCases![predictRunIteration].input) {
-                            @if (exercise.testCases![predictRunIteration].input!.length == 1) {
-                                <h4>Time to run the program! Use the input value below:</h4>
+                        @else if ([DebuggingStageType.spotDefect, DebuggingStageType.inspectCode, DebuggingStageType.findError, DebuggingStageType.fixError].includes(debuggingStage)) {
+                            <mat-icon>search</mat-icon>
+                            <h2>{{debugStepNames.get(debuggingStage)}}</h2>
+                        }
+                        @else if (debuggingStage == DebuggingStageType.test) {
+                            <mat-icon>psychology</mat-icon>
+                            <h2>Test</h2>
+                        }
+                        @else if (debuggingStage == DebuggingStageType.completedTest) {
+                            <mat-icon>next_plan</mat-icon>
+                            <h2>Next Steps</h2>
+                        }
+                        @else if (debuggingStage == DebuggingStageType.modify) {
+                            <mat-icon>edit</mat-icon>
+                            <h2>Modify</h2>
+                        }
+                        @else if (debuggingStage == DebuggingStageType.make) {
+                            <mat-icon>emoji_objects</mat-icon>
+                            <h2>Make</h2>
+                        }
+                    </div>
+                    
+                    <!--Prompt text specific to PRIMMDebug stage-->
+                    <div class="articulation-pane-stage--prompt">
+                        @if (debuggingStage == DebuggingStageType.predict) {
+                            @if (exercise.testCases![predictRunIteration].input) {
+                                @if (exercise.testCases![predictRunIteration].input!.length == 1) {
+                                    <h4>What do you think will happen when you press run with the input value below?</h4>
+                                }
+                                @else if (exercise.testCases![predictRunIteration].input!.length > 1) {
+                                    <h4>What do you think will happen when you press run with the input values below?</h4>
+                                }
                             }
                             @else {
-                                <h4>Time to run the program! Use the input values below:</h4>
+                                <h4>What do you think will happen when you press run?</h4>
                             }
-                            @for (inputValue of exercise.testCases![predictRunIteration].input; track inputValue) {
-                                <p class="test-case-display">{{inputValue}}</p>
+                            <h4>Make sure you <strong>read the program description</strong> first!</h4>
+                        }
+                        @else if (debuggingStage == DebuggingStageType.run) {
+                            @if (exercise.testCases![predictRunIteration].input) {
+                                @if (exercise.testCases![predictRunIteration].input!.length == 1) {
+                                    <h4>Time to run the program! Use the input value below:</h4>
+                                }
+                                @else {
+                                    <h4>Time to run the program! Use the input values below:</h4>
+                                }
+                                @for (inputValue of exercise.testCases![predictRunIteration].input; track inputValue) {
+                                    <p class="test-case-display">{{inputValue}}</p>
+                                }
+                            }
+                            @else{
+                                <h4>Time to run the code! Have a go at running the program.</h4>
                             }
                         }
-                        @else{
-                            <h4>Time to run the code! Have a go at running the program.</h4>
+                        @else if ([DebuggingStageType.spotDefect, DebuggingStageType.inspectCode, DebuggingStageType.findError, DebuggingStageType.fixError].includes(debuggingStage)) {
+                            <h4 class="debug-stage-description">{{debugStepQuestions.get(debuggingStage)}}</h4>
                         }
-                    }
-                    @else if ([DebuggingStageType.spotDefect, DebuggingStageType.inspectCode, DebuggingStageType.findError, DebuggingStageType.fixError].includes(debuggingStage)) {
-                        <h4 class="debug-stage-description">{{debugStepQuestions.get(debuggingStage)}}</h4>
-                    }
-                    @else if (debuggingStage == DebuggingStageType.test) {
-                        <div class="flex-column">
-                            @if (testCasesContainInputs(exercise.testCases!)) {
-                                <h4>Now run the code and see what happens. Try the values you entered in the Predict stage to see if they work now.</h4>
+                        @else if (debuggingStage == DebuggingStageType.test) {
+                            <div class="flex-column">
+                                @if (testCasesContainInputs(exercise.testCases!)) {
+                                    <h4>Now run the code and see what happens. Try the values you entered in the Predict stage to see if they work now.</h4>
+                                }
+                                @else {
+                                    <h4>Now run the code and see what happens.</h4>
+                                }
+                                <h4>Does the program now work as it should?</h4>
+                            </div>
+                        }
+                        @else if (debuggingStage == DebuggingStageType.completedTest) {
+                            <div class="flex-column">
+                                @if (changesSuccessful) {
+                                    <ngx-confetti-explosion></ngx-confetti-explosion>
+                                    <div>
+                                        <h4>Well done! You completed the challenge! Debugging isn't easy - give yourself a pat on the back.</h4>
+                                        <div class="emoji-display-div">
+                                            <h1 class="emoji-display-text">🥳</h1>
+                                        </div>
+                                    </div>
+                                }
+                                @if (!changesSuccessful) {
+                                    <div>
+                                        <h4>Don't worry, it's completely normal for debugging to take a few tries. Keep going!</h4>
+                                        <div class="emoji-display-div">
+                                            <h1 class="emoji-display-text">💪</h1>
+                                        </div>
+                                    </div>
+                                }
+                                <h4>What would you like to do next?</h4>
+                            </div>
+                        }
+                        @else if (debuggingStage == DebuggingStageType.modify) {
+                            @if (exercise.modifyText) {
+                                <h4>{{exercise.modifyText}} Write down what you've changed.</h4>
                             }
                             @else {
-                                <h4>Now run the code and see what happens.</h4>
+                                <h4>Now change the program so that it does something different. Write down what you've changed.</h4>
                             }
-                            <h4>Does the program now work as it should?</h4>
-                        </div>
-                    }
-                    @else if (debuggingStage == DebuggingStageType.completedTest) {
-                        <div class="flex-column">
+                        }
+                        @else if (debuggingStage == DebuggingStageType.make) {
+                            <h4>Now that you've modified your own program, move on to making your own version. Don't be afraid to clear the program!</h4>
+                        }
+                    </div>
+
+                    <!--Formatting of student response pane (with option of future multiple choice display)-->
+                    <div class="articulation-pane--student-response-pane">
+                        @if (debuggingStage == DebuggingStageType.predict || debuggingStage == DebuggingStageType.run) {
+                            <app-predict-run-test-case-pane 
+                                [testCaseInput]="exercise.testCases![predictRunIteration].input"
+                                [debuggingStage]="debuggingStage"
+                                [studentPrediction]="studentResponses.get(DebuggingStageType.predict)![predictRunIteration]"
+                                (onKeyDown)="onKeydown($event)" 
+                                (predictionChange)="onStudentInputChange($event)"
+                                [(prediction)]="userReflectionInput"> <!--TODO: Pass has code editor loaded down to here-->
+                            </app-predict-run-test-case-pane>
+                        }
+                        @if ([DebuggingStageType.spotDefect, DebuggingStageType.inspectCode, DebuggingStageType.fixError, DebuggingStageType.modify].includes(debuggingStage) || (debuggingStage == DebuggingStageType.findError && !exercise.lineContainingError)) {
+                            @if (exercise.multipleChoiceOptions?.get(debuggingStage) && useMultipleChoiceOptions) {
+                                <div id="multiple-choice-options">
+                                    <mat-radio-group [(ngModel)]="userMultiChoiceInput" class="flex-column">
+                                    @for (option of this.exercise!.multipleChoiceOptions!.get(debuggingStage); track option) {
+                                        <mat-radio-button [value]="option">{{option}}</mat-radio-button>
+                                    }
+                                    </mat-radio-group>
+                                </div>
+                            }
+                            @else {
+                                <div class="flex-column">
+                                    <mat-form-field class="articulation-pane--student-response-pane--input-form">
+                                        <mat-label>Write your thoughts</mat-label>
+                                        <textarea matInput
+                                            [(ngModel)]="userReflectionInput" [disabled]="!hasCodeEditorLoaded()"
+                                            (keydown.enter)="onKeydown($event)" (input)="onStudentInputChange()"
+                                            class="articulation-pane--student-response-pane--input" appearence="outline" placeholder="{{reflectionInputPlaceholders.get(debuggingStage)}}">
+                                        </textarea>
+                                    </mat-form-field>
+                                </div>
+                            }
+                            <p class="shift-enter-tip">If you want to add a new line, hold Shift+Enter</p>
+                        }
+                        @if (debuggingStage == DebuggingStageType.findError && exercise.lineContainingError) {
+                            <mat-form-field class="articulation-pane--student-response-pane--input-form">
+                                <mat-label>Select line number</mat-label>
+                                <mat-select [(value)]="selectedLineNumber" (selectionChange)="onSelectedLineNumberChange()" [disabled]="foundErroneousLine != null">
+                                    @for (lineNumber of originalNumberOfLines; track lineNumber) {
+                                        <mat-option [value]="lineNumber">Line {{lineNumber}}</mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+
+                            @if (foundErroneousLine === true) {
+                                <!--Ideally to appear with some animation-->
+                                <div class="correct-line-feedback">
+                                    <mat-icon class="correct-line-tick">check_circle</mat-icon>
+                                    <h4>Well done, you’ve found the line the error is on! Time to fix it...</h4>
+                                </div>
+                            }
+                            @if (foundErroneousLine === false) {
+                                <h4>Line {{selectedLineNumber}} is not where the error is located, but that’s ok!</h4>
+                                <h4>Before you have another go, try re-inspecting the code again to see where the error is.</h4>
+                            }
+                        }
+                    </div>
+
+                    <!--Where any additional elements are displayed (e.g., test cases and hints)-->
+                    <div class="articulation-pane--additional-info">
+                        @if ([DebuggingStageType.spotDefect, DebuggingStageType.inspectCode, DebuggingStageType.test].includes(debuggingStage)) {
+                            <app-test-case-display [testCases]="exercise.testCases" [studentPredictions]="studentResponses.get(DebuggingStageType.predict)"></app-test-case-display>
+                        }
+                        @if (exercise.hints && ([DebuggingStageType.inspectCode, DebuggingStageType.fixError].includes(debuggingStage) || (debuggingStage == DebuggingStageType.findError && foundErroneousLine == null))) {
+                            <app-hint-display [hints]="passHintsToComponent(debuggingStage)"></app-hint-display>
+                        }
+                    </div>
+                    
+                    <!--Buttons to move onto the next PRIMMDebug stage (requiring some input for stages requiring a written response)-->
+                    <div class="articulation-pane--button-container">
+                        <!--Stages requiring a written response-->
+                        @if ([DebuggingStageType.predict, DebuggingStageType.spotDefect, DebuggingStageType.fixError].includes(debuggingStage)) {
+                            <button mat-raised-button color="green" (click)="nextDebuggingStage()" class="articulation-pane--button-container--button" [disabled]="(exercise!.multipleChoiceOptions?.get(debuggingStage) && !userMultiChoiceInput && useMultipleChoiceOptions) || ((!useMultipleChoiceOptions || !exercise!.multipleChoiceOptions?.get(debuggingStage)) && (!userReflectionInput || userReflectionInput == ''))">{{debuggingStage == DebuggingStageType.predict ? "Let's find out" : debuggingStage == DebuggingStageType.fixError ? "Time to test!" : "On to the next stage!"}}</button>
+                        }
+                        @if (debuggingStage == DebuggingStageType.findError) {
+                            @if (exercise.lineContainingError) {
+                                @switch (foundErroneousLine) {
+                                    @case (true) {
+                                        <button mat-raised-button color="green" (click)="setDebuggingStageFromFindError(DebuggingStageType.fixError)" class="articulation-pane--button-container--button">Fix the error</button>
+                                    }
+                                    @case (false) {
+                                        <button mat-raised-button color="green" (click)="setDebuggingStageFromFindError(DebuggingStageType.inspectCode)" class="articulation-pane--button-container--button">Re-inspect the code (recommended)</button>
+                                        <button mat-raised-button color="green" (click)="setDebuggingStageFromFindError(DebuggingStageType.findError)" class="articulation-pane--button-container--button">Enter another line number</button>
+                                    }
+                                    @case (null) {
+                                        <button mat-raised-button color="green" (click)="checkLineNumber()" [disabled]="!selectedLineNumber" class="articulation-pane--button-container--button">Check my answer</button>
+                                    }
+                                }
+                            }
+                            @else {
+                                <button mat-raised-button color="green" (click)="nextDebuggingStage()" class="articulation-pane--button-container--button" [disabled]="(exercise!.multipleChoiceOptions?.get(debuggingStage) && !userMultiChoiceInput && useMultipleChoiceOptions) || ((!useMultipleChoiceOptions || !exercise!.multipleChoiceOptions?.get(debuggingStage)) && (!userReflectionInput || userReflectionInput == ''))">Time to debug!</button>
+                            }
+                        }
+                        <!--Stages not requiring a response-->
+                        @if (debuggingStage == DebuggingStageType.inspectCode || debuggingStage == DebuggingStageType.modify) {
+                            <button mat-raised-button color="green" (click)="nextDebuggingStage()" class="articulation-pane--button-container--button">{{debuggingStage == DebuggingStageType.inspectCode ? "I'm ready to find the error" : "Onto the next stage"}}</button>
+                        }
+                        @if (debuggingStage == DebuggingStageType.test) {
+                            <button mat-raised-button (click)="enterSuccessOfChanges(true)" class="articulation-pane--button-container--button" color="green">Yes</button>
+                            <button mat-raised-button (click)="enterSuccessOfChanges(false)" class="articulation-pane--button-container--button" color="green">No</button>
+                        }
+                        @if (debuggingStage == DebuggingStageType.completedTest) {
                             @if (changesSuccessful) {
-                                <ngx-confetti-explosion></ngx-confetti-explosion>
-                                <div>
-                                    <h4>Well done! You completed the challenge! Debugging isn't easy - give yourself a pat on the back.</h4>
-                                    <div class="emoji-display-div">
-                                        <h1 class="emoji-display-text">🥳</h1>
-                                    </div>
+                                <div class="flex-column">
+                                    <button mat-raised-button (click)="setDebuggingStage(DebuggingStageType.modify)" class="articulation-pane--button-container--button" color="green">Continue with PRIMM</button>
+                                    <button mat-raised-button (click)="returnToHomepage()" class="articulation-pane--button-container--button" color="green">Try another PRIMMDebug challenge</button>
                                 </div>
                             }
-                            @if (!changesSuccessful) {
-                                <div>
-                                    <h4>Don't worry, it's completely normal for debugging to take a few tries. Keep going!</h4>
-                                    <div class="emoji-display-div">
-                                        <h1 class="emoji-display-text">💪</h1>
-                                    </div>
+                            @else {
+                                <div class="flex-column">
+                                    <button mat-raised-button (click)="setDebuggingStage(DebuggingStageType.inspectCode)" class="articulation-pane--button-container--button" color="green">Re-inspect the code (recommended)</button>
+                                    <button mat-raised-button (click)="setDebuggingStage(DebuggingStageType.fixError)" class="articulation-pane--button-container--button" color="green">Try another fix</button>
+                                    <button mat-raised-button (click)="returnToHomepage()" class="articulation-pane--button-container--button" color="green">Try another PRIMMDebug challenge</button>
                                 </div>
                             }
-                            <h4>What would you like to do next?</h4>
-                        </div>
-                    }
-                    @else if (debuggingStage == DebuggingStageType.modify) {
-                        @if (exercise.modifyText) {
-                            <h4>{{exercise.modifyText}} Write down what you've changed.</h4>
                         }
-                        @else {
-                            <h4>Now change the program so that it does something different. Write down what you've changed.</h4>
+                        @if (debuggingStage == DebuggingStageType.make) {
+                            <button mat-raised-button (click)="returnToHomepage()" color="green" class="articulation-pane--button-container--button">Move on to a different exercise</button>
                         }
-                    }
-                    @else if (debuggingStage == DebuggingStageType.make) {
-                        <h4>Now that you've modified your own program, move on to making your own version. Don't be afraid to clear the program!</h4>
-                    }
-                </div>
-
-                <!--Formatting of student response pane (with option of future multiple choice display)-->
-                <div class="articulation-pane--student-response-pane">
-                    @if (debuggingStage == DebuggingStageType.predict || debuggingStage == DebuggingStageType.run) {
-                        <app-predict-run-test-case-pane 
-                            [testCaseInput]="exercise.testCases![predictRunIteration].input"
-                            [debuggingStage]="debuggingStage"
-                            [studentPrediction]="studentResponses.get(DebuggingStageType.predict)![predictRunIteration]"
-                            (onKeyDown)="onKeydown($event)" 
-                            [(prediction)]="userReflectionInput">
-                        </app-predict-run-test-case-pane>
-                    }
-                    @if ([DebuggingStageType.spotDefect, DebuggingStageType.inspectCode, DebuggingStageType.fixError, DebuggingStageType.modify].includes(debuggingStage) || (debuggingStage == DebuggingStageType.findError && !exercise.lineContainingError)) {
-                        @if (exercise.multipleChoiceOptions?.get(debuggingStage) && useMultipleChoiceOptions) {
-                            <div id="multiple-choice-options">
-                                <mat-radio-group [(ngModel)]="userMultiChoiceInput" class="flex-column">
-                                @for (option of this.exercise!.multipleChoiceOptions!.get(debuggingStage); track option) {
-                                    <mat-radio-button [value]="option">{{option}}</mat-radio-button>
-                                }
-                                </mat-radio-group>
-                            </div>
-                        }
-                        @else {
-                            <div class="flex-column">
-                                <mat-form-field class="articulation-pane--student-response-pane--input-form">
-                                    <mat-label>Write your thoughts</mat-label>
-                                    <textarea matInput [(ngModel)]="userReflectionInput" [disabled]="!hasCodeEditorLoaded()" (keydown.enter)="onKeydown($event)" class="articulation-pane--student-response-pane--input" appearence="outline" placeholder="{{reflectionInputPlaceholders.get(debuggingStage)}}"></textarea>
-                                </mat-form-field>
-                            </div>
-                        }
-                        <p class="shift-enter-tip">If you want to add a new line, hold Shift+Enter</p>
-                    }
-                    @if (debuggingStage == DebuggingStageType.findError && exercise.lineContainingError) {
-                        <mat-form-field class="articulation-pane--student-response-pane--input-form">
-                            <mat-label>Select line number</mat-label>
-                            <mat-select [(value)]="selectedLineNumber" [disabled]="foundErroneousLine != null">
-                                @for (lineNumber of originalNumberOfLines; track lineNumber) {
-                                    <mat-option [value]="lineNumber">Line {{lineNumber}}</mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
-
-                        @if (foundErroneousLine === true) {
-                            <!--Ideally to appear with some animation-->
-                            <div class="correct-line-feedback">
-                                <mat-icon class="correct-line-tick">check_circle</mat-icon>
-                                <h4>Well done, you’ve found the line the error is on! Time to fix it...</h4>
-                            </div>
-                        }
-                        @if (foundErroneousLine === false) {
-                            <h4>Line {{selectedLineNumber}} is not where the error is located, but that’s ok!</h4>
-                            <h4>Before you have another go, try re-inspecting the code again to see where the error is.</h4>
-                        }
-                    }
-                </div>
-
-                <!--Where any additional elements are displayed (e.g., test cases and hints)-->
-                <div class="articulation-pane--additional-info">
-                    @if ([DebuggingStageType.spotDefect, DebuggingStageType.inspectCode, DebuggingStageType.test].includes(debuggingStage)) {
-                        <app-test-case-display [testCases]="exercise.testCases" [studentPredictions]="studentResponses.get(DebuggingStageType.predict)"></app-test-case-display>
-                    }
-                    @if (exercise.hints && ([DebuggingStageType.inspectCode, DebuggingStageType.fixError].includes(debuggingStage) || (debuggingStage == DebuggingStageType.findError && foundErroneousLine == null))) {
-                        <app-hint-display [hints]="passHintsToComponent(debuggingStage)"></app-hint-display>
-                    }
-                </div>
-                
-                <!--Buttons to move onto the next PRIMMDebug stage (requiring some input for stages requiring a written response)-->
-                <div class="articulation-pane--button-container">
-                    <!--Stages requiring a written response-->
-                    @if ([DebuggingStageType.predict, DebuggingStageType.spotDefect, DebuggingStageType.fixError].includes(debuggingStage)) {
-                        <button mat-raised-button color="green" (click)="nextDebuggingStage()" class="articulation-pane--button-container--button" [disabled]="(exercise!.multipleChoiceOptions?.get(debuggingStage) && !userMultiChoiceInput && useMultipleChoiceOptions) || ((!useMultipleChoiceOptions || !exercise!.multipleChoiceOptions?.get(debuggingStage)) && (!userReflectionInput || userReflectionInput == ''))">{{debuggingStage == DebuggingStageType.predict ? "Let's find out" : debuggingStage == DebuggingStageType.fixError ? "Time to test!" : "On to the next stage!"}}</button>
-                    }
-                    @if (debuggingStage == DebuggingStageType.findError) {
-                        @if (exercise.lineContainingError) {
-                            @switch (foundErroneousLine) {
-                                @case (true) {
-                                    <button mat-raised-button color="green" (click)="setDebuggingStageFromFindError(DebuggingStageType.fixError)" class="articulation-pane--button-container--button">Fix the error</button>
-                                }
-                                @case (false) {
-                                    <button mat-raised-button color="green" (click)="setDebuggingStageFromFindError(DebuggingStageType.inspectCode)" class="articulation-pane--button-container--button">Re-inspect the code (recommended)</button>
-                                    <button mat-raised-button color="green" (click)="setDebuggingStageFromFindError(DebuggingStageType.findError)" class="articulation-pane--button-container--button">Enter another line number</button>
-                                }
-                                @case (null) {
-                                    <button mat-raised-button color="green" (click)="checkLineNumber()" [disabled]="!selectedLineNumber" class="articulation-pane--button-container--button">Check my answer</button>
-                                }
-                            }
-                        }
-                        @else {
-                            <button mat-raised-button color="green" (click)="nextDebuggingStage()" class="articulation-pane--button-container--button" [disabled]="(exercise!.multipleChoiceOptions?.get(debuggingStage) && !userMultiChoiceInput && useMultipleChoiceOptions) || ((!useMultipleChoiceOptions || !exercise!.multipleChoiceOptions?.get(debuggingStage)) && (!userReflectionInput || userReflectionInput == ''))">Time to debug!</button>
-                        }
-                    }
-                    <!--Stages not requiring a response-->
-                    @if (debuggingStage == DebuggingStageType.inspectCode || debuggingStage == DebuggingStageType.modify) {
-                        <button mat-raised-button color="green" (click)="nextDebuggingStage()" class="articulation-pane--button-container--button">{{debuggingStage == DebuggingStageType.inspectCode ? "I'm ready to find the error" : "Onto the next stage"}}</button>
-                    }
-                    @if (debuggingStage == DebuggingStageType.test) {
-                        <button mat-raised-button (click)="enterSuccessOfChanges(true)" class="articulation-pane--button-container--button" color="green">Yes</button>
-                        <button mat-raised-button (click)="enterSuccessOfChanges(false)" class="articulation-pane--button-container--button" color="green">No</button>
-                    }
-                    @if (debuggingStage == DebuggingStageType.completedTest) {
-                        @if (changesSuccessful) {
-                            <div class="flex-column">
-                                <button mat-raised-button (click)="setDebuggingStage(DebuggingStageType.modify)" class="articulation-pane--button-container--button" color="green">Continue with PRIMM</button>
-                                <button mat-raised-button (click)="returnToHomepage()" class="articulation-pane--button-container--button" color="green">Try another PRIMMDebug challenge</button>
-                            </div>
-                        }
-                        @else {
-                            <div class="flex-column">
-                                <button mat-raised-button (click)="setDebuggingStage(DebuggingStageType.inspectCode)" class="articulation-pane--button-container--button" color="green">Re-inspect the code (recommended)</button>
-                                <button mat-raised-button (click)="setDebuggingStage(DebuggingStageType.fixError)" class="articulation-pane--button-container--button" color="green">Try another fix</button>
-                                <button mat-raised-button (click)="returnToHomepage()" class="articulation-pane--button-container--button" color="green">Try another PRIMMDebug challenge</button>
-                            </div>
-                        }
-                    }
-                    @if (debuggingStage == DebuggingStageType.make) {
-                        <button mat-raised-button (click)="returnToHomepage()" color="green" class="articulation-pane--button-container--button">Move on to a different exercise</button>
-                    }
-                </div>
+                    </div>
+                }
             </div>
         </div>
     </div>

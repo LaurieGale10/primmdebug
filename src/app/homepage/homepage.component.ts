@@ -7,6 +7,7 @@ import {MatIconModule} from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { FirestoreService } from '../services/firestore.service';
 import { LoggingService } from '../services/logging.service';
+import { SessionManagerService } from '../services/session-manager.service';
 import { MatDialog } from '@angular/material/dialog';
 import { StudentIdDialogComponent } from '../student-id-dialog/student-id-dialog.component';
 import { environment } from '../../environments/environment.development';
@@ -24,10 +25,11 @@ export class HomepageComponent implements OnInit {
 
     displaySurveyButton: boolean = false;
 
-    constructor(private firestoreService: FirestoreService, private loggingService: LoggingService, private dialog: MatDialog) { }
+    constructor(private firestoreService: FirestoreService, private loggingService: LoggingService, private sessionManager: SessionManagerService, private dialog: MatDialog) { }
 
     ngOnInit(): void {
       this.loggingService.resetDebuggingStage();
+      this.sessionManager.clearSessionStorage();
       this.firestoreService.getUnparsedExercises().subscribe(data => {
         const unparsedExercises = data;
         this.exercises = this.firestoreService.parseDebuggingExercises(unparsedExercises);
