@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { By } from '@angular/platform-browser';
 import { of } from 'rxjs';
 
 import { PrimmDebugViewComponent } from './primm-debug-view.component';
@@ -822,6 +823,95 @@ describe('PrimmDebugViewComponent', () => {
         
         // Act & Assert
         expect(component.isStudentResponseValid()).toBe(false);
+      });
+    });
+  });
+
+  describe('Component Visibility Logic', () => {
+    
+    describe('Previous Hypotheses Pane Display', () => {
+      
+      beforeEach(() => {
+        setupComponentWithExercise();
+        // Set debugging stage to inspectCode for all tests in this suite
+        component.debuggingStage = DebuggingStage.inspectCode;
+        // Ensure component is fully initialized
+        fixture.detectChanges();
+      });
+
+      it('should not display previous-hypotheses-pane when inspectCode responses only contain null values', () => {
+        // Arrange
+        component.studentResponses.set(DebuggingStage.inspectCode, [null, null, null]);
+        
+        // Act
+        fixture.detectChanges();
+        
+        // Assert
+        const previousHypothesesPane = fixture.debugElement.query(By.css('app-previous-hypotheses-pane'));
+        expect(previousHypothesesPane).toBeNull();
+      });
+
+      it('should display previous-hypotheses-pane when inspectCode responses contain at least one non-null value', () => {
+        // Arrange
+        component.studentResponses.set(DebuggingStage.inspectCode, [null, 'Valid hypothesis', null]);
+        
+        // Act
+        fixture.detectChanges();
+        
+        // Assert
+        const previousHypothesesPane = fixture.debugElement.query(By.css('app-previous-hypotheses-pane'));
+        expect(previousHypothesesPane).toBeTruthy();
+      });
+
+      it('should display previous-hypotheses-pane when all inspectCode responses are non-null', () => {
+        // Arrange
+        component.studentResponses.set(DebuggingStage.inspectCode, ['First hypothesis', 'Second hypothesis']);
+        
+        // Act
+        fixture.detectChanges();
+        
+        // Assert
+        const previousHypothesesPane = fixture.debugElement.query(By.css('app-previous-hypotheses-pane'));
+        expect(previousHypothesesPane).toBeTruthy();
+      });
+
+      it('should not display previous-hypotheses-pane when inspectCode responses array is empty', () => {
+        // Arrange
+        component.studentResponses.set(DebuggingStage.inspectCode, []);
+        
+        // Act
+        fixture.detectChanges();
+        
+        // Assert
+        const previousHypothesesPane = fixture.debugElement.query(By.css('app-previous-hypotheses-pane'));
+        expect(previousHypothesesPane).toBeNull();
+      });
+
+      it('should not display previous-hypotheses-pane when not in inspectCode stage', () => {
+        // Arrange
+        component.debuggingStage = DebuggingStage.predict;
+        component.studentResponses.set(DebuggingStage.inspectCode, ['Valid hypothesis']);
+        
+        // Act
+        fixture.detectChanges();
+        
+        // Assert
+        const previousHypothesesPane = fixture.debugElement.query(By.css('app-previous-hypotheses-pane'));
+        expect(previousHypothesesPane).toBeNull();
+      });
+
+      it('should pass correct previousHypotheses input to previous-hypotheses-pane component', () => {
+        // Arrange
+        const inspectCodeResponses = ['First hypothesis', null, 'Third hypothesis'];
+        component.studentResponses.set(DebuggingStage.inspectCode, inspectCodeResponses);
+        
+        // Act
+        fixture.detectChanges();
+        
+        // Assert
+        const previousHypothesesPane = fixture.debugElement.query(By.css('app-previous-hypotheses-pane'));
+        expect(previousHypothesesPane).toBeTruthy();
+        expect(previousHypothesesPane.componentInstance.previousHypotheses).toEqual(inspectCodeResponses);
       });
     });
   });

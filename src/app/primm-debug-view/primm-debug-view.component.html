@@ -143,7 +143,7 @@
                             <app-predict-run-test-case-pane 
                                 [testCaseInput]="exercise.testCases![predictRunIteration].input"
                                 [debuggingStage]="debuggingStage"
-                                [studentPrediction]="studentResponses.get(DebuggingStageType.predict)![predictRunIteration]"
+                                [studentPrediction]="studentResponses.get(DebuggingStageType.predict)![predictRunIteration]!"
                                 (onKeyDown)="onKeydown($event)"
                                 (predictionChange)="onStudentInputChange($event)"
                                 [(prediction)]="userReflectionInput"> <!--TODO: Pass has code editor loaded down to here-->
@@ -197,10 +197,13 @@
                         }
                     </div>
 
-                    <!--Where any additional elements are displayed (e.g., test cases and hints)-->
+                    <!--Where any additional elements are displayed (e.g., test casesí and hints)-->
                     <div class="articulation-pane--additional-info">
                         @if ([DebuggingStageType.spotDefect, DebuggingStageType.inspectCode, DebuggingStageType.test].includes(debuggingStage)) {
-                            <app-test-case-display [testCases]="exercise.testCases" [studentPredictions]="studentResponses.get(DebuggingStageType.predict)"></app-test-case-display>
+                            <app-test-case-display [testCases]="exercise.testCases" [studentPredictions]="getPredictResponses()"></app-test-case-display>
+                        }
+                        @if (debuggingStage == DebuggingStageType.inspectCode && inspectCodeResponsesContainInput()) {
+                            <app-previous-hypotheses-pane [previousHypotheses]="studentResponses.get(DebuggingStageType.inspectCode)!"></app-previous-hypotheses-pane>
                         }
                         @if (exercise.hints && ([DebuggingStageType.inspectCode, DebuggingStageType.fixError].includes(debuggingStage) || (debuggingStage == DebuggingStageType.findError && foundErroneousLine == null))) {
                             <app-hint-display [hints]="passHintsToComponent(debuggingStage)"></app-hint-display>

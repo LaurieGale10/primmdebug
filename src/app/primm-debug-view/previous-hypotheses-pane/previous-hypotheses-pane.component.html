@@ -1,0 +1,27 @@
+<mat-expansion-panel [@.disabled]="disableAnimation" (opened)="onPanelExpansionChange(true)" (closed)="onPanelExpansionChange(false)">
+    <mat-expansion-panel-header>
+        @if (!panelOpenState()) {
+            <mat-panel-title><mat-icon class="edit-icon">edit</mat-icon> Click to Show Your Previous Thoughts</mat-panel-title>
+        } @else {
+            <mat-panel-title><mat-icon class="edit-icon">edit</mat-icon> Your Previous Thoughts For This Stage (Attempt {{previousHypothesisIndex + 1}})</mat-panel-title>
+        }
+    </mat-expansion-panel-header>
+
+    @if (previousHypotheses[previousHypothesisIndex]) {
+        <p><em>{{previousHypotheses![previousHypothesisIndex]}}</em></p>
+    }
+    @else {
+        <p>You didn't enter a response on this stage.</p>
+    }
+
+    @if (previousHypotheses.length > 1) {
+        <div class="expansion-panel-switch-buttons">
+            <button mat-icon-button [disabled]="previousHypothesisIndex == 0" (click)="setPreviousHypothesisIndex(previousHypothesisIndex - 1)">
+                <mat-icon>chevron_left</mat-icon>
+            </button>
+            <button mat-icon-button [disabled]="previousHypothesisIndex == previousHypotheses!.length - 1" (click)="setPreviousHypothesisIndex(previousHypothesisIndex + 1)">
+                <mat-icon>chevron_right</mat-icon>
+            </button>
+        </div>
+    }
+</mat-expansion-panel>

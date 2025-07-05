@@ -24,6 +24,7 @@ import { SessionManagerService } from '../services/session-manager.service';
 import { CodeEditorComponent } from "./code-editor/code-editor.component";
 import { ExerciseLog, FocusType, StageLog } from '../services/logging.model';
 import { TestCaseDisplayComponent } from "./test-case-display/test-case-display.component";
+import { PreviousHypothesesPaneComponent } from './previous-hypotheses-pane/previous-hypotheses-pane.component';
 import { HintDisplayComponent } from "./hint-display/hint-display.component";
 import { ToolbarComponent } from '../toolbar/toolbar.component';
 import { PredictRunTestCasePaneComponent } from "./predict-run-test-case-pane/predict-run-test-case-pane.component";
@@ -34,7 +35,7 @@ import { environment } from '../../environments/environment.development';
 @Component({
   selector: 'app-primm-debug-view',
   standalone: true,
-  imports: [NgxConfettiExplosionComponent, MatButtonModule, MatInputModule, MatFormFieldModule, MatIconModule, FormsModule, MatRadioModule, MatDividerModule, MatSelectModule, MatProgressSpinnerModule, CodeEditorComponent, TestCaseDisplayComponent, HintDisplayComponent, ToolbarComponent, PredictRunTestCasePaneComponent],
+  imports: [NgxConfettiExplosionComponent, MatButtonModule, MatInputModule, MatFormFieldModule, MatIconModule, FormsModule, MatRadioModule, MatDividerModule, MatSelectModule, MatProgressSpinnerModule, CodeEditorComponent, TestCaseDisplayComponent, PreviousHypothesesPaneComponent, HintDisplayComponent, ToolbarComponent, PredictRunTestCasePaneComponent],
   templateUrl: './primm-debug-view.component.html',
   styleUrl: './primm-debug-view.component.sass',
   animations: [
@@ -57,13 +58,13 @@ export class PrimmDebugViewComponent implements OnInit {
   debuggingStage: DebuggingStage = DebuggingStage.predict;
   DebuggingStageType = DebuggingStage; //To allow reference to enum types in interpolation
   
-  studentResponses: Map<DebuggingStage, string[]> = new Map<DebuggingStage, string[]>([
-    [DebuggingStage.predict, []],
-    [DebuggingStage.spotDefect, []],
+  studentResponses: Map<DebuggingStage, (string | null)[]> = new Map<DebuggingStage, (string | null)[]>([
+    [DebuggingStage.predict, [] as string[]],
+    [DebuggingStage.spotDefect, [] as string[]],
     [DebuggingStage.inspectCode, []],
-    [DebuggingStage.findError, []],
-    [DebuggingStage.fixError, []],
-    [DebuggingStage.modify, []]
+    [DebuggingStage.findError, [] as string[]],
+    [DebuggingStage.fixError, [] as string[]],
+    [DebuggingStage.modify, [] as string[]]
   ]);
 
   changesSuccessful: boolean | null = null;
@@ -128,6 +129,17 @@ export class PrimmDebugViewComponent implements OnInit {
     if (!this.sessionManagerService.getDebuggingStage()) {
         this.sessionManagerService.setDebuggingStage(DebuggingStage.predict);
     }
+  }
+
+  getPredictResponses(): string[] {
+    return this.studentResponses.get(DebuggingStage.predict) as string[];
+  }
+
+  /**
+   * Checks whether the studentResponses.get(DebuggingStage.inspectCode) array actually contains any non-null values.
+   */
+  inspectCodeResponsesContainInput(): boolean {
+    return this.studentResponses.get(DebuggingStage.inspectCode)?.some(response => response !== null) || false;
   }
 
   checkSessionStorage() {
@@ -344,8 +356,8 @@ export class PrimmDebugViewComponent implements OnInit {
   /**
    * Saves a students' response to a particular prompt to the studentResponses variable
    */
-  saveStudentResponse(response: string) {
-    const currentList: string[] = this.studentResponses.get(this.debuggingStage)!;
+  saveStudentResponse(response: string | null) {
+    const currentList: (string | null)[] = this.studentResponses.get(this.debuggingStage)!;
     currentList.push(response);
   }
 
@@ -415,7 +427,7 @@ export class PrimmDebugViewComponent implements OnInit {
     if (this.exercise?.multipleChoiceOptions?.get(this.debuggingStage) && this.useMultipleChoiceOptions) {
       this.saveStudentResponse(this.userMultiChoiceInput!);
     }
-    else if (this.userReflectionInput) {
+    else if (this.userReflectionInput || this.debuggingStage == DebuggingStage.inspectCode) {
       this.saveStudentResponse(this.userReflectionInput!);
     }
     this.sessionManagerService.setCurrentResponse(null);
