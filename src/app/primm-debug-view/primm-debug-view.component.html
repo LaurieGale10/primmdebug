@@ -3,15 +3,17 @@
 @if (exercise) {
     <div class="page">
         <h1><strong>{{exercise!.title}}</strong></h1>
-
-        <h3>Program Description</h3>
-        <p class="exercise-description">{{exercise!.description}}</p>
-
+        
         <div class="code-articulation-split-display">
-            <div class="code-editor-display">
-                <app-code-editor #codeEditor [program]="this.exercise.program!" [debuggingStage]="debuggingStage"
-                    (runButtonPressed)="runButtonPressed($event)" (logsReceived)="onLogsReceived($event)" (codeEditorLoaded)="codeEditorLoaded($event)">
-                </app-code-editor>
+            <div class="code-editor-description-split-display">
+                <h3>Program Description</h3>
+                <p class="exercise-description">{{exercise!.description}}</p>
+
+                <div class="code-editor-display">
+                    <app-code-editor #codeEditor [program]="this.exercise.program!" [debuggingStage]="debuggingStage"
+                        (runButtonPressed)="runButtonPressed($event)" (logsReceived)="onLogsReceived($event)" (codeEditorLoaded)="codeEditorLoaded($event)">
+                    </app-code-editor>
+                </div>
             </div>
 
             <mat-divider vertical></mat-divider>
