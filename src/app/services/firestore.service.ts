@@ -160,10 +160,18 @@ export class FirestoreService {
       const parsedHints: Map<DebuggingStage, string[]> = new Map<DebuggingStage, string[]>();
       //For now, we'll only have hints for the find_the_error and fix_the_error stages
       if (exercise["hints"]["find_the_error"] && Array.isArray(exercise["hints"]["find_the_error"])) {
-        parsedHints.set(DebuggingStage.findError, exercise["hints"]["find_the_error"]);
+        const hints: any[] = exercise["hints"]["find_the_error"];
+        const parsedFindErrorHints: string[] = hints.map((hint: any) => {
+          return this.whitespacePreserverPipe.transform(hint);
+        });
+        parsedHints.set(DebuggingStage.findError, parsedFindErrorHints);
       }
       if (exercise["hints"]["fix_the_error"] && Array.isArray(exercise["hints"]["fix_the_error"])) {
-        parsedHints.set(DebuggingStage.fixError, exercise["hints"]["fix_the_error"]);
+        const hints: any[] = exercise["hints"]["fix_the_error"];
+        const parsedFixErrorHints: string[] = hints.map((hint: any) => {
+          return this.whitespacePreserverPipe.transform(hint);
+        });
+        parsedHints.set(DebuggingStage.fixError, parsedFixErrorHints);
       }
       return parsedHints.size > 0 ? parsedHints : null;
     }
