@@ -1,24 +1,24 @@
-@if (hints!.length > 0) {
-    <mat-expansion-panel [@.disabled]="disableAnimation" (opened)="onPanelExpansionChange(true)" (closed)="onPanelExpansionChange(false)">
-        <mat-expansion-panel-header>
-            @if (!panelOpenState()) {
-                <mat-panel-title><mat-icon>lightbulb_2</mat-icon> Need a Hint?</mat-panel-title>
-            } @else { 
-                <mat-panel-title><mat-icon>lightbulb_2</mat-icon> Hint {{hintIndex + 1}}</mat-panel-title>
-            }
-        </mat-expansion-panel-header>
-    
-        <p class="hint-content">{{hints![hintIndex]}}</p>
-    
-        @if (hints && hints!.length > 1) {
-            <div class="expansion-panel-switch-buttons">
-                <button mat-icon-button [disabled]="hintIndex == 0" (click)="setHintIndex(hintIndex - 1)">
-                    <mat-icon>chevron_left</mat-icon>
-                </button>
-                <button mat-icon-button [disabled]="hintIndex == hints!.length - 1" (click)="setHintIndex(hintIndex + 1)">
-                    <mat-icon>chevron_right</mat-icon>
-                </button>
-            </div>
+@if (hints) {
+<mat-expansion-panel [@.disabled]="disableAnimation" [expanded]="panelOpenState()" (opened)="onPanelExpansionChange(true)" (closed)="onPanelExpansionChange(false)">
+    <mat-expansion-panel-header>
+        @if (!panelOpenState()) {
+            <mat-panel-title><mat-icon>lightbulb_2</mat-icon> Need a Hint?</mat-panel-title>
+        } @else { 
+            <mat-panel-title><mat-icon>lightbulb_2</mat-icon> Hint {{hintIndex + 1}}</mat-panel-title>
         }
-    </mat-expansion-panel>
+    </mat-expansion-panel-header>
+
+    <p class="hint-content">{{hints![hintIndex]}}</p>
+
+    @if (hints && hints!.length > 1) {
+        <div class="expansion-panel-switch-buttons">
+            <button mat-icon-button [disabled]="hintIndex == 0" (click)="setHintIndex(hintIndex - 1)">
+                <mat-icon>chevron_left</mat-icon>
+            </button>
+            <button mat-icon-button [disabled]="hintIndex == hints!.length - 1" (click)="setHintIndex(hintIndex + 1)">
+                <mat-icon>chevron_right</mat-icon>
+            </button>
+        </div>
+    }
+</mat-expansion-panel>
 }

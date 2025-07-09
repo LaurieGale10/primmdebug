@@ -259,28 +259,23 @@ export class PrimmDebugViewComponent implements OnInit {
    * Works the out the number of hints to pass to the hint-display component, based on the number of times the user has visited the list component
    */
   passHintsToComponent(debuggingStage: DebuggingStage): string[] {
-    const debuggingStageCounter: number = this.loggingService.getDebuggingStageCounter(debuggingStage);
+    let numberHintsToDisplay: number = 0;
 
     // Handle the special case for inspect the code
-    if (debuggingStage == DebuggingStage.inspectCode) {
-      const findErrorHints = this.exercise!.hints!.get(DebuggingStage.findError);
-      const findErrorCounter = this.loggingService.getDebuggingStageCounter(DebuggingStage.findError);
-    
-      if (findErrorHints && (debuggingStageCounter >= 2)) {
-        if ((findErrorCounter >= 2) && (findErrorCounter > debuggingStageCounter)) {
-          return findErrorHints.slice(0, findErrorCounter - 1);
-        }
-        return findErrorHints.slice(0, debuggingStageCounter - 1);
+    if (debuggingStage == DebuggingStage.inspectCode || debuggingStage == DebuggingStage.findError) {
+      if (this.studentResponses.get(DebuggingStage.findError)!.length == 0) {
+        return [];
       }
+      const findErrorHints = this.exercise!.hints!.get(DebuggingStage.findError)!;
+      numberHintsToDisplay = Math.min(
+          this.studentResponses.get(DebuggingStage.findError)!.length
+        , findErrorHints.length)
+      return findErrorHints.slice(0, numberHintsToDisplay);
     }
-    
-    const stageHints = this.exercise!.hints!.get(debuggingStage);
-    if (stageHints && debuggingStageCounter >= 2) {
-      return stageHints.slice(0, debuggingStageCounter - 1);
-    }
-    
-    // Return an empty array if no conditions are met.
-    return [];
+
+    const stageHints = this.exercise!.hints!.get(debuggingStage)!;
+    numberHintsToDisplay = Math.min(this.studentResponses.get(debuggingStage)!.length, stageHints.length);
+    return stageHints.slice(0, numberHintsToDisplay);
   }
 
   isStudentResponseValid(): boolean {
@@ -293,6 +288,10 @@ export class PrimmDebugViewComponent implements OnInit {
    * @param debuggingStage The debugging stage to be set
    */
   setDebuggingStageFromFindError(debuggingStage: DebuggingStage) {
+    //TODO: Think this method could be refactored into nextDebuggingStage()
+    this.saveStudentResponse("Line "+this.selectedLineNumber!);
+    this.sessionManagerService.setPreviousResponses(JSON.stringify(Array.from(this.studentResponses.entries())));
+
     this.foundErroneousLine = null;
     this.selectedLineNumber = undefined;
     this.sessionManagerService.setSelectedLineNumber(null);

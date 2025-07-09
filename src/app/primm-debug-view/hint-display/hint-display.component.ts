@@ -13,16 +13,22 @@ import { PaneView } from '../../services/logging.model';
   styleUrl: './hint-display.component.sass'
 })
 export class HintDisplayComponent {
-  readonly panelOpenState = signal(false);
+  panelOpenState = signal(false);
 
   @Input({required: true})
-  hints: string[] | null = null;
+  hints: string[] | undefined;
+
+  @Input()
+  set debuggingStage(value: any) {
+    this.panelOpenState.set(false);
+    this.hintIndex = 0;
+  }
 
   hintIndex: number = 0;
 
   disableAnimation: boolean = true; //Fix to avoid expansion panel expanding on animation of parent div 
 
-  constructor(private loggingService: LoggingService) {}
+  constructor(private loggingService: LoggingService) { }
 
   onPanelExpansionChange(expanded: boolean) {
     this.panelOpenState.set(expanded);

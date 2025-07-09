@@ -914,5 +914,87 @@ describe('PrimmDebugViewComponent', () => {
         expect(previousHypothesesPane.componentInstance.previousHypotheses).toEqual(inspectCodeResponses);
       });
     });
+
+    describe('Hint Display Component Visibility', () => {
+      
+      beforeEach(() => {
+        setupComponentWithExercise();
+        fixture.detectChanges();
+      });
+
+      it('should not display hint-display component when no student responses exist', () => {
+        // Arrange: Set up exercise with hints but no student responses
+        component.debuggingStage = DebuggingStage.spotDefect;
+        component.exercise!.hints!.set(DebuggingStage.spotDefect, ['Hint 1', 'Hint 2']);
+        
+        // Ensure no student responses exist (passHintsToComponent will return empty array)
+        component.studentResponses.set(DebuggingStage.spotDefect, []);
+        
+        // Act
+        fixture.detectChanges();
+        
+        // Verify passHintsToComponent returns empty array
+        const hintsFromMethod = component.passHintsToComponent(DebuggingStage.spotDefect);
+        expect(hintsFromMethod).toEqual([]);
+        
+        // Assert: Should not render hint-display component
+        const hintDisplayComponent = fixture.debugElement.query(By.css('app-hint-display'));
+        expect(hintDisplayComponent).toBeNull();
+      });
+
+      it('should display hint-display component when hints array contains hints', () => {
+        // Arrange: Set up exercise with hints for current stage
+        component.debuggingStage = DebuggingStage.inspectCode;
+        component.exercise!.hints!.set(DebuggingStage.findError, ['Hint 1', 'Hint 2']);
+        
+        // CRITICAL: Set up student responses so passHintsToComponent returns hints
+        // For inspectCode stage, we need findError responses to exist
+        component.studentResponses.set(DebuggingStage.findError, ['Some find error response']);
+        component.studentResponses.set(DebuggingStage.inspectCode, ['Some inspect response']);
+        
+        // Act
+        fixture.detectChanges();
+        
+        // Verify passHintsToComponent returns expected hints
+        const hintsFromMethod = component.passHintsToComponent(DebuggingStage.inspectCode);
+        expect(hintsFromMethod.length).toBeGreaterThan(0);
+        
+        // Assert: Should render hint-display component
+        const hintDisplayComponent = fixture.debugElement.query(By.css('app-hint-display'));
+        expect(hintDisplayComponent).toBeTruthy();
+        expect(hintDisplayComponent.componentInstance.hints).toEqual(hintsFromMethod);
+      });
+
+      it('should display hint-display component for spotDefect stage when student responses exist', () => {
+        // Arrange: Set up exercise with hints for spotDefect stage (simpler case)
+        component.debuggingStage = DebuggingStage.inspectCode;
+        component.exercise!.hints!.set(DebuggingStage.inspectCode, ['Spot defect hint 1', 'Spot defect hint 2']);
+        
+        // Set up student responses so passHintsToComponent returns hints
+        component.studentResponses.set(DebuggingStage.inspectCode, ['Student response 1']);
+        component.studentResponses.set(DebuggingStage.findError, []);
+        
+        // Act
+        fixture.detectChanges();
+        
+        // Verify passHintsToComponent returns expected hints
+        const hintsFromMethod = component.passHintsToComponent(DebuggingStage.inspectCode);
+        expect(hintsFromMethod).toEqual([]);
+
+      });
+
+      it('should not display hint-display component when hints are undefined for current stage', () => {
+        // Arrange: Set up exercise without hints for current stage
+        component.debuggingStage = DebuggingStage.spotDefect;
+        // Don't set any hints for spotDefect stage
+        
+        // Act
+        fixture.detectChanges();
+        
+        // Assert: Should not render hint-display component
+        const hintDisplayComponent = fixture.debugElement.query(By.css('app-hint-display'));
+        expect(hintDisplayComponent).toBeNull();
+      });
+    });
   });
 });

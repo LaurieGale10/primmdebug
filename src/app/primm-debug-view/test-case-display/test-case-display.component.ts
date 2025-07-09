@@ -25,6 +25,12 @@ export class TestCaseDisplayComponent implements OnInit {
   @Input({required: true})
   studentPredictions: string[] | undefined;
 
+  @Input()
+  set debuggingStage(value: any) {
+    this.panelOpenState.set(false);
+    this.testCaseIndex = 0;
+  }
+
   testCaseIndex: number = 0;
 
   disableAnimation: boolean = true; //Fix to avoid expansion panel expanding on animation of parent div 

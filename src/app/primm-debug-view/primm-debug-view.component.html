@@ -199,16 +199,19 @@
                         }
                     </div>
 
-                    <!--Where any additional elements are displayed (e.g., test casesí and hints)-->
+                    <!--Where any additional elements are displayed (e.g., test cases and hints)-->
                     <div class="articulation-pane--additional-info">
                         @if ([DebuggingStageType.spotDefect, DebuggingStageType.inspectCode, DebuggingStageType.test].includes(debuggingStage)) {
-                            <app-test-case-display [testCases]="exercise.testCases" [studentPredictions]="getPredictResponses()"></app-test-case-display>
+                            <app-test-case-display [testCases]="exercise.testCases" [studentPredictions]="getPredictResponses()" [debuggingStage]="debuggingStage"></app-test-case-display>
                         }
                         @if (debuggingStage == DebuggingStageType.inspectCode && inspectCodeResponsesContainInput()) {
                             <app-previous-hypotheses-pane [previousHypotheses]="studentResponses.get(DebuggingStageType.inspectCode)!"></app-previous-hypotheses-pane>
                         }
-                        @if (exercise.hints && ([DebuggingStageType.inspectCode, DebuggingStageType.fixError].includes(debuggingStage) || (debuggingStage == DebuggingStageType.findError && foundErroneousLine == null))) {
-                            <app-hint-display [hints]="passHintsToComponent(debuggingStage)"></app-hint-display>
+                        @if (exercise.hints
+                            && ([DebuggingStageType.inspectCode, DebuggingStageType.fixError].includes(debuggingStage)
+                            || (debuggingStage == DebuggingStageType.findError && foundErroneousLine == null))
+                            && passHintsToComponent(debuggingStage).length > 0) {
+                            <app-hint-display [debuggingStage]="debuggingStage" [hints]="passHintsToComponent(debuggingStage)"></app-hint-display>
                         }
                     </div>
                     
