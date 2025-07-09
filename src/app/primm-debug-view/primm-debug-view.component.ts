@@ -1,8 +1,7 @@
 import { Component, OnInit, signal, ViewChild } from '@angular/core';
-import { NgIf, NgFor } from '@angular/common';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { DebuggingStage } from '../types/types';
-import { DebuggingExercise } from '../services/debugging-exercise.model';
+import { DebuggingExercise, TestCase } from '../services/debugging-exercise.model';
 import { DocumentReference } from '@angular/fire/firestore';
 import { trigger, transition } from '@angular/animations';
 import { expandBorderAnimation } from '../animations/animations';
@@ -14,18 +13,21 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {FormsModule} from '@angular/forms';
 import {MatRadioModule} from '@angular/material/radio';
-import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatSelectModule} from '@angular/material/select';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { ToHomeDialogComponent } from './to-home-dialog/to-home-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { FirestoreService } from '../services/firestore.service';
-import { CodeEditorComponent } from "./code-editor/code-editor.component";
 import { LoggingService } from '../services/logging.service';
+import { SessionManagerService } from '../services/session-manager.service';
+import { CodeEditorComponent } from "./code-editor/code-editor.component";
 import { ExerciseLog, FocusType, StageLog } from '../services/logging.model';
 import { TestCaseDisplayComponent } from "./test-case-display/test-case-display.component";
+import { PreviousHypothesesPaneComponent } from './previous-hypotheses-pane/previous-hypotheses-pane.component';
 import { HintDisplayComponent } from "./hint-display/hint-display.component";
+import { ToolbarComponent } from '../toolbar/toolbar.component';
+import { PredictRunTestCasePaneComponent } from "./predict-run-test-case-pane/predict-run-test-case-pane.component";
 
 import dedent from 'dedent';
 import { environment } from '../../environments/environment.development';
@@ -33,7 +35,7 @@ import { environment } from '../../environments/environment.development';
 @Component({
   selector: 'app-primm-debug-view',
   standalone: true,
-  imports: [NgxConfettiExplosionComponent, MatButtonModule, MatInputModule, MatFormFieldModule, MatIconModule, FormsModule, MatRadioModule, MatToolbarModule, MatDividerModule, MatSelectModule, CodeEditorComponent, TestCaseDisplayComponent, HintDisplayComponent],
+  imports: [NgxConfettiExplosionComponent, MatButtonModule, MatInputModule, MatFormFieldModule, MatIconModule, FormsModule, MatRadioModule, MatDividerModule, MatSelectModule, MatProgressSpinnerModule, CodeEditorComponent, TestCaseDisplayComponent, PreviousHypothesesPaneComponent, HintDisplayComponent, ToolbarComponent, PredictRunTestCasePaneComponent],
   templateUrl: './primm-debug-view.component.html',
   styleUrl: './primm-debug-view.component.sass',
   animations: [
@@ -56,14 +58,14 @@ export class PrimmDebugViewComponent implements OnInit {
   debuggingStage: DebuggingStage = DebuggingStage.predict;
   DebuggingStageType = DebuggingStage; //To allow reference to enum types in interpolation
   
-  studentAnswers: Map<DebuggingStage, string[]> = new Map<DebuggingStage, string[]>([
-    [DebuggingStage.predict, []],
-    [DebuggingStage.spotDefect, []],
+  studentResponses: Map<DebuggingStage, (string | null)[]> = new Map<DebuggingStage, (string | null)[]>([
+    [DebuggingStage.predict, [] as string[]],
+    [DebuggingStage.spotDefect, [] as string[]],
     [DebuggingStage.inspectCode, []],
-    [DebuggingStage.findError, []],
-    [DebuggingStage.fixError, []],
-    [DebuggingStage.modify, []]
-  ]); //How will I go about saving this information to a database? Create a separate method for doing this? JSONify this?
+    [DebuggingStage.findError, [] as string[]],
+    [DebuggingStage.fixError, [] as string[]],
+    [DebuggingStage.modify, [] as string[]]
+  ]);
 
   changesSuccessful: boolean | null = null;
   useMultipleChoiceOptions: boolean = false;
@@ -89,7 +91,6 @@ export class PrimmDebugViewComponent implements OnInit {
     [DebuggingStage.findError, "e.g. The equals sign on line 3."],
     [DebuggingStage.fixError, "e.g. Added a colon to the end of the while loop."]
   ])
-  testCaseOutputs: Map<string, string> = new Map<string, string>();
   originalNumberOfLines: number[] | undefined;
   selectedLineNumber: number | undefined;
   foundErroneousLine: boolean | null = null;
@@ -98,7 +99,7 @@ export class PrimmDebugViewComponent implements OnInit {
 
   programLogs: any = null;
 
-  constructor(private router: Router, private route: ActivatedRoute, private dialog: MatDialog, private firestoreService: FirestoreService, private loggingService: LoggingService) { };
+  constructor(private router: Router, private route: ActivatedRoute, private dialog: MatDialog, private firestoreService: FirestoreService, private loggingService: LoggingService, private sessionManagerService: SessionManagerService) { };
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
@@ -125,6 +126,41 @@ export class PrimmDebugViewComponent implements OnInit {
         this.setupExerciseLogs();
       }
     }
+    if (!this.sessionManagerService.getDebuggingStage()) {
+        this.sessionManagerService.setDebuggingStage(DebuggingStage.predict);
+    }
+  }
+
+  getPredictResponses(): string[] {
+    return this.studentResponses.get(DebuggingStage.predict) as string[];
+  }
+
+  /**
+   * Checks whether the studentResponses.get(DebuggingStage.inspectCode) array actually contains any non-null values.
+   */
+  inspectCodeResponsesContainInput(): boolean {
+    return this.studentResponses.get(DebuggingStage.inspectCode)?.some(response => response !== null) || false;
+  }
+
+  checkSessionStorage() {
+    //Items in session storage can only exist when if the debuggingStage field exists
+    if (this.sessionManagerService.getDebuggingStage()) {
+      if (this.sessionManagerService.getPredictRunIteration()) {
+        this.predictRunIteration = this.sessionManagerService.getPredictRunIteration()!;
+      }
+
+      if (this.sessionManagerService.getSelectedLineNumber()) {
+        this.selectedLineNumber = this.sessionManagerService.getSelectedLineNumber()!;
+      }
+      else if (this.sessionManagerService.getCurrentResponse()) {
+        this.userReflectionInput = this.sessionManagerService.getCurrentResponse();
+      }
+
+      if (this.sessionManagerService.getPreviousResponses()) {
+        this.studentResponses = this.sessionManagerService.getPreviousResponses()!;
+      }
+      this.setDebuggingStage(this.sessionManagerService.getDebuggingStage()!);
+    }
   }
 
   /**
@@ -141,19 +177,40 @@ export class PrimmDebugViewComponent implements OnInit {
 
   onKeydown($event: Event) {
     //event?.preventDefault();
-    if ((this.exercise!.multipleChoiceOptions?.get(this.debuggingStage) && this.userMultiChoiceInput && this.useMultipleChoiceOptions) || (!this.exercise!.multipleChoiceOptions?.get(this.debuggingStage) && this.userReflectionInput && !this.firestoreService.isEmptyString(this.userReflectionInput))) {
+    if (
+      (this.exercise!.multipleChoiceOptions?.get(this.debuggingStage) && this.userMultiChoiceInput && this.useMultipleChoiceOptions) ||
+      (!this.exercise!.multipleChoiceOptions?.get(this.debuggingStage) && this.isStudentResponseValid()) ||
+      ([DebuggingStage.inspectCode, DebuggingStage.modify].includes(this.debuggingStage)) ||
+      (this.debuggingStage == DebuggingStage.findError && this.selectedLineNumber)
+    ) {
       this.nextDebuggingStage();
     }
     return false;
   }
 
+  onStudentInputChange(studentInput: string | null = null) {
+    if (studentInput) {
+      this.userReflectionInput = studentInput;
+    }
+    this.sessionManagerService.setCurrentResponse(this.userReflectionInput!);
+  }
+
+  onSelectedLineNumberChange() {
+    this.sessionManagerService.setSelectedLineNumber(this.selectedLineNumber!);
+  }
+
+  testCasesContainInputs(testCases: TestCase[]): boolean {
+    return testCases.some(testCase => testCase.input && testCase.input.length > 0);
+  }
+
   codeEditorLoaded(event: void) {
     this.hasCodeEditorLoaded.set(true);
+    this.checkSessionStorage();
   }
 
   runButtonPressed(event: void) {
-    this.predictRunIteration++;
     if (this.debuggingStage == DebuggingStage.run) {
+      this.predictRunIteration++;
       this.nextDebuggingStage();
     }
   }
@@ -202,30 +259,27 @@ export class PrimmDebugViewComponent implements OnInit {
    * Works the out the number of hints to pass to the hint-display component, based on the number of times the user has visited the list component
    */
   passHintsToComponent(debuggingStage: DebuggingStage): string[] {
-    const debuggingStageCounter: number = this.loggingService.getDebuggingStageCounter(debuggingStage);
+    let numberHintsToDisplay: number = 0;
 
     // Handle the special case for inspect the code
-    if (debuggingStage == DebuggingStage.inspectCode) {
-      const findErrorHints = this.exercise!.hints!.get(DebuggingStage.findError);
-      const findErrorCounter = this.loggingService.getDebuggingStageCounter(DebuggingStage.findError);
-    
-      console.log(debuggingStageCounter)
-      if (findErrorHints && (debuggingStageCounter >= 2)) {
-        if ((findErrorCounter >= 2) && (findErrorCounter > debuggingStageCounter)) {
-          return findErrorHints.slice(0, findErrorCounter - 1);
-        }
-        return findErrorHints.slice(0, debuggingStageCounter - 1);
+    if (debuggingStage == DebuggingStage.inspectCode || debuggingStage == DebuggingStage.findError) {
+      if (this.studentResponses.get(DebuggingStage.findError)!.length == 0) {
+        return [];
       }
+      const findErrorHints = this.exercise!.hints!.get(DebuggingStage.findError)!;
+      numberHintsToDisplay = Math.min(
+          this.studentResponses.get(DebuggingStage.findError)!.length
+        , findErrorHints.length)
+      return findErrorHints.slice(0, numberHintsToDisplay);
     }
-    
-    const stageHints = this.exercise!.hints!.get(debuggingStage);
-    if (stageHints && debuggingStageCounter >= 2) {
-      return stageHints.slice(0, debuggingStageCounter - 1);
-    }
-    
-    // Return an empty array if no conditions are met.
-    return [];
-    
+
+    const stageHints = this.exercise!.hints!.get(debuggingStage)!;
+    numberHintsToDisplay = Math.min(this.studentResponses.get(debuggingStage)!.length, stageHints.length);
+    return stageHints.slice(0, numberHintsToDisplay);
+  }
+
+  isStudentResponseValid(): boolean {
+    return this.userReflectionInput !== null && /[0-9A-Za-z]/.test(this.userReflectionInput);
   }
 
   /**
@@ -234,13 +288,22 @@ export class PrimmDebugViewComponent implements OnInit {
    * @param debuggingStage The debugging stage to be set
    */
   setDebuggingStageFromFindError(debuggingStage: DebuggingStage) {
+    //TODO: Think this method could be refactored into nextDebuggingStage()
+    this.saveStudentResponse("Line "+this.selectedLineNumber!);
+    this.sessionManagerService.setPreviousResponses(JSON.stringify(Array.from(this.studentResponses.entries())));
+
     this.foundErroneousLine = null;
     this.selectedLineNumber = undefined;
+    this.sessionManagerService.setSelectedLineNumber(null);
     this.setDebuggingStage(debuggingStage);
   }
 
   setDebuggingStage(debuggingStage: DebuggingStage) {
     this.debuggingStage = debuggingStage;
+    this.sessionManagerService.setDebuggingStage(debuggingStage);
+    if (debuggingStage == DebuggingStage.predict || debuggingStage == DebuggingStage.run) {
+      this.sessionManagerService.setPredictRunIteration(this.predictRunIteration);
+    }
     this.loggingService.setDebuggingStage(this.debuggingStage);
     switch (this.debuggingStage) {
       case DebuggingStage.predict: {
@@ -253,6 +316,7 @@ export class PrimmDebugViewComponent implements OnInit {
         break;
       }
       case DebuggingStage.spotDefect: {
+        this.sessionManagerService.setPredictRunIteration(null);
         this.sendToggleRunMessage(true);
         break;
       }
@@ -289,10 +353,10 @@ export class PrimmDebugViewComponent implements OnInit {
   }
 
   /**
-   * Saves a students' response to a particular prompt to the studentAnswers variable (and soon to be logging the answer as well)
+   * Saves a students' response to a particular prompt to the studentResponses variable
    */
-  saveStudentResponse(response: string) {
-    const currentList: string[] = this.studentAnswers.get(this.debuggingStage)!;
+  saveStudentResponse(response: string | null) {
+    const currentList: (string | null)[] = this.studentResponses.get(this.debuggingStage)!;
     currentList.push(response);
   }
 
@@ -316,6 +380,7 @@ export class PrimmDebugViewComponent implements OnInit {
     }
     else {
       this.foundErroneousLine = false;
+      this.sessionManagerService.setSelectedLineNumber(null);
     }
     this.loggingService.saveStageLog(this.createStageLog());
   }
@@ -361,9 +426,11 @@ export class PrimmDebugViewComponent implements OnInit {
     if (this.exercise?.multipleChoiceOptions?.get(this.debuggingStage) && this.useMultipleChoiceOptions) {
       this.saveStudentResponse(this.userMultiChoiceInput!);
     }
-    else if (this.userReflectionInput) {
+    else if (this.userReflectionInput || this.debuggingStage == DebuggingStage.inspectCode) {
       this.saveStudentResponse(this.userReflectionInput!);
     }
+    this.sessionManagerService.setCurrentResponse(null);
+    this.sessionManagerService.setPreviousResponses(JSON.stringify(Array.from(this.studentResponses.entries())));
     this.resetUserInput();
     switch (this.debuggingStage) {
       case DebuggingStage.predict: {
@@ -371,7 +438,7 @@ export class PrimmDebugViewComponent implements OnInit {
         break;
       }
       case DebuggingStage.run: {
-        if (this.exercise?.testCases && this.predictRunIteration < this.exercise?.testCases.length) {
+        if (this.predictRunIteration < this.exercise!.testCases!.length) {
           this.setDebuggingStage(DebuggingStage.predict);
         }
         else {
@@ -412,15 +479,6 @@ export class PrimmDebugViewComponent implements OnInit {
 
   retryExercise() {
     this.resetPredictUI();
-  }
-
-  openToHomeDialog() {
-    const dialogRef = this.dialog.open(ToHomeDialogComponent, {
-      data: {
-        title: "Are you sure?",
-        content: "Are you sure you want to go back? All your progress on this exercise will be lost!"
-      }
-    });
   }
 
   returnToHomepage() {

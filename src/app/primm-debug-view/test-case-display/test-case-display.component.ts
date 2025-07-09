@@ -20,7 +20,16 @@ export class TestCaseDisplayComponent implements OnInit {
   readonly panelOpenState = signal(false);
 
   @Input({required: true})
-  testCases: TestCase[] | null = null;
+  testCases: TestCase[] | null = [];
+
+  @Input({required: true})
+  studentPredictions: string[] | undefined;
+
+  @Input()
+  set debuggingStage(value: any) {
+    this.panelOpenState.set(false);
+    this.testCaseIndex = 0;
+  }
 
   testCaseIndex: number = 0;
 

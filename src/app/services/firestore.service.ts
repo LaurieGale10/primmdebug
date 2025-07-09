@@ -103,9 +103,12 @@ export class FirestoreService {
     return null;
   }
 
-  parseTestCase(testCase: any): TestCase | null {
-    //Check required field of TestCase first
-    if (testCase["expected"] && typeof testCase["expected"] === "string") {
+  parseTestCase(testCase: any): TestCase {
+    //Test case must have one of the following fields
+    if ((testCase["expected"] && typeof testCase["expected"] === "string")
+      || (testCase["actual"] && typeof testCase["actual"] === "string")
+      || (testCase["input"] && Array.isArray(testCase["input"]))
+    ) {
       const result: TestCase = {
         expected: testCase["expected"]
       };
@@ -124,23 +127,24 @@ export class FirestoreService {
       }
       return testCase;
     }
-    return null;
+    throw new Error("Invalid test case format: " + JSON.stringify(testCase));
   }
 
-  parseTestCases(exercise: any): TestCase[] | null {
-    if (exercise["test_cases"]) {
-      const testCases: TestCase[] = [];
-      exercise["test_cases"].forEach((testCase: any) => {
-        const parsedTestCase: TestCase | null = this.parseTestCase(testCase);
-        if (parsedTestCase) {
-          testCases.push(parsedTestCase);
-        }
-      });
-      if (testCases.length > 0) {
-        return testCases;
+  parseTestCases(exercise: any): TestCase[] {
+    const testCases: TestCase[] = [];
+    exercise["test_cases"].forEach((testCase: any) => {
+      try {
+        const parsedTestCase: TestCase = this.parseTestCase(testCase);
+        testCases.push(parsedTestCase);
       }
+      catch (error) {
+        console.error("Error parsing test case: ", error);
+      }
+    });
+    if (testCases.length === 0) {
+      throw new Error("No test cases found for this exercise\nUnparsed exercise: " + exercise);
     }
-    return null;
+    return testCases;
   }
 
   parseLanguage(exercise: any): string | null {
@@ -156,10 +160,18 @@ export class FirestoreService {
       const parsedHints: Map<DebuggingStage, string[]> = new Map<DebuggingStage, string[]>();
       //For now, we'll only have hints for the find_the_error and fix_the_error stages
       if (exercise["hints"]["find_the_error"] && Array.isArray(exercise["hints"]["find_the_error"])) {
-        parsedHints.set(DebuggingStage.findError, exercise["hints"]["find_the_error"]);
+        const hints: any[] = exercise["hints"]["find_the_error"];
+        const parsedFindErrorHints: string[] = hints.map((hint: any) => {
+          return this.whitespacePreserverPipe.transform(hint);
+        });
+        parsedHints.set(DebuggingStage.findError, parsedFindErrorHints);
       }
       if (exercise["hints"]["fix_the_error"] && Array.isArray(exercise["hints"]["fix_the_error"])) {
-        parsedHints.set(DebuggingStage.fixError, exercise["hints"]["fix_the_error"]);
+        const hints: any[] = exercise["hints"]["fix_the_error"];
+        const parsedFixErrorHints: string[] = hints.map((hint: any) => {
+          return this.whitespacePreserverPipe.transform(hint);
+        });
+        parsedHints.set(DebuggingStage.fixError, parsedFixErrorHints);
       }
       return parsedHints.size > 0 ? parsedHints : null;
     }
@@ -180,10 +192,16 @@ export class FirestoreService {
   }
 
   parseDebuggingExercise(unparsedExercise: any): DebuggingExercise | null {
-    if (this.exerciseContainsNecessaryData(unparsedExercise)) {
+    if (this.exerciseContainsNecessaryData(unparsedExercise)) { //TODO: Improve error handling here; if this method throws an error, parsing for all the other exercises should still be attempted
       const multiChoiceOptions: Map<DebuggingStage, string[]> | null = this.parseMultipleChoiceOptions(unparsedExercise);
       const difficulty: Difficulty | null = this.parseDifficulty(unparsedExercise);
-      const testCases: TestCase[] | null = this.parseTestCases(unparsedExercise);
+      let testCases: TestCase[] = []; //TODO: If we can't parse the test cases, we don't want to return the exercise
+      try {
+        testCases = this.parseTestCases(unparsedExercise);
+      }
+      catch (error) {
+        console.error(error);
+      }
       const language: string | null = this.parseLanguage(unparsedExercise);
       const lineContainingError: number | null = this.parseLineContainingError(unparsedExercise);
       const hints: Map<DebuggingStage, string[]> | null = this.parseHints(unparsedExercise);
@@ -192,7 +210,8 @@ export class FirestoreService {
         id: unparsedExercise["id"],
         title: unparsedExercise["title"],
         description: this.whitespacePreserverPipe.transform(unparsedExercise["description"]),
-        program: this.whitespacePreserverPipe.transform(unparsedExercise["program"])
+        program: this.whitespacePreserverPipe.transform(unparsedExercise["program"]),
+        testCases: testCases
       };
       if (multiChoiceOptions) {
         parsedExercise.multipleChoiceOptions = multiChoiceOptions; 
