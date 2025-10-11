@@ -29,7 +29,7 @@ export class HomepageComponent implements OnInit {
 
     ngOnInit(): void {
       this.loggingService.resetDebuggingStage();
-      this.sessionManager.clearSessionStorage();
+      this.sessionManager.removeChallengeAttemptItems();
       this.firestoreService.getUnparsedExercises().subscribe(data => {
         const unparsedExercises = data;
         this.exercises = this.firestoreService.parseDebuggingExercises(unparsedExercises);

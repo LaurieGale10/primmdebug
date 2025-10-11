@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
-import { DebuggingStage } from '../types/types';
+import { ChallengeProgress, DebuggingStage } from '../types/types';
 import { DebuggingExercise, TestCase } from '../services/debugging-exercise.model';
 import { DocumentReference } from '@angular/fire/firestore';
 import { trigger, transition } from '@angular/animations';
@@ -95,7 +95,8 @@ export class PrimmDebugViewComponent implements OnInit {
   selectedLineNumber: number | undefined;
   foundErroneousLine: boolean | null = null;
 
-  hasCodeEditorLoaded = signal(false);
+  codeEditorLoading = signal(true);
+  codeEditorSuccessfullyLoaded = signal(false);
 
   programLogs: any = null;
 
@@ -109,6 +110,7 @@ export class PrimmDebugViewComponent implements OnInit {
     this.firestoreService.getExerciseById(this.exerciseId!).then(data => {
       if (data) {
         this.exercise = this.firestoreService.parseDebuggingExercise(data);
+        this.exercise!.id = this.exerciseId!;
       }
     })
     
@@ -203,8 +205,9 @@ export class PrimmDebugViewComponent implements OnInit {
     return testCases.some(testCase => testCase.input && testCase.input.length > 0);
   }
 
-  codeEditorLoaded(event: void) {
-    this.hasCodeEditorLoaded.set(true);
+  codeEditorFinishedLoading(successfullyLoaded: boolean) {
+    this.codeEditorLoading.set(false);
+    this.codeEditorSuccessfullyLoaded.set(successfullyLoaded);
     this.checkSessionStorage();
   }
 
@@ -370,6 +373,9 @@ export class PrimmDebugViewComponent implements OnInit {
 
   enterSuccessOfChanges(changesSuccessful: boolean): void {
     this.changesSuccessful = changesSuccessful;
+    if (this.changesSuccessful) {
+      this.sessionManagerService.setChallengeProgress(this.exercise!.id, ChallengeProgress.completed);
+    }
     this.nextDebuggingStage();
   }
 
@@ -434,6 +440,8 @@ export class PrimmDebugViewComponent implements OnInit {
     this.resetUserInput();
     switch (this.debuggingStage) {
       case DebuggingStage.predict: {
+        console.log(this.exercise)//For some reason the ID is undefined; need to fix this
+        this.sessionManagerService.setChallengeProgress(this.exercise!.id, ChallengeProgress.attempted);
         this.setDebuggingStage(DebuggingStage.run);
         break;
       }

@@ -1,4 +1,3 @@
-@if (hints) {
 <mat-expansion-panel [@.disabled]="disableAnimation" [expanded]="panelOpenState()" (opened)="onPanelExpansionChange(true)" (closed)="onPanelExpansionChange(false)">
     <mat-expansion-panel-header>
         @if (!panelOpenState()) {
@@ -21,4 +20,3 @@
         </div>
     }
 </mat-expansion-panel>
-}

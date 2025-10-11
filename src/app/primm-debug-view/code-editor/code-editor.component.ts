@@ -32,7 +32,7 @@ export class CodeEditorComponent implements AfterViewInit {
 
   @Output() logsReceived: EventEmitter<any> = new EventEmitter<any>;
 
-  @Output() codeEditorLoaded: EventEmitter<any> = new EventEmitter<any>;
+  @Output() codeEditorFinishedLoading: EventEmitter<boolean> = new EventEmitter<boolean>;
 
   @ViewChild('codeEditor')
   iFrame: ElementRef<HTMLIFrameElement> | undefined;
@@ -51,7 +51,7 @@ export class CodeEditorComponent implements AfterViewInit {
     effect(() => {
       if (!this.iFrameLoading() && this.iFrameSuccessfullyLoaded()) {
         this.iFrame!.nativeElement.style.display = "block";
-        this.codeEditorLoaded.emit();
+        this.codeEditorFinishedLoading.emit(true);
       }
     });
   }
@@ -70,6 +70,7 @@ export class CodeEditorComponent implements AfterViewInit {
       if (this.iFrameLoading()) {
         this.iFrameLoading.set(false);
         this.iFrameSuccessfullyLoaded.set(false);
+        this.codeEditorFinishedLoading.emit(false);
       }
     }, 7500)
   }
@@ -152,6 +153,7 @@ export class CodeEditorComponent implements AfterViewInit {
     } else {
       this.iFrameLoading.set(false);
       this.iFrameSuccessfullyLoaded.set(true);
+      this.codeEditorFinishedLoading.emit(false);
       console.error("The code editor was unable to successfully load the program for the debugging exercise. Please try refreshing.")
     }
   }

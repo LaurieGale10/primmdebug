@@ -1,31 +1,46 @@
 <button mat-raised-button color="grey" class="widget-pane" (click)="loadExercise()">
     <div class="button-display">
-        <h2>{{exerciseData?.title}}</h2>
-        <h4>{{exerciseData?.description | limitString}}</h4>
+        <div class="header-pane">
+            <h2 class="header-pane--title">{{exercise?.title}}</h2>
+            @if (challengeProgress == ChallengeProgressType.attempted) {
+                <div class="flex-row progress-status--attempted">
+                    <mat-icon class="attempt-icon">build</mat-icon>
+                    <h3><strong>Attempted</strong></h3>
+                </div>
+            }
+            @if (challengeProgress == ChallengeProgressType.completed) {
+                <div class="flex-row progress-status--completed">
+                    <mat-icon class="completed-icon">check</mat-icon>
+                    <h3><strong>Completed</strong></h3>
+                </div>
+            }
+        </div>
+
+        <h4 class="description"> {{exercise?.description | limitString}}</h4>
 
         <div class="bottom-pane">
-            @if (exerciseData?.difficulty) {
+            @if (exercise?.difficulty) {
                 <div class="flex-row difficulty">
-                    <div *ngIf="exerciseData!.difficulty==DifficultyType.easy" class="flex-row">
+                    <div *ngIf="exercise!.difficulty==DifficultyType.easy" class="flex-row">
                         <mat-icon>stars</mat-icon>
                     </div>
-                    <div *ngIf="exerciseData!.difficulty==DifficultyType.intermediate" class="flex-row">
-                        <mat-icon>stars</mat-icon>
-                        <mat-icon>stars</mat-icon>
-                    </div>
-                    <div *ngIf="exerciseData!.difficulty==DifficultyType.hard" class="flex-row">
-                        <mat-icon>stars</mat-icon>
+                    <div *ngIf="exercise!.difficulty==DifficultyType.intermediate" class="flex-row">
                         <mat-icon>stars</mat-icon>
                         <mat-icon>stars</mat-icon>
                     </div>
-                    <h3><strong>{{exerciseData!.difficulty}}</strong></h3>
+                    <div *ngIf="exercise!.difficulty==DifficultyType.hard" class="flex-row">
+                        <mat-icon>stars</mat-icon>
+                        <mat-icon>stars</mat-icon>
+                        <mat-icon>stars</mat-icon>
+                    </div>
+                    <h3><strong>{{exercise!.difficulty}}</strong></h3>
                 </div>
             }
             
-            @if (exerciseData?.language) {
+            @if (exercise?.language) {
                 <div class="flex-row language">
                     <img src="../../../assets/img/python.png" class="python-icon">
-                    <h3><strong>{{exerciseData!.language}}</strong></h3>
+                    <h3><strong>{{exercise!.language}}</strong></h3>
                 </div>
             }
         </div>

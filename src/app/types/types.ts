@@ -10,3 +10,9 @@ export enum DebuggingStage {
     modify = "modify",
     make = "make"
 }
+
+export enum ChallengeProgress {
+    unattempted = "unattempted",
+    attempted = "attempted",
+    completed = "completed"
+}
