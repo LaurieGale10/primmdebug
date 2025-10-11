@@ -95,7 +95,8 @@ export class PrimmDebugViewComponent implements OnInit {
   selectedLineNumber: number | undefined;
   foundErroneousLine: boolean | null = null;
 
-  hasCodeEditorLoaded = signal(false);
+  codeEditorLoading = signal(true);
+  codeEditorSuccessfullyLoaded = signal(false);
 
   programLogs: any = null;
 
@@ -203,8 +204,9 @@ export class PrimmDebugViewComponent implements OnInit {
     return testCases.some(testCase => testCase.input && testCase.input.length > 0);
   }
 
-  codeEditorLoaded(event: void) {
-    this.hasCodeEditorLoaded.set(true);
+  codeEditorFinishedLoading(successfullyLoaded: boolean) {
+    this.codeEditorLoading.set(false);
+    this.codeEditorSuccessfullyLoaded.set(successfullyLoaded);
     this.checkSessionStorage();
   }
 

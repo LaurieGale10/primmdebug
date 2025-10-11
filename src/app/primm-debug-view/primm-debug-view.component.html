@@ -11,7 +11,7 @@
 
                 <div class="code-editor-display">
                     <app-code-editor #codeEditor [program]="this.exercise.program!" [debuggingStage]="debuggingStage"
-                        (runButtonPressed)="runButtonPressed($event)" (logsReceived)="onLogsReceived($event)" (codeEditorLoaded)="codeEditorLoaded($event)">
+                        (runButtonPressed)="runButtonPressed($event)" (logsReceived)="onLogsReceived($event)" (codeEditorFinishedLoading)="codeEditorFinishedLoading($event)">
                     </app-code-editor>
                 </div>
             </div>
@@ -19,12 +19,18 @@
             <mat-divider vertical></mat-divider>
 
             <div [@expandReflectionPaneBorder]="debuggingStage" class="articulation-pane">
-                @if (!this.hasCodeEditorLoaded()) {
+                @if (this.codeEditorLoading()) {
                     <div class="articulation-pane--loading-display">
                         <mat-spinner></mat-spinner>
                     </div>
                 }
-                @else {
+                @else if (!this.codeEditorLoading() && !this.codeEditorSuccessfullyLoaded()) {
+                    <!--Something needs to go here, ask others for help-->
+                    <div class="articulation-pane--unsuccessfully-loaded">
+                        
+                    </div>
+                }
+                @else if (!this.codeEditorLoading() && this.codeEditorSuccessfullyLoaded()) {
                     <div class="articulation-pane--title">
                         <!--Icon and title of articulation prompt-->
                         @if (debuggingStage == DebuggingStageType.predict) {
@@ -166,7 +172,7 @@
                                     <mat-form-field class="articulation-pane--student-response-pane--input-form">
                                         <mat-label>Write your thoughts</mat-label>
                                         <textarea matInput
-                                            [(ngModel)]="userReflectionInput" [disabled]="!hasCodeEditorLoaded()"
+                                            [(ngModel)]="userReflectionInput"
                                             (keydown.enter)="onKeydown($event)" (input)="onStudentInputChange()"
                                             class="articulation-pane--student-response-pane--input" appearence="outline" placeholder="{{reflectionInputPlaceholders.get(debuggingStage)}}">
                                         </textarea>
