@@ -1,21 +1,19 @@
 <button mat-raised-button color="grey" class="widget-pane" (click)="loadExercise()">
     <div class="button-display">
         <div class="header-pane">
-            <h2>{{exercise?.title}}</h2>
-            <div class="progress-status">
-                @if (challengeProgress == ChallengeProgressType.attempted) {
-                    <div class="flex-row progress-status--attempted">
-                        <mat-icon class="attempt-icon">build</mat-icon>
-                        <h3><strong>Attempted</strong></h3>
-                    </div>
-                }
-                @if (challengeProgress == ChallengeProgressType.completed) {
-                    <div class="flex-row progress-status--completed">
-                        <mat-icon>check</mat-icon>
-                        <h3><strong>Completed</strong></h3>
-                    </div>
-                }
-            </div>
+            <h2 class="header-pane--title">{{exercise?.title}}</h2>
+            @if (challengeProgress == ChallengeProgressType.attempted) {
+                <div class="flex-row progress-status--attempted">
+                    <mat-icon class="attempt-icon">build</mat-icon>
+                    <h3><strong>Attempted</strong></h3>
+                </div>
+            }
+            @if (challengeProgress == ChallengeProgressType.completed) {
+                <div class="flex-row progress-status--completed">
+                    <mat-icon class="completed-icon">check</mat-icon>
+                    <h3><strong>Completed</strong></h3>
+                </div>
+            }
         </div>
 
         <h4 class="description"> {{exercise?.description | limitString}}</h4>
