@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { DebuggingStage } from '../types/types';
+import { ChallengeProgress, DebuggingStage } from '../types/types';
 
 @Injectable({
   providedIn: 'root'
@@ -8,8 +8,22 @@ export class SessionManagerService {
 
   constructor() { }
 
-  clearSessionStorage() {
-    sessionStorage.clear();
+  setChallengeProgress(challenge: string, progress: ChallengeProgress) {
+    sessionStorage.setItem(challenge, progress.toString());
+  }
+
+  //For maintaining state on the challenge view page
+  getChallengeProgress(challenge: string): ChallengeProgress | null {
+    return sessionStorage.getItem(challenge) as ChallengeProgress | null;
+  }
+
+  //For maintaining state on the PRIMMDebug view page
+  removeChallengeAttemptItems() {
+    sessionStorage.removeItem("debuggingStage");
+    sessionStorage.removeItem("predictRunIteration");
+    sessionStorage.removeItem("previousResponses");
+    sessionStorage.removeItem("currentResponse");
+    sessionStorage.removeItem("selectedLineNumber");
   }
 
   setDebuggingStage(stage: DebuggingStage) {
@@ -75,4 +89,6 @@ export class SessionManagerService {
     const lineNumber = sessionStorage.getItem("selectedLineNumber");
     return lineNumber ? parseInt(lineNumber) : null;
   }
+
+  //
 }

@@ -5,6 +5,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { DebuggingExercise, Difficulty } from '../../services/debugging-exercise.model';
 import { Router } from '@angular/router';
 import { LimitStringPipe  } from '../../pipes/limit-string.pipe';
+import { SessionManagerService } from '../../services/session-manager.service';
+import { ChallengeProgress } from '../../types/types';
 
 @Component({
   selector: 'app-exercise-view-widget',
@@ -13,16 +15,27 @@ import { LimitStringPipe  } from '../../pipes/limit-string.pipe';
   templateUrl: './exercise-view-widget.component.html',
   styleUrl: './exercise-view-widget.component.sass'
 })
-export class ExerciseViewWidgetComponent {
+export class ExerciseViewWidgetComponent implements OnInit {
 
-  @Input() exerciseData: DebuggingExercise | null = null;
+  @Input() exercise: DebuggingExercise | null = null;
+
+  challengeProgress: ChallengeProgress = ChallengeProgress.unattempted;
+
+  ChallengeProgressType = ChallengeProgress; //To allow reference to enum types in interpolation
 
   DifficultyType = Difficulty; //To allow reference to enum types in interpolation
 
-  constructor(private router: Router) { };
+  constructor(private router: Router, private sessionManagerService: SessionManagerService) { }
+  
+  ngOnInit(): void {
+    if (this.sessionManagerService.getChallengeProgress(this.exercise!.id) !== null) {
+      console.log(this.challengeProgress)
+      this.challengeProgress = this.sessionManagerService.getChallengeProgress(this.exercise!.id)!;
+    }//Quite messy at the moment
+  }
 
   loadExercise() {
     let route = '/exercise';
-    this.router.navigate([route], { queryParams: {id: this.exerciseData!.id}});
+    this.router.navigate([route], { queryParams: {id: this.exercise!.id}});
   }
 }

@@ -10,7 +10,7 @@ import { PrimmDebugViewComponent } from './primm-debug-view.component';
 import { FirestoreService } from '../services/firestore.service';
 import { LoggingService } from '../services/logging.service';
 import { SessionManagerService } from '../services/session-manager.service';
-import { DebuggingStage } from '../types/types';
+import { ChallengeProgress, DebuggingStage } from '../types/types';
 import { DebuggingExercise } from '../services/debugging-exercise.model';
 
 describe('PrimmDebugViewComponent', () => {
@@ -50,7 +50,7 @@ describe('PrimmDebugViewComponent', () => {
     mockSessionManagerService = jasmine.createSpyObj('SessionManagerService', [
       'getDebuggingStage', 'setDebuggingStage', 'getPredictRunIteration', 'setPredictRunIteration',
       'getSelectedLineNumber', 'setSelectedLineNumber', 'getCurrentResponse', 'setCurrentResponse',
-      'getPreviousResponses', 'setPreviousResponses', 'clearSessionStorage'
+      'getPreviousResponses', 'setPreviousResponses', 'clearSessionStorage', 'setChallengeProgress', 'getChallengeProgress'
     ]);
     
     mockFirestoreService = jasmine.createSpyObj('FirestoreService', [
@@ -1059,6 +1059,46 @@ describe('PrimmDebugViewComponent', () => {
         const hintDisplayComponent = fixture.debugElement.query(By.css('app-hint-display'));
         expect(hintDisplayComponent).toBeNull();
       });
+    });
+  });
+
+  describe('SessionStorage Progress Tests', () => {
+    // Simulate the completion of the first debugging stage
+    it('should call nextDebuggingStage and update sessionManagerService', () => {
+      setupComponentWithExercise();
+      component.debuggingStage = DebuggingStage.predict;
+
+      component.nextDebuggingStage();
+
+      expect(mockSessionManagerService.setChallengeProgress).toHaveBeenCalledWith('test-exercise-id', ChallengeProgress.attempted);
+      //expect(mockSessionManagerService.getChallengeProgress('test-exercise-id')).toBe(ChallengeProgress.attempted);
+    });
+
+    // Call enterSuccessOfChanges with true and false
+    it('should set challenge progress to complete when enterSuccessOfChanges is called with true', () => {
+      setupComponentWithExercise();
+
+      component.enterSuccessOfChanges(true);
+
+      expect(mockSessionManagerService.setChallengeProgress).toHaveBeenCalledWith('test-exercise-id', ChallengeProgress.completed);
+    });
+
+    it('should set challenge progress to attempted when enterSuccessOfChanges is called with false', () => {
+      setupComponentWithExercise();
+
+      component.enterSuccessOfChanges(false);
+
+      expect(mockSessionManagerService.setChallengeProgress).toHaveBeenCalledWith('test-exercise-id', ChallengeProgress.attempted);
+    });
+
+    // Load the component and check sessionManagerService entry for the challenge
+    it('should have null challenge progress in sessionManagerService when component loads', () => {
+      mockSessionManagerService.getChallengeProgress.and.returnValue(null);
+
+      setupComponentWithExercise();
+
+      const progress = mockSessionManagerService.getChallengeProgress('test-exercise-progress');
+      expect(progress).toBeNull();
     });
   });
 });
