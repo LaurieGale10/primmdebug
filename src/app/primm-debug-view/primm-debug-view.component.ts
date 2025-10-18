@@ -1,11 +1,12 @@
-import { Component, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
-import { ChallengeProgress, DebuggingStage } from '../types/types';
+import { ChallengeProgress, DebuggingStage, PageToNavigate } from '../types/types';
 import { DebuggingExercise, TestCase } from '../services/debugging-exercise.model';
 import { DocumentReference } from '@angular/fire/firestore';
 import { trigger, transition } from '@angular/animations';
 import { expandBorderAnimation } from '../animations/animations';
 import { NgxConfettiExplosionComponent } from 'ngx-confetti-explosion';
+import { Analytics } from '@angular/fire/analytics';
 
 import {MatButtonModule} from '@angular/material/button';
 import {MatInputModule} from '@angular/material/input';
@@ -31,6 +32,7 @@ import { PredictRunTestCasePaneComponent } from "./predict-run-test-case-pane/pr
 
 import dedent from 'dedent';
 import { environment } from '../../environments/environment.development';
+import { ConfirmNavDialogComponent } from '../toolbar/confirm-nav-dialog/confirm-nav-dialog.component';
 
 @Component({
   selector: 'app-primm-debug-view',
@@ -48,6 +50,7 @@ import { environment } from '../../environments/environment.development';
   ]
 })
 export class PrimmDebugViewComponent implements OnInit {
+  private analytics = inject(Analytics);
 
   @ViewChild(CodeEditorComponent)
   codeEditor: CodeEditorComponent | undefined;
@@ -221,7 +224,6 @@ export class PrimmDebugViewComponent implements OnInit {
   onLogsReceived(event: any) {
     this.programLogs = event["snapshots"];
   }
-
 
   resetPredictUI() {
     this.resetCodeInEditor();
@@ -492,6 +494,19 @@ export class PrimmDebugViewComponent implements OnInit {
   returnToHomepage() {
     let route = '';
     this.router.navigate([route]);
+  }
+
+  /**
+   * Navigates back to the challenge dashboard, first opening a dialog to confirm the navigation
+   */
+  toChallengeDashboard() {
+    const dialogRef = this.dialog.open(ConfirmNavDialogComponent, {
+      data: {
+        title: "Are you sure?",
+        content: "Are you sure you want to go to the dashboard? All your progress will be lost!",
+        pageToNavigate: PageToNavigate.challengeDashboard
+      },
+    });
   }
 
 }

@@ -16,3 +16,8 @@ export enum ChallengeProgress {
     attempted = "attempted",
     completed = "completed"
 }
+
+export enum PageToNavigate {
+    homepage,
+    challengeDashboard
+}

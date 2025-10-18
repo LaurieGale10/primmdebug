@@ -1,16 +1,58 @@
-<app-toolbar></app-toolbar>
+<app-toolbar [enableToHomeNavigation]="false"></app-toolbar>
 
-<!--<div *ngIf="exercises">-->
 <div class="page">
-    <h3>Each of these challenges contains one error. See if you can debug them!</h3>
+    <div class="page-heading">
+        <h1 class="page-heading--title heading-bold">PRIMMDebug</h1>
+        <h2>Teaching a reflective approach to debugging</h2>
+    </div>
 
-    <div class="widgets-view">
-        @for (exercise of this.exercises; track exercise) {
-            <app-exercise-view-widget [exercise]="exercise"></app-exercise-view-widget>
-        }
+    <div class="navigation-panes">
+        <div class="navigation-pane">
+            <h1 class="heading-bold sub-heading">Student?</h1>
+            <h4>Head over to the dashboard and start debugging!</h4>
+            <button mat-raised-button class="navigation-pane--button" color="green" (click)="toChallengeDashboard()">
+                <h2 class="heading-bold button-heading">Start debugging!</h2>
+            </button>
+        </div>
+        <div class="navigation-pane">
+            <h1 class="heading-bold sub-heading">Teacher?</h1>
+            <h4>Learn more about using PRIMMDebug in your classroom.</h4>
+            <button mat-raised-button class="navigation-pane--button" color="green" (click)="toTeacherInfo()">
+                <h2 class="heading-bold button-heading">Find out more</h2>
+            </button>
+        </div>
+    </div>
+    
+    <div class="info-panes">
+        <div class="info-pane">
+            <img
+              src="../../assets/img/flowchart_homepage_img.jpg"
+              class="flowchart-icon"
+              [@expandRetract]="imageStates['flowchart']"
+              (mouseenter)="onMouseEnter('flowchart')"
+              (mouseleave)="onMouseLeave('flowchart')"
+            />
+            <h1 class="heading-bold sub-heading">Learn the debugging process</h1>
+        </div>
+        <div class="info-pane">
+            <img
+              src="../../assets/img/code_homepage_img.jpg"
+              class="code-icon"
+              [@expandRetract]="imageStates['code']"
+              (mouseenter)="onMouseEnter('code')"
+              (mouseleave)="onMouseLeave('code')"
+            />
+            <h1 class="heading-bold sub-heading">Gain practice with common errors</h1>
+        </div>
+        <div class="info-pane">
+            <img
+              src="../../assets/img/reflection_homepage_img.jpg"
+              class="reflection-icon"
+              [@expandRetract]="imageStates['reflection']"
+              (mouseenter)="onMouseEnter('reflection')"
+              (mouseleave)="onMouseLeave('reflection')"
+            />
+            <h1 class="heading-bold sub-heading">Reflect as you go</h1>
+        </div>
     </div>
 </div>
-<!--<div *ngIf="!exercises" class="error-display">
-    <h2>Oh no!</h2>
-    <h3>Exercises not loading - have you tried refreshing the page? Are you definitely connected to the internet?</h3>
-</div>-->

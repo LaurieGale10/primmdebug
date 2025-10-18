@@ -5,7 +5,9 @@ import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatButtonModule} from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 
-import { ToHomeDialogComponent } from './to-home-dialog/to-home-dialog.component';
+import { ConfirmNavDialogComponent } from './confirm-nav-dialog/confirm-nav-dialog.component';
+import { Router } from '@angular/router';
+import { PageToNavigate } from '../types/types';
 
 @Component({
   selector: 'app-toolbar',
@@ -16,16 +18,29 @@ import { ToHomeDialogComponent } from './to-home-dialog/to-home-dialog.component
 })
 export class ToolbarComponent {
 
-  constructor(private dialog: MatDialog) { }
+  constructor(private router: Router, private dialog: MatDialog) { }
 
-  @Input() displayHomeButton: boolean = false;
+  @Input() enableToHomeNavigation: boolean = true;
+
+  @Input() displayToHomeDialog: boolean = false; //Whether a dialog should be displayed when navigating back to the homepage/challenge dashboard
+
+  toHomepage() {
+    if (this.displayToHomeDialog) { 
+      this.openToHomeDialog();
+    }
+    else {
+      let route: string = '/';
+      this.router.navigate([route]);
+    }
+  }
 
   openToHomeDialog() {
-    const dialogRef = this.dialog.open(ToHomeDialogComponent, {
+    const dialogRef = this.dialog.open(ConfirmNavDialogComponent, {
       data: {
         title: "Are you sure?",
-        content: "Are you sure you want to go back? All your progress on this exercise will be lost!"
-      }
+        content: "Are you sure you want to go to the homepage? All your progress will be lost!",
+        pageToNavigate: PageToNavigate.homepage
+      },
     });
   }
 }
