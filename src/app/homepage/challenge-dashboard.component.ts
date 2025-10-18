@@ -13,13 +13,13 @@ import { StudentIdDialogComponent } from '../student-id-dialog/student-id-dialog
 import { environment } from '../../environments/environment.development';
 
 @Component({
-    selector: 'app-homepage',
+    selector: 'app-challenge-dashboard',
     standalone: true,
-    templateUrl: './homepage.component.html',
-    styleUrl: './homepage.component.sass',
+    templateUrl: './challenge-dashboard.component.html',
+    styleUrl: './challenge-dashboard.component.sass',
     imports: [ExerciseViewWidgetComponent, ToolbarComponent, MatIconModule, MatButtonModule]
 })
-export class HomepageComponent implements OnInit {
+export class ChallengeDashboardComponent implements OnInit {
 
     exercises: Array<DebuggingExercise> | null = null; //TODO: Look up convention regarding whether to set var that might be null/undefined before it's setter function is called
 
