@@ -25,17 +25,33 @@
     
     <div class="info-panes">
         <div class="info-pane">
-            <img src="../../assets/img/flowchart_homepage_img.jpg" class="flowchart-icon">
+            <img
+              src="../../assets/img/flowchart_homepage_img.jpg"
+              class="flowchart-icon"
+              [@expandRetract]="imageStates['flowchart']"
+              (mouseenter)="onMouseEnter('flowchart')"
+              (mouseleave)="onMouseLeave('flowchart')"
+            />
             <h1 class="heading-bold sub-heading">Learn the debugging process</h1>
         </div>
-        <!--<mat-divider vertical></mat-divider>-->
         <div class="info-pane">
-            <img src="../../assets/img/code_homepage_img.jpg" class="code-icon">
+            <img
+              src="../../assets/img/code_homepage_img.jpg"
+              class="code-icon"
+              [@expandRetract]="imageStates['code']"
+              (mouseenter)="onMouseEnter('code')"
+              (mouseleave)="onMouseLeave('code')"
+            />
             <h1 class="heading-bold sub-heading">Gain practice with common errors</h1>
         </div>
-        <!--<<mat-divider vertical></mat-divider>-->
         <div class="info-pane">
-            <img src="../../assets/img/reflection_homepage_img.jpg" class="reflection-icon">
+            <img
+              src="../../assets/img/reflection_homepage_img.jpg"
+              class="reflection-icon"
+              [@expandRetract]="imageStates['reflection']"
+              (mouseenter)="onMouseEnter('reflection')"
+              (mouseleave)="onMouseLeave('reflection')"
+            />
             <h1 class="heading-bold sub-heading">Reflect as you go</h1>
         </div>
     </div>
