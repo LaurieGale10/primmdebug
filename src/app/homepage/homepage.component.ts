@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToolbarComponent } from '../toolbar/toolbar.component';
+import { Analytics } from '@angular/fire/analytics';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
@@ -27,6 +28,8 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
   ]
 })
 export class HomepageComponent {
+  private analytics = inject(Analytics);
+  
   constructor(private router: Router) { }
 
   toChallengeDashboard() {

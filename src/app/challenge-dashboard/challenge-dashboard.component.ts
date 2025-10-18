@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ExerciseViewWidgetComponent } from "./exercise-view-widget/exercise-view-widget.component";
 import { ToolbarComponent } from '../toolbar/toolbar.component';
 import { DebuggingExercise } from '../services/debugging-exercise.model';
@@ -11,6 +11,7 @@ import { SessionManagerService } from '../services/session-manager.service';
 import { MatDialog } from '@angular/material/dialog';
 import { StudentIdDialogComponent } from '../student-id-dialog/student-id-dialog.component';
 import { environment } from '../../environments/environment.development';
+import { Analytics } from '@angular/fire/analytics';
 
 @Component({
     selector: 'app-challenge-dashboard',
@@ -21,6 +22,8 @@ import { environment } from '../../environments/environment.development';
 })
 export class ChallengeDashboardComponent implements OnInit {
 
+  private analytics = inject(Analytics);
+  
     exercises: Array<DebuggingExercise> | null = null; //TODO: Look up convention regarding whether to set var that might be null/undefined before it's setter function is called
 
     displaySurveyButton: boolean = false;

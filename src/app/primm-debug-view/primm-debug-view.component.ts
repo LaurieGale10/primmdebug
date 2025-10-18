@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { ChallengeProgress, DebuggingStage, PageToNavigate } from '../types/types';
 import { DebuggingExercise, TestCase } from '../services/debugging-exercise.model';
@@ -6,6 +6,7 @@ import { DocumentReference } from '@angular/fire/firestore';
 import { trigger, transition } from '@angular/animations';
 import { expandBorderAnimation } from '../animations/animations';
 import { NgxConfettiExplosionComponent } from 'ngx-confetti-explosion';
+import { Analytics } from '@angular/fire/analytics';
 
 import {MatButtonModule} from '@angular/material/button';
 import {MatInputModule} from '@angular/material/input';
@@ -49,6 +50,7 @@ import { ConfirmNavDialogComponent } from '../toolbar/confirm-nav-dialog/confirm
   ]
 })
 export class PrimmDebugViewComponent implements OnInit {
+  private analytics = inject(Analytics);
 
   @ViewChild(CodeEditorComponent)
   codeEditor: CodeEditorComponent | undefined;

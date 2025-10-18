@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ToolbarComponent } from '../toolbar/toolbar.component';
+import { Analytics } from '@angular/fire/analytics';
 
 @Component({
   selector: 'app-teacher-info',
@@ -9,5 +10,6 @@ import { ToolbarComponent } from '../toolbar/toolbar.component';
   styleUrl: './teacher-info.component.sass'
 })
 export class TeacherInfoComponent {
+  private analytics = inject(Analytics);
 
 }
