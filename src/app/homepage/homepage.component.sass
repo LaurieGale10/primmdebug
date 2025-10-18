@@ -9,25 +9,35 @@
 .heading-bold
     font-weight: 450
 
+.sub-heading
+    margin-bottom: 1%
+
 .info-panes
     display: flex
     flex-direction: row
-    gap: 5%
+    gap: 1%
     margin-bottom: 3%
     justify-content: space-between
     min-height: 40%
+
+.info-pane
+    display: flex
+    flex-direction: column
+    width: 33%
+    padding: 1.25% 1.75%
+    justify-content: space-between
+    align-items: center
 
 .navigation-panes
     display: flex
     flex-direction: row
     gap: 5%
-    margin-bottom: 3%
+    margin-bottom: 0.5%
 
 .navigation-pane
     display: flex
     flex-direction: column
     border-radius: 15px
-    min-height: 150px
     height: 100%
     width: 45%
     padding: 1.25% 1.75%
@@ -36,11 +46,37 @@
 
 .navigation-pane--button
     width: 65%
-    height: 100%
+    min-height: 55px
     padding: 3%
+    //margin-bottom: 1%
 
 .button-heading
     margin: 0
 
 .mat-mdc-raised-button.mat-green
     background-color: #5BB314
+
+.flowchart-icon
+    height: 40vh
+    aspect-ratio: 0.75
+    
+.code-icon
+    height: 20vh
+    aspect-ratio: 4
+    
+.reflection-icon
+    height: 45vh
+
+
+
+//Media queries for responding to smaller screen sizes
+@media (max-width: 750px)
+    .navigation-panes
+        flex-direction: column
+        gap: 5vh
+
+    .navigation-pane
+        width: 80%
+
+    .navigation-pane--button
+        margin-bottom: 1%

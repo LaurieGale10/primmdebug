@@ -3,11 +3,12 @@ import { Router } from '@angular/router';
 import { ToolbarComponent } from '../toolbar/toolbar.component';
 
 import {MatButtonModule} from '@angular/material/button';
+import {MatDividerModule} from '@angular/material/divider';
 
 @Component({
   selector: 'app-homepage',
   standalone: true,
-  imports: [ToolbarComponent, MatButtonModule],
+  imports: [ToolbarComponent, MatButtonModule, MatDividerModule],
   templateUrl: './homepage.component.html',
   styleUrl: './homepage.component.sass'
 })
