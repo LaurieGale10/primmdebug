@@ -22,5 +22,6 @@ export class HomepageComponent {
 
   toTeacherInfo() {
     let route = '/teacher-info';
+    this.router.navigate([route]);
   }
 }
