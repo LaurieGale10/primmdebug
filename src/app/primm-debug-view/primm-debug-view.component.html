@@ -1,8 +1,14 @@
-<app-toolbar [displayHomeButton]="true"></app-toolbar>
+<app-toolbar [displayToHomeDialog]="true"></app-toolbar>
 
 @if (exercise) {
     <div class="page">
-        <h1><strong>{{exercise!.title}}</strong></h1>
+        <div class="header">
+            <h1><strong>{{exercise!.title}}</strong></h1>
+            <button mat-button (click)="toChallengeDashboard()">
+                <mat-icon>arrow_back</mat-icon>
+                <h3>Back to challenge dashboard</h3>
+            </button>
+        </div>
         
         <div class="code-articulation-split-display">
             <div class="code-editor-description-split-display">
