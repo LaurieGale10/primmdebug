@@ -3,10 +3,10 @@
 @if (exercise) {
     <div class="page">
         <div class="header">
-            <h1><strong>{{exercise!.title}}</strong></h1>
+            <h1 class="header-element"><strong>{{exercise!.title}}</strong></h1>
             <button mat-button (click)="toChallengeDashboard()">
-                <mat-icon>arrow_back</mat-icon>
-                <h3>Back to challenge dashboard</h3>
+                <mat-icon class="header-element">arrow_back</mat-icon>
+                <h3 class="header-element">Back to challenge dashboard</h3>
             </button>
         </div>
         
