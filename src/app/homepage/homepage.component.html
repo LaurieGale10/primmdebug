@@ -1,0 +1,37 @@
+<app-toolbar></app-toolbar>
+
+<div class="page">
+    <div class="page-heading">
+        <h1 class="page-heading--title heading-bold">PRIMMDebug</h1>
+        <h2>Teaching a reflective approach to debugging</h2>
+    </div>
+
+    <div class="navigation-panes">
+        <div class="navigation-pane">
+            <h1 class="heading-bold">Student?</h1>
+            <h4>Head over to the dashboard and start debugging!</h4>
+            <button mat-raised-button class="navigation-pane--button" color="green" (click)="toChallengeDashboard()">
+                <h1 class="heading-bold button-heading">Start debugging!</h1>
+            </button>
+        </div>
+        <div class="navigation-pane">
+            <h1 class="heading-bold">Teacher?</h1>
+            <h4>Learn more about using PRIMMDebug in your classroom.</h4>
+            <button mat-raised-button class="navigation-pane--button" color="green" (click)="toTeacherInfo()">
+                <h1 class="heading-bold button-heading">Find out more</h1>
+            </button>
+        </div>
+    </div>
+    
+    <div class="info-panes">
+        <div class="info-pane">
+            Learn the debugging process
+        </div>
+        <div class="info-pane">
+            Reflect on your debugging decisions
+        </div>
+        <div class="info-pane">
+            Gain practice with common errors
+        </div>
+    </div>
+</div>
