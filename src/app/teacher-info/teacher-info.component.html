@@ -7,25 +7,77 @@
     </div>
 
     <div class="primmdebug-info">
-        <p>PRIMMDebug is an approach for teaching the debugging process to secondary school students learning text-based programming. It is an extension of PRIMM, a popular approach for teaching programming, with the main focus of encouraging a reflective approach to debugging.</p>
-        <p>PRIMMDebug is designed for classroom use and contains two components: the <strong>process</strong> and the <strong>tool</strong>. More information will be posted about these soon.</p>
+        <p>PRIMMDebug is an approach for teaching the debugging process to secondary school students learning text-based programming. It is an extension of <a href="https://computingeducationresearch.org/projects/primm/" target="_blank">PRIMM</a>, a popular approach for teaching programming, with the main focus of encouraging a reflective approach to debugging.</p>
+        <p>PRIMMDebug is designed for classroom use and consists of two components: the process and the tool.</p>
 
-        <!--
+        
         <h2>The PRIMMDebug Process</h2>
-        <p>Stuff about the process</p>
+        <p>The PRIMMDebug process is an extended version of PRIMM, scaffolded to teach the process of debugging. Students work through the process within the context of a <strong>PRIMMDebug challenge</strong>, which includes:</p>
+        <ul>
+            <li>A text-based <strong>program</strong> containing a single error that beginner programmers often make</li>
+            <li>A <strong>description</strong> of what the program should do</li>
+            <li>(Potentially) A set of <strong>test cases</strong> (input values mapped to expected outputs), at least one of which exposes the error in the program</li>
+        </ul>
+
+        <img src="../../assets/img/primmdebug_process.png" class="primmdebug-process">
+
+        <p>Students move from an erroneous program they haven’t seen before to a functioning, and potentially new, version of it. Students should also articulate their thoughts throughout the process (for example, write them down or talk with a peer).</p>
+
+        <p>The PRIMMDebug process is designed to be a model for teachers to use in the classroom. However, the middle stages of the process are also useful for students debugging errors in their own programs, and spell out the acronym <strong>SIFFT</strong>. Students should be encouraged to <strong>“SIFFT out”</strong> the errors in their own code.</p>
 
         <h2>The PRIMMDebug Tool</h2>
-        <p>Stuff about the tool</p>
+        <p>The PRIMMDebug tool is a simple online environment that takes students through the PRIMMDebug process. It comes with ready-made PRIMMDebug challenges, and includes features that strongly encourage a reflective approach to debugging:</p>
+        <ul>
+            <li>For most of the PRIMMDebug stages, students must articulate their thoughts before they can move on</li>
+            <li>Students can only run and edit the code at certain PRIMMDebug stages</li>
+            <li>Students cannot attempt a fix until they have correctly identified the erroneous line number</li>
+        </ul>
 
-        <h1 class="heading-bold">Teaching with PRIMMDebug</h1>
+        <h2>Teaching with PRIMMDebug</h2>
+        <p>There are several ways you could teach with PRIMMDebug in the classroom, depending on what you want your students to learn:</p>
+        <ul>
+            <li>You could explicitly teach the debugging process using the SIFFT process</li>
+            <li>You could use the PRIMMDebug process unplugged with paper-based PRIMMDebug challenges</li>
+            <li>You could model the PRIMMDebug process as a whole-class activity</li>
+            <li>Your students can use the tool to practise common errors and articulate their thoughts when debugging</li>
+        </ul>
 
-        <h1 class="heading-bold">Still want to find out more?</h1>
+        <p>In a research study of PRIMMDebug, one teacher didn’t tell their students that the challenge contained an error, making the Predict step more interesting. Your students might not be used to reflecting, so be prepared to explain why it’s useful!</p>
 
-        <h2>Future Roadmap</h2>
+        <h2>Why PRIMMDebug was created</h2>
+        <p>PRIMMDebug aims to counter the common tendency for beginner programmers to use ineffective debugging behaviours. Lots of the time, these resemble a trial-and-error approach lacking in reflection. These behaviours have been widely observed in research on beginner programmers and don’t help students to get closer to a working program—in fact, they can introduce additional errors.</p>
 
-        <h2>About us</h2>
-        RPCERC images-->
+        <p>In the classroom, these common behaviours often contribute to students being stuck, feeling distressed, and generally not enjoying programming. If you’re a teacher, you may have seen this translate to a sea of hands raised in your classroom.</p>
 
+        <p>PRIMMDebug was created to promote a more reflective approach to debugging among secondary students. Our hypothesis is that providing students with a framework for systematically and reflectively debugging will help to build their resilience to errors and steer them away from ineffective debugging behaviours. In the classroom, this could mean more success with resolving errors and fewer hands in the air for teachers to deal with.</p>
+
+        <h2>Want to find out more?</h2>
+        <ul>
+            <li>For a high-level presentation, see the <a href="https://docs.google.com/presentation/d/1T6nFAYUpTzflnAXxHwjMwY-gf4Xufvjm/edit?usp=sharing&ouid=107015648438649994766&rtpof=true&sd=true" target="_blank">slides</a> of a recent presentation at the 2025 Computing at School conference.</li>
+            <li>For an in-depth breakdown of PRIMMDebug and its theoretical foundations, see a <a href="https://arxiv.org/abs/2508.18875" target="_blank">preprint</a> of an academic paper.</li>
+            <li>To look at the source code for PRIMMDebug, see the <a href="https://github.com/LaurieGale10/primmdebug" target="_blank">GitHub repository</a> repository.</li>
+        </ul>
+
+        <h3>Future Roadmap</h3>
+        <p>The PRIMMDebug tool is still in its early days. Future updates will focus on making the tool more classroom-friendly, based on teacher and researcher feedback, including:</p>
+        <ul>
+            <li>Adding testing of programs.</li>
+            <li>More PRIMMDebug challenges</li>
+            <li>A teacher portal for setting up classrooms, creating PRIMMDebug challenges, and viewing students’ data</li>
+            <li>User interface enhancements</li>
+        </ul>
+
+
+        <h3>About us</h3>
+        <p>PRIMMDebug was developed by <a href="https://www.cst.cam.ac.uk/people/lpg28" target="_blank">Laurie Gale</a> as part of his PhD research into debugging education, under the supervision of <a href="https://www.cst.cam.ac.uk/people/ss2600" target="_blank">Professor Sue Sentance</a>. Laurie and Sue work at the <a href="https://computingeducationresearch.org/" target="_blank">Raspberry Pi Computing Education Research Centre</a> at the University of Cambridge, which conducts research into school-level computing education.</p>
+
+        <p>Laurie (lpg28[at]cl.cam.ac.uk) always welcomes feedback on PRIMMDebug, particularly from teachers who have taught with it or are considering teaching with it. He is also keen to collaborate with teachers in further research on PRIMMDebug and debugging education.</p>
+
+        <div class="rpcerc_logos">
+            <img src="../../assets/img/rpcerc_logo.png" class="logo" />
+            <img src="../../assets/img/uoc_logo.png" class="logo" />
+            <img src="../../assets/img/rpf_logo.png" class="logo"/>
+        </div>
     </div>
 
 </div> 

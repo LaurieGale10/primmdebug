@@ -28,6 +28,9 @@
     justify-content: space-between
     align-items: center
 
+.info-pane--heading
+    text-align: center
+
 .navigation-panes
     display: flex
     flex-direction: row
@@ -56,21 +59,25 @@
 .mat-mdc-raised-button.mat-green
     background-color: #5BB314
 
-.flowchart-icon
-    height: 40vh
-    aspect-ratio: 0.75
-    
-.code-icon
-    height: 17.5vh
-    aspect-ratio: 4
-    
 .reflection-icon
-    height: 40vh
+    padding-left: 15%
 
 img
     margin-bottom: 4%
+    width: 37.5%
 
 //Media queries for responding to smaller screen sizes
+
+@media (max-width: 1250px)
+    img
+        margin-bottom: 4%
+        width: 45%
+
+@media (max-width: 1000px)
+    img
+        margin-bottom: 4%
+        width: 55%
+
 @media (max-width: 750px)
     .navigation-panes
         flex-direction: column
@@ -81,3 +88,10 @@ img
 
     .navigation-pane--button
         margin-bottom: 1%
+
+    .info-panes
+        flex-direction: column
+
+    img
+        margin-bottom: 4%
+        width: 75%

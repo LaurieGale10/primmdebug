@@ -1,4 +1,4 @@
-<mat-toolbar class="title-pane" >
+<mat-toolbar class="title-pane">
     @if (enableToHomeNavigation) {
         <div class="title-text title-text--clickable" (click)="toHomepage()">
             <h1>PRIMMDebug</h1>
@@ -6,19 +6,9 @@
         </div>
     }
     @else {
-
-
         <div class="title-text">
             <h1>PRIMMDebug</h1>
             <mat-icon class="bug-icon">bug_report</mat-icon>
         </div>
-        <!--
-        <div class="title-text">
-            <button mat-icon-button (click)="openToHomeDialog()">
-                <mat-icon>home</mat-icon>
-            </button>
-        </div>
-        -->
-
     }
 </mat-toolbar>
