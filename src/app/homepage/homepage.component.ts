@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToolbarComponent } from '../toolbar/toolbar.component';
+import { BottomToolbarComponent } from '../bottom-toolbar/bottom-toolbar.component';
 import { Analytics } from '@angular/fire/analytics';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -10,7 +11,7 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
 @Component({
   selector: 'app-homepage',
   standalone: true,
-  imports: [ToolbarComponent, MatButtonModule, MatDividerModule],
+  imports: [ToolbarComponent, BottomToolbarComponent, MatButtonModule, MatDividerModule],
   templateUrl: './homepage.component.html',
   styleUrls: ['./homepage.component.sass'],
   animations: [
