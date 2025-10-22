@@ -75,10 +75,10 @@
                         @if (debuggingStage == DebuggingStageType.predict) {
                             @if (exercise.testCases![predictRunIteration].input) {
                                 @if (exercise.testCases![predictRunIteration].input!.length == 1) {
-                                    <h4>What do you think the program will output when run with the input value below?</h4>
+                                    <h4>What do you think the program will output when it is run with the input value below?</h4>
                                 }
                                 @else if (exercise.testCases![predictRunIteration].input!.length > 1) {
-                                    <h4>What do you think the program will output when run with the input values below?</h4>
+                                    <h4>What do you think the program will output when it is run with the input values below?</h4>
                                 }
                             }
                             @else {
