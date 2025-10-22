@@ -51,14 +51,14 @@ export class FirestoreService {
     const multipleChoiceOptions: Map<DebuggingStage, Array<string>> = new Map<DebuggingStage, Array<string>>();
 
     if (!!exercise["identify_fault_multiple_choice"] && Array.isArray(exercise["identify_fault_multiple_choice"])) {
-      const spotDefectOptions: Array<string> = [];
+      const spotIssueOptions: Array<string> = [];
       for (let i: number = 0; i < exercise["identify_fault_multiple_choice"].length; i++) {
         if (!this.isEmptyString(exercise["identify_fault_multiple_choice"][i])) {
-          spotDefectOptions.push(dedent(exercise["identify_fault_multiple_choice"][i]));
+          spotIssueOptions.push(dedent(exercise["identify_fault_multiple_choice"][i]));
         }
       }
-      if (spotDefectOptions.length > 1) {
-        multipleChoiceOptions.set(DebuggingStage.spotDefect, spotDefectOptions);
+      if (spotIssueOptions.length > 1) {
+        multipleChoiceOptions.set(DebuggingStage.spotIssue, spotIssueOptions);
       }
     }
 

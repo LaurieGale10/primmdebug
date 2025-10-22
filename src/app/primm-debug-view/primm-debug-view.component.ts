@@ -43,7 +43,7 @@ import { ConfirmNavDialogComponent } from '../toolbar/confirm-nav-dialog/confirm
   animations: [
     trigger('expandReflectionPaneBorder', [
       transition('* => '+DebuggingStage.predict, [expandBorderAnimation]),
-      transition('* => '+DebuggingStage.spotDefect, [expandBorderAnimation]),
+      transition('* => '+DebuggingStage.spotIssue, [expandBorderAnimation]),
       transition('* => '+DebuggingStage.inspectCode, [expandBorderAnimation]),
       transition('* => '+DebuggingStage.findError, [expandBorderAnimation])
     ]) //Had to pass down expandCodeEditorPane to code-editor-component due to iFrame outsizing div (so that iFrame doesn't display annoying scroll bar)
@@ -63,7 +63,7 @@ export class PrimmDebugViewComponent implements OnInit {
   
   studentResponses: Map<DebuggingStage, (string | null)[]> = new Map<DebuggingStage, (string | null)[]>([
     [DebuggingStage.predict, [] as string[]],
-    [DebuggingStage.spotDefect, [] as string[]],
+    [DebuggingStage.spotIssue, [] as string[]],
     [DebuggingStage.inspectCode, []],
     [DebuggingStage.findError, [] as string[]],
     [DebuggingStage.fixError, [] as string[]],
@@ -76,20 +76,20 @@ export class PrimmDebugViewComponent implements OnInit {
   userReflectionInput: string | null = null;
   userMultiChoiceInput: string | null = null;
   debugStepNames: Map<DebuggingStage, string> = new Map<DebuggingStage, string>([
-    [DebuggingStage.spotDefect, "Spot the defect"],
+    [DebuggingStage.spotIssue, "Spot the issue"],
     [DebuggingStage.inspectCode, "Inspect the code"],
     [DebuggingStage.findError, "Find the error"],
     [DebuggingStage.fixError, "Fix the error"]
   ]);
   debugStepQuestions: Map<DebuggingStage, string> = new Map<DebuggingStage, string>([
-    [DebuggingStage.spotDefect, "What was the program meant to do, and what did it actually do?\n\nIf there's an error message, what is it telling you?"],
-    [DebuggingStage.inspectCode, dedent(`Try and work out what the cause of the error could be.\n\nRead the code, run it with different inputs, and write down your thoughts. Use the test cases if you need help.`)],
+    [DebuggingStage.spotIssue, "What was the program meant to do, and what did it actually do?\n\nIf there's an error message, what is it telling you?"],
+    [DebuggingStage.inspectCode, dedent(`Try and work out what the cause of the issue could be.\n\nRead the code, run it with different inputs, and write down your thoughts. Use the test cases if you need help.`)],
     [DebuggingStage.findError, "Enter what line you think the error is located on."],
     [DebuggingStage.fixError, "Now try and fix the error. Then write down what you've changed."]
   ]);
   reflectionInputPlaceholders: Map<DebuggingStage, string> = new Map<DebuggingStage, string>([
     [DebuggingStage.predict, "e.g. The program will output a sequence of cities in alphabetical order."],
-    [DebuggingStage.spotDefect, "e.g. The program was meant to output a sequence of integers in ascending order but actually printed them out unsorted."],
+    [DebuggingStage.spotIssue, "e.g. The program was meant to output a sequence of integers in ascending order but actually printed them out unsorted."],
     [DebuggingStage.inspectCode, "e.g. After testing with four different variable values, I think the error is to do with the if statement on line 3."],
     [DebuggingStage.findError, "e.g. The equals sign on line 3."],
     [DebuggingStage.fixError, "e.g. Added a colon to the end of the while loop."]
@@ -320,7 +320,7 @@ export class PrimmDebugViewComponent implements OnInit {
         this.sendToggleRunMessage(false);
         break;
       }
-      case DebuggingStage.spotDefect: {
+      case DebuggingStage.spotIssue: {
         this.sessionManagerService.setPredictRunIteration(null);
         this.sendToggleRunMessage(true);
         break;
@@ -452,11 +452,11 @@ export class PrimmDebugViewComponent implements OnInit {
           this.setDebuggingStage(DebuggingStage.predict);
         }
         else {
-          this.setDebuggingStage(DebuggingStage.spotDefect);
+          this.setDebuggingStage(DebuggingStage.spotIssue);
         }
         break;
       }
-      case DebuggingStage.spotDefect: {
+      case DebuggingStage.spotIssue: {
         this.setDebuggingStage(DebuggingStage.inspectCode);
         break;
       }

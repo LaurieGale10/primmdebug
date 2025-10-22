@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
+import { Analytics } from '@angular/fire/analytics';
 
 import { PrimmDebugViewComponent } from './primm-debug-view.component';
 import { FirestoreService } from '../services/firestore.service';
@@ -36,6 +37,9 @@ describe('PrimmDebugViewComponent', () => {
     title: 'test-exercise',
     description: 'test-description'
   };
+
+  // Mock Analytics object
+  const mockAnalytics = jasmine.createSpyObj('Analytics', ['logEvent']);
 
   // Helper function to setup component with exercise data
   const setupComponentWithExercise = () => {
@@ -91,7 +95,8 @@ describe('PrimmDebugViewComponent', () => {
         { provide: LoggingService, useValue: mockLoggingService },
         { provide: Router, useValue: mockRouter },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
-        { provide: MatDialog, useValue: mockDialog }
+        { provide: MatDialog, useValue: mockDialog },
+        { provide: Analytics, useValue: mockAnalytics }
       ]
     })
     .compileComponents();
@@ -176,7 +181,7 @@ describe('PrimmDebugViewComponent', () => {
       it('should save debugging stage to session storage when stage changes', () => {
         // Arrange
         setupComponentWithExercise();
-        const newStage = DebuggingStage.spotDefect;
+        const newStage = DebuggingStage.spotIssue;
         
         // Act
         component.setDebuggingStage(newStage);
@@ -283,7 +288,7 @@ describe('PrimmDebugViewComponent', () => {
       it('should restore current response from session storage', () => {
         // Arrange
         const savedResponse = 'Restored response';
-        mockSessionManagerService.getDebuggingStage.and.returnValue(DebuggingStage.spotDefect);
+        mockSessionManagerService.getDebuggingStage.and.returnValue(DebuggingStage.spotIssue);
         mockSessionManagerService.getCurrentResponse.and.returnValue(savedResponse);
         setupComponentWithExercise();
         
@@ -298,7 +303,7 @@ describe('PrimmDebugViewComponent', () => {
         // Arrange
         const savedResponses = new Map<DebuggingStage, string[]>([
           [DebuggingStage.predict, ['Previous prediction']],
-          [DebuggingStage.spotDefect, ['Previous spot defect response']]
+          [DebuggingStage.spotIssue, ['Previous spot defect response']]
         ]);
         mockSessionManagerService.getDebuggingStage.and.returnValue(DebuggingStage.inspectCode);
         mockSessionManagerService.getPreviousResponses.and.returnValue(savedResponses);
@@ -309,7 +314,7 @@ describe('PrimmDebugViewComponent', () => {
         
         // Assert
         expect(component.studentResponses.get(DebuggingStage.predict)).toEqual(['Previous prediction']);
-        expect(component.studentResponses.get(DebuggingStage.spotDefect)).toEqual(['Previous spot defect response']);
+        expect(component.studentResponses.get(DebuggingStage.spotIssue)).toEqual(['Previous spot defect response']);
       });
     });
 
@@ -448,7 +453,7 @@ describe('PrimmDebugViewComponent', () => {
           predictIteration: 2,
           previousResponses: new Map<DebuggingStage, string[]>([
             [DebuggingStage.predict, ['First prediction', 'Second prediction']],
-            [DebuggingStage.spotDefect, ['Error analysis response']],
+            [DebuggingStage.spotIssue, ['Error analysis response']],
             [DebuggingStage.inspectCode, ['Code inspection response']]
           ]),
           currentResponse: 'Looking for error on line...'
@@ -468,7 +473,7 @@ describe('PrimmDebugViewComponent', () => {
         expect(component.predictRunIteration).toBe(2);
         expect(component.userReflectionInput).toBe('Looking for error on line...');
         expect(component.studentResponses.get(DebuggingStage.predict)?.length).toBe(2);
-        expect(component.studentResponses.get(DebuggingStage.spotDefect)).toEqual(['Error analysis response']);
+        expect(component.studentResponses.get(DebuggingStage.spotIssue)).toEqual(['Error analysis response']);
       });
 
       it('should handle predict-run cycle state persistence', () => {
@@ -508,7 +513,7 @@ describe('PrimmDebugViewComponent', () => {
         // Arrange
         setupComponentWithExercise();
         component.userReflectionInput = 'Response to save';
-        component.debuggingStage = DebuggingStage.spotDefect;
+        component.debuggingStage = DebuggingStage.spotIssue;
         
         // Act
         component.nextDebuggingStage();
@@ -596,7 +601,7 @@ describe('PrimmDebugViewComponent', () => {
 
       it('should handle null values in session storage gracefully', () => {
         // Arrange
-        mockSessionManagerService.getDebuggingStage.and.returnValue(DebuggingStage.spotDefect);
+        mockSessionManagerService.getDebuggingStage.and.returnValue(DebuggingStage.spotIssue);
         mockSessionManagerService.getPredictRunIteration.and.returnValue(null);
         mockSessionManagerService.getCurrentResponse.and.returnValue(null);
         mockSessionManagerService.getSelectedLineNumber.and.returnValue(null);
@@ -606,7 +611,7 @@ describe('PrimmDebugViewComponent', () => {
         component.checkSessionStorage();
         
         // Assert
-        expect(component.debuggingStage).toBe(DebuggingStage.spotDefect);
+        expect(component.debuggingStage).toBe(DebuggingStage.spotIssue);
         expect(component.predictRunIteration).toBe(0);
         expect(component.userReflectionInput).toBeNull();
         expect(component.selectedLineNumber).toBeUndefined();
@@ -988,17 +993,17 @@ describe('PrimmDebugViewComponent', () => {
 
       it('should not display hint-display component when no student responses exist', () => {
         // Arrange: Set up exercise with hints but no student responses
-        component.debuggingStage = DebuggingStage.spotDefect;
-        component.exercise!.hints!.set(DebuggingStage.spotDefect, ['Hint 1', 'Hint 2']);
+        component.debuggingStage = DebuggingStage.spotIssue;
+        component.exercise!.hints!.set(DebuggingStage.spotIssue, ['Hint 1', 'Hint 2']);
         
         // Ensure no student responses exist (passHintsToComponent will return empty array)
-        component.studentResponses.set(DebuggingStage.spotDefect, []);
+        component.studentResponses.set(DebuggingStage.spotIssue, []);
         
         // Act
         fixture.detectChanges();
         
         // Verify passHintsToComponent returns empty array
-        const hintsFromMethod = component.passHintsToComponent(DebuggingStage.spotDefect);
+        const hintsFromMethod = component.passHintsToComponent(DebuggingStage.spotIssue);
         expect(hintsFromMethod).toEqual([]);
         
         // Assert: Should not render hint-display component
@@ -1029,8 +1034,8 @@ describe('PrimmDebugViewComponent', () => {
         expect(hintDisplayComponent.componentInstance.hints).toEqual(hintsFromMethod);
       });
 
-      it('should display hint-display component for spotDefect stage when student responses exist', () => {
-        // Arrange: Set up exercise with hints for spotDefect stage (simpler case)
+      it('should display hint-display component for spotIssue stage when student responses exist', () => {
+        // Arrange: Set up exercise with hints for spotIssue stage (simpler case)
         component.debuggingStage = DebuggingStage.inspectCode;
         component.exercise!.hints!.set(DebuggingStage.inspectCode, ['Spot defect hint 1', 'Spot defect hint 2']);
         
@@ -1049,8 +1054,8 @@ describe('PrimmDebugViewComponent', () => {
 
       it('should not display hint-display component when hints are undefined for current stage', () => {
         // Arrange: Set up exercise without hints for current stage
-        component.debuggingStage = DebuggingStage.spotDefect;
-        // Don't set any hints for spotDefect stage
+        component.debuggingStage = DebuggingStage.spotIssue;
+        // Don't set any hints for spotIssue stage
         
         // Act
         fixture.detectChanges();

@@ -56,7 +56,7 @@ describe('HintDisplayComponent', () => {
       expect(component.panelOpenState()).toBe(true);
 
       // Act: Change debugging stage to any value
-      component.debuggingStage = DebuggingStage.spotDefect;
+      component.debuggingStage = DebuggingStage.spotIssue;
 
       // Assert: Panel should be closed
       expect(component.panelOpenState()).toBe(false);

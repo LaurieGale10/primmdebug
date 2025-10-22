@@ -48,7 +48,7 @@
                             <mat-icon>settings</mat-icon>
                             <h2>Run</h2>
                         }
-                        @else if ([DebuggingStageType.spotDefect, DebuggingStageType.inspectCode, DebuggingStageType.findError, DebuggingStageType.fixError].includes(debuggingStage)) {
+                        @else if ([DebuggingStageType.spotIssue, DebuggingStageType.inspectCode, DebuggingStageType.findError, DebuggingStageType.fixError].includes(debuggingStage)) {
                             <mat-icon>search</mat-icon>
                             <h2>{{debugStepNames.get(debuggingStage)}}</h2>
                         }
@@ -102,7 +102,7 @@
                                 <h4>Time to run the code! Have a go at running the program.</h4>
                             }
                         }
-                        @else if ([DebuggingStageType.spotDefect, DebuggingStageType.inspectCode, DebuggingStageType.findError, DebuggingStageType.fixError].includes(debuggingStage)) {
+                        @else if ([DebuggingStageType.spotIssue, DebuggingStageType.inspectCode, DebuggingStageType.findError, DebuggingStageType.fixError].includes(debuggingStage)) {
                             <h4 class="debug-stage-description">{{debugStepQuestions.get(debuggingStage)}}</h4>
                         }
                         @else if (debuggingStage == DebuggingStageType.test) {
@@ -163,7 +163,7 @@
                                 [(prediction)]="userReflectionInput"> <!--TODO: Pass has code editor loaded down to here-->
                             </app-predict-run-test-case-pane>
                         }
-                        @if ([DebuggingStageType.spotDefect, DebuggingStageType.inspectCode, DebuggingStageType.fixError, DebuggingStageType.modify].includes(debuggingStage) || (debuggingStage == DebuggingStageType.findError && !exercise.lineContainingError)) {
+                        @if ([DebuggingStageType.spotIssue, DebuggingStageType.inspectCode, DebuggingStageType.fixError, DebuggingStageType.modify].includes(debuggingStage) || (debuggingStage == DebuggingStageType.findError && !exercise.lineContainingError)) {
                             @if (exercise.multipleChoiceOptions?.get(debuggingStage) && useMultipleChoiceOptions) {
                                 <div id="multiple-choice-options">
                                     <mat-radio-group [(ngModel)]="userMultiChoiceInput" class="flex-column">
@@ -213,7 +213,7 @@
 
                     <!--Where any additional elements are displayed (e.g., test cases and hints)-->
                     <div class="articulation-pane--additional-info">
-                        @if ([DebuggingStageType.spotDefect, DebuggingStageType.inspectCode, DebuggingStageType.test].includes(debuggingStage)) {
+                        @if ([DebuggingStageType.spotIssue, DebuggingStageType.inspectCode, DebuggingStageType.test].includes(debuggingStage)) {
                             <app-test-case-display [testCases]="exercise.testCases" [studentPredictions]="getPredictResponses()" [debuggingStage]="debuggingStage"></app-test-case-display>
                         }
                         @if (debuggingStage == DebuggingStageType.inspectCode && inspectCodeResponsesContainInput()) {
@@ -230,7 +230,7 @@
                     <!--Buttons to move onto the next PRIMMDebug stage (requiring some input for stages requiring a written response)-->
                     <div class="articulation-pane--button-container">
                         <!--Stages requiring a written response-->
-                        @if ([DebuggingStageType.predict, DebuggingStageType.spotDefect, DebuggingStageType.fixError].includes(debuggingStage)) {
+                        @if ([DebuggingStageType.predict, DebuggingStageType.spotIssue, DebuggingStageType.fixError].includes(debuggingStage)) {
                             <button
                                 mat-raised-button color="green" class="articulation-pane--button-container--button"
                                 (click)="nextDebuggingStage()"
