@@ -491,8 +491,8 @@ export class PrimmDebugViewComponent implements OnInit {
     this.resetPredictUI();
   }
 
-  returnToHomepage() {
-    let route = '';
+  returnToDashboard() {
+    let route:string = '/dashboard';
     this.router.navigate([route]);
   }
 

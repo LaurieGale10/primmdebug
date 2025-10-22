@@ -75,14 +75,14 @@
                         @if (debuggingStage == DebuggingStageType.predict) {
                             @if (exercise.testCases![predictRunIteration].input) {
                                 @if (exercise.testCases![predictRunIteration].input!.length == 1) {
-                                    <h4>What do you think will happen when you press run with the input value below?</h4>
+                                    <h4>What do you think the program will output when run with the input value below?</h4>
                                 }
                                 @else if (exercise.testCases![predictRunIteration].input!.length > 1) {
-                                    <h4>What do you think will happen when you press run with the input values below?</h4>
+                                    <h4>What do you think the program will output when run with the input values below?</h4>
                                 }
                             }
                             @else {
-                                <h4>What do you think will happen when you press run?</h4>
+                                <h4>What do you think the program will output when you press run?</h4>
                             }
                             <h4>Make sure you <strong>read the program description</strong> first!</h4>
                         }
@@ -274,19 +274,18 @@
                             @if (changesSuccessful) {
                                 <div class="flex-column">
                                     <button mat-raised-button (click)="setDebuggingStage(DebuggingStageType.modify)" class="articulation-pane--button-container--button" color="green">Continue with PRIMM</button>
-                                    <button mat-raised-button (click)="returnToHomepage()" class="articulation-pane--button-container--button" color="green">Try another PRIMMDebug challenge</button>
                                 </div>
                             }
                             @else {
                                 <div class="flex-column">
                                     <button mat-raised-button (click)="setDebuggingStage(DebuggingStageType.inspectCode)" class="articulation-pane--button-container--button" color="green">Re-inspect the code (recommended)</button>
                                     <button mat-raised-button (click)="setDebuggingStage(DebuggingStageType.fixError)" class="articulation-pane--button-container--button" color="green">Try another fix</button>
-                                    <button mat-raised-button (click)="returnToHomepage()" class="articulation-pane--button-container--button" color="green">Try another PRIMMDebug challenge</button>
                                 </div>
                             }
+                            <button mat-raised-button (click)="returnToDashboard()" class="articulation-pane--button-container--button" color="green">Try another PRIMMDebug challenge</button>
                         }
                         @if (debuggingStage == DebuggingStageType.make) {
-                            <button mat-raised-button (click)="returnToHomepage()" color="green" class="articulation-pane--button-container--button">Move on to a different exercise</button>
+                            <button mat-raised-button (click)="returnToDashboard()" color="green" class="articulation-pane--button-container--button">Move on to a different exercise</button>
                         }
                     </div>
                 }
