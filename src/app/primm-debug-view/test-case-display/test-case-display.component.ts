@@ -15,22 +15,28 @@ import { WhitespacePreserverPipe } from '../../pipes/whitespace-preserver.pipe';
   templateUrl: './test-case-display.component.html',
   styleUrl: './test-case-display.component.sass'
 })
-export class TestCaseDisplayComponent implements OnInit {
+export class TestCaseDisplayComponent {
 
   readonly panelOpenState = signal(false);
 
   @Input({required: true})
-  testCases: TestCase[] | null = null;
+  testCases: TestCase[] | null = [];
+
+  @Input({required: true})
+  studentPredictions: string[] | undefined;
+
+  @Input()
+  set debuggingStage(value: any) {
+    console.log("Debugging stage changed detected in test case display");
+    this.panelOpenState.set(false);
+    this.testCaseIndex = 0;
+  }
 
   testCaseIndex: number = 0;
 
   disableAnimation: boolean = true; //Fix to avoid expansion panel expanding on animation of parent div 
 
   constructor(private loggingService: LoggingService, private whitespacePreserverPipe: WhitespacePreserverPipe) {}
-
-  ngOnInit(): void {
-    setTimeout(() => this.disableAnimation = false);
-  }
 
   onPanelExpansionChange(expanded: boolean) {
     this.panelOpenState.set(expanded);

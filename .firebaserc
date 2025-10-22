@@ -5,8 +5,8 @@
   "targets": {
     "primmdebug": {
       "hosting": {
-        "primmdebug-research": [
-          "primmdebug-research"
+        "main": [
+          "primmdebug"
         ]
       }
     }

@@ -25,7 +25,7 @@ export class LoggingService {
   debuggingStageCounters: Map<DebuggingStage, number> = new Map<DebuggingStage, number>([
     [DebuggingStage.predict, 0],
     [DebuggingStage.run, 0],
-    [DebuggingStage.spotDefect, 0],
+    [DebuggingStage.spotIssue, 0],
     [DebuggingStage.inspectCode, 0],
     [DebuggingStage.findError, 0],
     [DebuggingStage.fixError, 0],

@@ -1,79 +1,97 @@
-.title-pane
+//Putting these styles in styles.sass doesn't work because material styles are loaded after and take priority. This could be fixed by overriding a load of material styles with :ng-deep but that's long - will search for a shorter way later.
+.page-heading
+    margin-top: 2%
+    margin-bottom: 1.5%
+
+.page-heading--title
+    font-size: 40px
+
+.heading-bold
+    font-weight: 450
+
+.sub-heading
+    margin-bottom: 1%
+
+.info-panes
     display: flex
     flex-direction: row
+    gap: 1%
+    margin-bottom: 3%
     justify-content: space-between
-    background-color: #5BB314
-    padding: 1.5% 2.5%
+    min-height: 40%
 
-.title-text
+.info-pane
+    display: flex
+    flex-direction: column
+    width: 33%
+    padding: 1.25% 1.75%
+    justify-content: space-between
+    align-items: center
+
+.info-pane--heading
+    text-align: center
+
+.navigation-panes
     display: flex
     flex-direction: row
-    width: 100%
-    gap: 3px
+    gap: 5%
+    margin-bottom: 0.5%
 
-.warning-text
+.navigation-pane
     display: flex
-    flex-direction: row
-    gap: 10px
-    align-self: center
-    background-color: #e0e2e4
-    padding: 0.5%
-    border-radius: 7.5px
-
-.checklist-icon
-    align-self: center
-
-.widgets-view
-    display: flex
-    gap: 2%
-    row-gap: 25px
-    flex-wrap: wrap
-
-.error-display
-    width: 50%
-    min-height: 150px
-    padding: 1%
+    flex-direction: column
     border-radius: 15px
-    background-color: #e65f4ed5
-    display: flex
-    flex-direction: column
-
-.button-display
-    display: flex
-    flex-direction: column
-    justify-content: space-between
-    padding: 0 2.5%
-
-.survey-text
-    display: flex
-    flex-direction: row
-    gap: 10px
-    align-self: center
-    padding: 0.5%
-    border-radius: 7.5px
     height: 100%
-    width: 100%
-
-.survey-icon
-    align-self: center
-    margin-top: -2.5px
-
-.mat-mdc-raised-button.mat-grey
+    width: 45%
+    padding: 1.25% 1.75%
     background-color: #f2f3f4
+    gap: 5%
 
-app-exercise-view-widget
-    width: 23.5%
+.navigation-pane--button
+    width: 65%
+    min-height: 55px
+    padding: 3%
+    //margin-bottom: 1%
 
-//Media queries for adjusting numnber of exercise widgets per row
+.button-heading
+    margin: 0
 
-@media (max-width: 1200px) 
-    app-exercise-view-widget
-        width: 31%
+.mat-mdc-raised-button.mat-green
+    background-color: #5BB314
 
-@media (max-width: 900px) 
-    app-exercise-view-widget
-        width: 49%
+.reflection-icon
+    padding-left: 15%
 
-@media (max-width: 600px) 
-    app-exercise-view-widget
-        width: 100%
+img
+    margin-bottom: 4%
+    width: 37.5%
+
+//Media queries for responding to smaller screen sizes
+
+@media (max-width: 1250px)
+    img
+        margin-bottom: 4%
+        width: 45%
+
+@media (max-width: 1000px)
+    img
+        margin-bottom: 4%
+        width: 55%
+
+@media (max-width: 750px)
+    .navigation-panes
+        flex-direction: column
+        gap: 5vh
+
+    .navigation-pane
+        width: 80%
+
+    .navigation-pane--button
+        margin-bottom: 1%
+
+    .info-panes
+        flex-direction: column
+
+    img
+        margin-bottom: 4%
+        width: 75%

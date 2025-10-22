@@ -3,25 +3,27 @@ import { MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, Ma
 import { MatButton } from '@angular/material/button';
 import { Router } from '@angular/router';
 import { LoggingService } from '../../services/logging.service';
-
+import { PageToNavigate } from '../../types/types';
 
 export interface DialogData {
   title: string,
   content: string
+  pageToNavigate: PageToNavigate
 }
 
 @Component({
-  selector: 'app-to-home-dialog',
+  selector: 'app-confirm-nav-dialog',
   standalone: true,
   imports: [MatDialogContent, MatDialogActions, MatDialogTitle, MatDialogClose, MatButton],
-  templateUrl: './to-home-dialog.component.html',
-  styleUrl: './to-home-dialog.component.sass'
+  templateUrl: './confirm-nav-dialog.component.html',
+  styleUrl: './confirm-nav-dialog.component.sass'
 })
-export class ToHomeDialogComponent {
+export class ConfirmNavDialogComponent {
+  
   constructor(@Inject(MAT_DIALOG_DATA) public data: DialogData, private router: Router, private loggingService: LoggingService) {}
 
-  returnToHomepage(): void {
-    let route = '';
+  navigateToPage(): void {
+    let route: string = this.data.pageToNavigate == PageToNavigate.homepage ? '/' : '/dashboard';
     this.router.navigate([route]);
   }
 }

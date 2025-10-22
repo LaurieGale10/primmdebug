@@ -1,0 +1,55 @@
+import { Component, inject, OnInit } from '@angular/core';
+import { ExerciseViewWidgetComponent } from "./exercise-view-widget/exercise-view-widget.component";
+import { ToolbarComponent } from '../toolbar/toolbar.component';
+import { DebuggingExercise } from '../services/debugging-exercise.model';
+
+import {MatIconModule} from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { FirestoreService } from '../services/firestore.service';
+import { LoggingService } from '../services/logging.service';
+import { SessionManagerService } from '../services/session-manager.service';
+import { MatDialog } from '@angular/material/dialog';
+import { StudentIdDialogComponent } from '../student-id-dialog/student-id-dialog.component';
+import { environment } from '../../environments/environment.development';
+import { Analytics } from '@angular/fire/analytics';
+
+@Component({
+    selector: 'app-challenge-dashboard',
+    standalone: true,
+    templateUrl: './challenge-dashboard.component.html',
+    styleUrl: './challenge-dashboard.component.sass',
+    imports: [ExerciseViewWidgetComponent, ToolbarComponent, MatIconModule, MatButtonModule]
+})
+export class ChallengeDashboardComponent implements OnInit {
+
+  private analytics = inject(Analytics);
+  
+    exercises: Array<DebuggingExercise> | null = null; //TODO: Look up convention regarding whether to set var that might be null/undefined before it's setter function is called
+
+    displaySurveyButton: boolean = false;
+
+    constructor(private firestoreService: FirestoreService, private loggingService: LoggingService, private sessionManager: SessionManagerService, private dialog: MatDialog) { }
+
+    ngOnInit(): void {
+      this.loggingService.resetDebuggingStage();
+      this.sessionManager.removeChallengeAttemptItems();
+      this.firestoreService.getUnparsedExercises().subscribe(data => {
+        const unparsedExercises = data;
+        this.exercises = this.firestoreService.parseDebuggingExercises(unparsedExercises);
+      });
+
+      if (environment.logChanges && !this.loggingService.getStudentId()) {
+        if (!sessionStorage.getItem("studentId")) {
+          this.openToStudentDialog();
+        }
+        else {
+          this.loggingService.setStudentId(sessionStorage.getItem("studentId")!);
+        }
+      }
+    }
+
+    openToStudentDialog() {
+      const dialogRef = this.dialog.open(StudentIdDialogComponent, {disableClose: true});
+    }
+
+}
