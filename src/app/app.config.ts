@@ -6,9 +6,15 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideHttpClient } from '@angular/common/http';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
+import { provideAnalytics, getAnalytics } from '@angular/fire/analytics';
 
 import { environment } from '../environments/environment.development';
 
 export const appConfig: ApplicationConfig = {
-  providers: [provideRouter(routes), provideAnimationsAsync(), provideHttpClient(), provideFirebaseApp(() => initializeApp(environment.firebaseApiData)), provideFirestore(() => getFirestore())]
+  providers: [provideRouter(routes),
+    provideAnimationsAsync(),
+    provideHttpClient(),
+    provideFirebaseApp(() => initializeApp(environment.firebaseApiData)),
+    provideAnalytics(() => getAnalytics()),
+    provideFirestore(() => getFirestore())]
 };

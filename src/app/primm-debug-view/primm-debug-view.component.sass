@@ -1,42 +1,30 @@
-.title-pane
+.header
     display: flex
     flex-direction: row
     justify-content: space-between
-    background-color: #5BB314
-    padding: 1.5% 2.5%
+    align-items: center
+    margin-bottom: 1%
 
-.title-text
-    display: flex
-    flex-direction: row
-    gap: 3px
+.header-element
+    margin: 0
 
-.warning-text
-    display: flex
-    flex-direction: row
-    gap: 10px
-    align-self: center
-    background-color: #e0e2e4
-    padding: 1.5% 2.5%
-    border-radius: 7.5px
-
-.checklist-icon
-    align-self: center
-  
 .exercise-description
     white-space: pre-wrap
     
-.code-reflection-split-display
+.code-articulation-split-display
     display: flex
     flex-direction: row
     gap: 1%
 
-.code-editor-display
+.code-editor-description-split-display
     width: 70%
+
+.code-editor-display
     border: white solid 5px
     border-radius: 15px
     margin-right: 1%
 
-.reflect-prompt-display
+.articulation-pane
     width: 30%
     padding: 1%
     border: #f2f3f4 solid 5px
@@ -45,13 +33,23 @@
     display: flex
     flex-direction: column
 
-.reflect-prompt-display-title
+.articulation-pane--loading-display
+    display: flex
+    justify-content: center
+    align-items: center
+    height: 100%
+    width: 100%
+
+.articulation-pane--title
     display: flex
     flex-direction: row
     gap: 1%
 
-.reflection-prompt-input
+.articulation-pane--student-response-pane--input-form
     width: 100%
+
+.articulation-pane--student-response-pane--input
+    min-height: 125px
 
 .debug-stage-description
     white-space: pre-line
@@ -61,12 +59,9 @@
     flex-direction: column
     column-gap: 1%
 
-.reflection-button
+.articulation-pane--button-container--button
     margin-bottom: 2.5%
     width: 100%
-
-.user-reflection-input
-    min-height: 150px
 
 .emoji-display-div
     display: flex

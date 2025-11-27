@@ -5,7 +5,7 @@ export interface DebuggingExercise {
     title: string,
     description: string,
     program: string,
-    testCases?: TestCase[],
+    testCases: TestCase[],
     multipleChoiceOptions?: Map<DebuggingStage,string[]>,
     difficulty?: Difficulty,
     language?: string,
@@ -22,6 +22,6 @@ export enum Difficulty {
 
 export interface TestCase {
     input?: string[],
-    expected: string,
+    expected?: string,
     actual?: string
 }

@@ -11,6 +11,9 @@
 //html
 //  @include mat.all-component-themes($custom-theme)
 
+body
+    margin: 0
+
 .page
     margin: 1.5% 2.5%
 
@@ -20,6 +23,9 @@
 .test-case-display
     font-family: monospace
     //white-space: pre-wrap //Use this if I want each new line of the test case output to be displayed (currently not using this as looks a bit clunky)
+
+.expansion-panel-switch-buttons
+    float: right
 
 ::ng-deep .ng-animating div mat-accordion mat-expansion-panel div.mat-expansion-panel-content 
     height: 0px

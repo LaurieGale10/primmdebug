@@ -1,72 +1,61 @@
-import { Component, OnInit } from '@angular/core';
-import { ExerciseViewWidgetComponent } from "./exercise-view-widget/exercise-view-widget.component";
-import { DebuggingExercise } from '../services/debugging-exercise.model';
+import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { ToolbarComponent } from '../toolbar/toolbar.component';
+import { BottomToolbarComponent } from '../bottom-toolbar/bottom-toolbar.component';
+import { Analytics } from '@angular/fire/analytics';
 
-import {MatIconModule} from '@angular/material/icon';
-import {MatToolbarModule} from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
-import { FirestoreService } from '../services/firestore.service';
-import { LoggingService } from '../services/logging.service';
-import { MatDialog } from '@angular/material/dialog';
-import { StudentIdDialogComponent } from '../student-id-dialog/student-id-dialog.component';
-import { environment } from '../../environments/environment.development';
+import { MatDividerModule } from '@angular/material/divider';
+import { trigger, state, style, transition, animate } from '@angular/animations';
 
 @Component({
-    selector: 'app-homepage',
-    standalone: true,
-    templateUrl: './homepage.component.html',
-    styleUrl: './homepage.component.sass',
-    imports: [ExerciseViewWidgetComponent, MatIconModule, MatToolbarModule, MatButtonModule]
+  selector: 'app-homepage',
+  standalone: true,
+  imports: [ToolbarComponent, BottomToolbarComponent, MatButtonModule, MatDividerModule],
+  templateUrl: './homepage.component.html',
+  styleUrls: ['./homepage.component.sass'],
+  animations: [
+    trigger('expandRetract', [
+      state('expanded', style({
+        transform: 'scale(1.15)', // Enlarged size
+      })),
+      state('retracted', style({
+        transform: 'scale(1)', // Original size
+      })),
+      transition('expanded <=> retracted', [
+        animate('300ms ease-in-out') // Animation duration and easing
+      ])
+    ])
+  ]
 })
-export class HomepageComponent implements OnInit {
+export class HomepageComponent {
+  private analytics = inject(Analytics);
+  
+  constructor(private router: Router) { }
 
-    exercises: Array<DebuggingExercise> | null = null; //TODO: Look up convention regarding whether to set var that might be null/undefined before it's setter function is called
+  toChallengeDashboard() {
+    let route = '/dashboard';
+    this.router.navigate([route]);
+  }
 
-    displaySurveyButton: boolean = false;
+  toTeacherInfo() {
+    let route = '/teacher-info';
+    this.router.navigate([route]);
+  }
 
-    constructor(private firestoreService: FirestoreService, private loggingService: LoggingService, private dialog: MatDialog) { }
+  // Updated the imageStates property to use hover-based logic
+  imageStates: { [key: string]: string } = {
+    flowchart: 'retracted',
+    code: 'retracted',
+    reflection: 'retracted'
+  };
 
-    ngOnInit(): void {
-      this.loggingService.resetDebuggingStage();
-      this.firestoreService.getUnparsedExercises().subscribe(data => {
-        const unparsedExercises = data;
-        this.exercises = this.firestoreService.parseDebuggingExercises(unparsedExercises);
-      });
+  // Hover event handlers
+  onMouseEnter(image: string): void {
+    this.imageStates[image] = 'expanded';
+  }
 
-      if (environment.logChanges && !this.loggingService.getStudentId()) {
-        if (!sessionStorage.getItem("studentId")) {
-          this.openToStudentDialog();
-        }
-        else {
-          this.loggingService.setStudentId(sessionStorage.getItem("studentId")!);
-        }
-      }
-      this.verifyDisplayStudentButton();
-    }
-
-    verifyDisplayStudentButton() {
-      if (environment.logChanges && this.loggingService.getStudentId()) {
-        this.firestoreService.getStudentSchool(this.loggingService.getStudentId()!).then((school) => {
-          if (school && environment.surveyDates.has(school)) {
-            const surveyStartDate: Date = environment.surveyDates.get(school)!.get("startDate")!;
-            const surveyEndDate: Date = environment.surveyDates.get(school)!.get("endDate")!;
-            const now: Date = new Date();
-            if (now >= surveyStartDate && now <= surveyEndDate) {
-              this.displaySurveyButton = true;
-            }
-          }
-        });
-      }
-    }
-
-    openSurvey() {
-      window.open(environment.surveyLink+"?student_id="+this.loggingService.getStudentId(), "_blank");
-    }
-
-    openToStudentDialog() {
-      const dialogRef = this.dialog.open(StudentIdDialogComponent, {disableClose: true}).afterClosed().subscribe(result => {
-        this.verifyDisplayStudentButton();
-      });
-    }
-
+  onMouseLeave(image: string): void {
+    this.imageStates[image] = 'retracted';
+  }
 }
