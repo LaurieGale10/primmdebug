@@ -5,7 +5,7 @@
   },
   "hosting": {
     "target": "main",
-    "public": "dist/debug-challenger/browser",
+    "public": "dist/primmdebug/browser",
     "ignore": [
       "firebase.json",
       "**/.*",
