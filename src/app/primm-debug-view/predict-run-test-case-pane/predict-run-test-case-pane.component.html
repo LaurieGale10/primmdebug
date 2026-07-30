@@ -24,7 +24,11 @@
             <p class="shift-enter-tip">If you want to add a new line, hold Shift+Enter</p>
         }
         @if (debuggingStage == DebuggingStageType.run) {
-            <p><em>{{studentPrediction}}</em></p>
+            @if (studentPrediction) {
+                <p><em>{{studentPrediction}}</em></p>
+            } @else {
+                <p><em>You didn't enter a prediction</em></p>
+            }
         }
     </div>
 </div>

@@ -434,8 +434,8 @@ export class PrimmDebugViewComponent implements OnInit {
     if (this.exercise?.multipleChoiceOptions?.get(this.debuggingStage) && this.useMultipleChoiceOptions) {
       this.saveStudentResponse(this.userMultiChoiceInput!);
     }
-    else if (this.userReflectionInput || this.debuggingStage == DebuggingStage.inspectCode) {
-      this.saveStudentResponse(this.userReflectionInput!);
+    else if ([DebuggingStage.predict, DebuggingStage.spotIssue, DebuggingStage.inspectCode, DebuggingStage.findError, DebuggingStage.fixError, DebuggingStage.modify].includes(this.debuggingStage)) {
+      this.saveStudentResponse(this.userReflectionInput);
     }
     this.sessionManagerService.setCurrentResponse(null);
     this.sessionManagerService.setPreviousResponses(JSON.stringify(Array.from(this.studentResponses.entries())));

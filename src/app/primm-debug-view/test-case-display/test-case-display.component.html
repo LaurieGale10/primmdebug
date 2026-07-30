@@ -16,7 +16,11 @@
     }
 
     <h3>Your prediction</h3>
-    <p><em>{{studentPredictions![testCaseIndex]}}</em></p>
+    @if (studentPredictions![testCaseIndex]) {
+        <p><em>{{studentPredictions![testCaseIndex]}}</em></p>
+    } @else {
+        <p><em>You didn't enter a prediction</em></p>
+    }
 
     @if (testCases![testCaseIndex].expected) {
         <h3>Expected output</h3>
