@@ -16,7 +16,7 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 
 Pedagogical/technical/UX suggestions are welcome! Just open up an [issue](https://github.com/LaurieGale10/primmdebug/issues) and tag it appropriately.
 
-Pull requests are welcome, but I suggest email me at `lpg28[at]cl[dot]cam[dot]ac[dot]uk` so we can work together on these.
+Pull requests are welcome, but I suggest you email me at `lpg28[at]cl[dot]cam[dot]ac[dot]uk` so we can work together on these.
 
 ## License
 
