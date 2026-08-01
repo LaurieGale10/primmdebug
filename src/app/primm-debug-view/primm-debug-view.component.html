@@ -242,11 +242,11 @@
                         @else if (debuggingStage == DebuggingStageType.findError) {
                             @switch (foundErroneousLine) {
                                 @case (true) {
-                                    <button mat-raised-button color="green" (click)="setDebuggingStageFromFindError(DebuggingStageType.fixError)" class="articulation-pane--button-container--button">Fix the error</button>
+                                    <button mat-raised-button color="green" (click)="setDebuggingStage(DebuggingStageType.fixError, true)" class="articulation-pane--button-container--button">Fix the error</button>
                                 }
                                 @case (false) {
-                                    <button mat-raised-button color="green" (click)="setDebuggingStageFromFindError(DebuggingStageType.inspectCode)" class="articulation-pane--button-container--button">Re-inspect the code (recommended)</button>
-                                    <button mat-raised-button color="green" (click)="setDebuggingStageFromFindError(DebuggingStageType.findError)" class="articulation-pane--button-container--button">Enter another line number</button>
+                                    <button mat-raised-button color="green" (click)="setDebuggingStage(DebuggingStageType.inspectCode, true)" class="articulation-pane--button-container--button">Re-inspect the code (recommended)</button>
+                                    <button mat-raised-button color="green" (click)="setDebuggingStage(DebuggingStageType.findError, true)" class="articulation-pane--button-container--button">Enter another line number</button>
                                 }
                                 @case (null) {
                                     <button mat-raised-button color="green" (click)="checkLineNumber()" [disabled]="!selectedLineNumber" class="articulation-pane--button-container--button">Check my answer</button>

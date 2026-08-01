@@ -290,29 +290,24 @@ export class PrimmDebugViewComponent implements OnInit {
     return this.userReflectionInput !== null && /[0-9A-Za-z]/.test(this.userReflectionInput);
   }
 
-  /**
-   * Sets the debugging stage once the user moves on from the find error phase.
-   * Requires a separate function as the foundErroneousLine and selectedLineNumber variables need to be reset.
-   * @param debuggingStage The debugging stage to be set
-   */
-  setDebuggingStageFromFindError(debuggingStage: DebuggingStage) {
-    //TODO: Think this method could be refactored into nextDebuggingStage()
-    this.saveStudentResponse("Line "+this.selectedLineNumber!);
-    this.sessionManagerService.setPreviousResponses(JSON.stringify(Array.from(this.studentResponses.entries())));
+  setDebuggingStage(debuggingStage: DebuggingStage, previousStageWasFindError: boolean = false) {
+    //Requires a separate function as the foundErroneousLine and selectedLineNumber variables need to be reset.
+    if (previousStageWasFindError) {
+      this.saveStudentResponse("Line "+this.selectedLineNumber!);
+      this.sessionManagerService.setPreviousResponses(JSON.stringify(Array.from(this.studentResponses.entries())));
 
-    this.foundErroneousLine = null;
-    this.selectedLineNumber = undefined;
-    this.sessionManagerService.setSelectedLineNumber(null);
-    this.setDebuggingStage(debuggingStage);
-  }
+      this.foundErroneousLine = null;
+      this.selectedLineNumber = undefined;
+      this.sessionManagerService.setSelectedLineNumber(null);
+    }
 
-  setDebuggingStage(debuggingStage: DebuggingStage) {
     this.debuggingStage = debuggingStage;
     this.sessionManagerService.setDebuggingStage(debuggingStage);
     if (debuggingStage == DebuggingStage.predict || debuggingStage == DebuggingStage.run) {
       this.sessionManagerService.setPredictRunIteration(this.predictRunIteration);
     }
     this.loggingService.setDebuggingStage(this.debuggingStage);
+
     switch (this.debuggingStage) {
       case DebuggingStage.predict: {
         this.sendToggleRunMessage(true);
