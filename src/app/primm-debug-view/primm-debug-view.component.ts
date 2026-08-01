@@ -197,7 +197,10 @@ export class PrimmDebugViewComponent implements OnInit {
     if (studentInput) {
       this.userReflectionInput = studentInput;
     }
-    this.sessionManagerService.setCurrentResponse(this.userReflectionInput!);
+    console.log(this.userReflectionInput!.trim())
+    if (this.userReflectionInput!.trim() !== "") {
+      this.sessionManagerService.setCurrentResponse(this.userReflectionInput!);
+    }
   }
 
   onSelectedLineNumberChange() {
@@ -407,7 +410,7 @@ export class PrimmDebugViewComponent implements OnInit {
     if (this.userMultiChoiceInput) {
       stageLog.response = this.userMultiChoiceInput!;
     }
-    else if (this.userReflectionInput) {
+    else if (this.userReflectionInput && this.userReflectionInput.trim() !== "") {
       stageLog.response = this.userReflectionInput!;
     }
     else if (this.selectedLineNumber) {
@@ -435,7 +438,12 @@ export class PrimmDebugViewComponent implements OnInit {
       this.saveStudentResponse(this.userMultiChoiceInput!);
     }
     else if ([DebuggingStage.predict, DebuggingStage.spotIssue, DebuggingStage.inspectCode, DebuggingStage.findError, DebuggingStage.fixError, DebuggingStage.modify].includes(this.debuggingStage)) {
-      this.saveStudentResponse(this.userReflectionInput);
+      if (this.userReflectionInput && this.userReflectionInput.trim() !== "") {
+        this.saveStudentResponse(this.userReflectionInput!);
+      }
+      else {
+        this.saveStudentResponse(null);
+      }
     }
     this.sessionManagerService.setCurrentResponse(null);
     this.sessionManagerService.setPreviousResponses(JSON.stringify(Array.from(this.studentResponses.entries())));

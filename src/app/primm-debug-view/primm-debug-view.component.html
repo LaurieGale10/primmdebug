@@ -179,13 +179,13 @@
                                         <mat-label>Write your thoughts</mat-label>
                                         <textarea matInput
                                             [(ngModel)]="userReflectionInput"
-                                            (keydown.enter)="onKeydown($event)" (input)="onStudentInputChange()"
+                                            (keydown.control.enter)="onKeydown($event)" (input)="onStudentInputChange()"
                                             class="articulation-pane--student-response-pane--input" appearence="outline" placeholder="{{reflectionInputPlaceholders.get(debuggingStage)}}">
                                         </textarea>
                                     </mat-form-field>
                                 </div>
                             }
-                            <p class="shift-enter-tip">If you want to add a new line, hold Shift+Enter</p>
+                            <p class="control-enter-tip">Press Control+Enter to move on to the next stage</p>
                         }
                         @if (debuggingStage == DebuggingStageType.findError && exercise.lineContainingError) {
                             <mat-form-field class="articulation-pane--student-response-pane--input-form">
