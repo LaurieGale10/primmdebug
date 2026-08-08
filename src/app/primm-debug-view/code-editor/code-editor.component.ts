@@ -30,6 +30,8 @@ export class CodeEditorComponent implements AfterViewInit {
 
   @Output() runButtonPressed: EventEmitter<void> = new EventEmitter<void>;
 
+  @Output() programExecuted: EventEmitter<void> = new EventEmitter<void>;
+
   @Output() logsReceived: EventEmitter<any> = new EventEmitter<any>;
 
   @Output() codeEditorFinishedLoading: EventEmitter<boolean> = new EventEmitter<boolean>;
@@ -128,8 +130,11 @@ export class CodeEditorComponent implements AfterViewInit {
         case "logs":
           this.logsReceived.emit(data)
           break;
-        case "toggleRun":
+        case "runButtonPressed":
           this.runButtonPressed.emit();
+          break;
+        case "toggleRun":
+          this.programExecuted.emit();
           break;
     }
   }

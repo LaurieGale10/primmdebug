@@ -29,7 +29,6 @@ export class ExerciseViewWidgetComponent implements OnInit {
   
   ngOnInit(): void {
     if (this.sessionManagerService.getChallengeProgress(this.exercise!.id) !== null) {
-      console.log(this.challengeProgress)
       this.challengeProgress = this.sessionManagerService.getChallengeProgress(this.exercise!.id)!;
     }//Quite messy at the moment
   }

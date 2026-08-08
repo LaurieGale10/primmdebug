@@ -17,14 +17,18 @@
         @if (debuggingStage == DebuggingStageType.predict) {
             <mat-form-field class="test-case-pane--content--input-form">
                 <mat-label>Write your thoughts</mat-label>
-                <textarea matInput [(ngModel)]="prediction" (keydown.enter)="onKeydown($event)"
+                <textarea matInput [(ngModel)]="prediction" (keydown.control.enter)="onKeydown($event)"
                     class="test-case-pane--content--input" appearence="outline" placeholder="e.g. The program will output a sequence of cities in alphabetical order.">
                 </textarea>
             </mat-form-field>
-            <p class="shift-enter-tip">If you want to add a new line, hold Shift+Enter</p>
+            <p class="control-enter-tip">Press Control+Enter to move on to the next stage</p>
         }
         @if (debuggingStage == DebuggingStageType.run) {
-            <p><em>{{studentPrediction}}</em></p>
+            @if (studentPrediction) {
+                <p><em>{{studentPrediction}}</em></p>
+            } @else {
+                <p><em>You didn't enter a prediction</em></p>
+            }
         }
     </div>
 </div>

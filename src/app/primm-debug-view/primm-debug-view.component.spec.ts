@@ -53,7 +53,7 @@ describe('PrimmDebugViewComponent', () => {
     // Create spies for all dependencies
     mockSessionManagerService = jasmine.createSpyObj('SessionManagerService', [
       'getDebuggingStage', 'setDebuggingStage', 'getPredictRunIteration', 'setPredictRunIteration',
-      'getSelectedLineNumber', 'setSelectedLineNumber', 'getCurrentResponse', 'setCurrentResponse',
+      'getSelectedLineNumber', 'setSelectedLineNumber', 'getFoundErroneousLine', 'setFoundErroneousLine', 'getCurrentResponse', 'setCurrentResponse',
       'getPreviousResponses', 'setPreviousResponses', 'clearSessionStorage', 'setChallengeProgress', 'getChallengeProgress'
     ]);
     
@@ -208,7 +208,7 @@ describe('PrimmDebugViewComponent', () => {
         const response = 'This is my prediction';
         
         // Act
-        component.onStudentInputChange(response);
+        component.onUserReflectionChange(response);
         
         // Assert
         expect(mockSessionManagerService.setCurrentResponse).toHaveBeenCalledWith(response);
@@ -233,7 +233,7 @@ describe('PrimmDebugViewComponent', () => {
         component.debuggingStage = DebuggingStage.predict;
         
         // Act
-        component.nextDebuggingStage();
+        component.progressToNewDebuggingStage(DebuggingStage.run);
         
         // Assert
         expect(mockSessionManagerService.setPreviousResponses).toHaveBeenCalled();
@@ -276,6 +276,7 @@ describe('PrimmDebugViewComponent', () => {
         const savedLineNumber = 7;
         mockSessionManagerService.getDebuggingStage.and.returnValue(DebuggingStage.findError);
         mockSessionManagerService.getSelectedLineNumber.and.returnValue(savedLineNumber);
+        mockSessionManagerService.getFoundErroneousLine.and.returnValue(null);
         setupComponentWithExercise();
         
         // Act
@@ -347,6 +348,7 @@ describe('PrimmDebugViewComponent', () => {
         
         // Act
         component.ngOnInit();
+        component.codeEditorFinishedLoading(true);
         
         // Assert
         expect(mockSessionManagerService.setDebuggingStage).toHaveBeenCalledWith(DebuggingStage.predict);
@@ -367,6 +369,37 @@ describe('PrimmDebugViewComponent', () => {
         expect(component.predictRunIteration).toBe(0); // Should maintain default
         expect(component.userReflectionInput).toBeNull();
       });
+
+      it('should maintain findError state on refreshing before erroneous line has been selected', () => {
+        //Arrange
+        setupComponentWithExercise();
+        component.debuggingStage = DebuggingStage.findError;
+        component.selectedLineNumber = 1;
+
+        //Act
+        component.checkSessionStorage();
+
+        //Assert
+        expect(component.debuggingStage).toBe(DebuggingStage.findError);
+        expect(component.selectedLineNumber).toBe(1); // Should maintain default
+        expect(component.foundErroneousLine).toBeNull();
+      });
+
+      it('should maintain findError state on refreshing after erroneous line has been selected', () => {
+        //Arrange
+        setupComponentWithExercise();
+        component.debuggingStage = DebuggingStage.findError;
+        component.selectedLineNumber = 1;
+        component.foundErroneousLine = true;
+
+        //Act
+        component.checkSessionStorage();
+
+        //Assert
+        expect(component.debuggingStage).toBe(DebuggingStage.findError);
+        expect(component.selectedLineNumber).toBe(1); // Should maintain default
+        expect(component.foundErroneousLine).toBe(true);
+      });
     });
 
     describe('State Transition Persistence', () => {
@@ -378,25 +411,27 @@ describe('PrimmDebugViewComponent', () => {
         component.debuggingStage = DebuggingStage.predict;
         
         // Act
-        component.nextDebuggingStage();
+        component.progressToNewDebuggingStage(DebuggingStage.run);
         
         // Assert
         expect(mockSessionManagerService.setCurrentResponse).toHaveBeenCalledWith(null);
         expect(mockSessionManagerService.setPreviousResponses).toHaveBeenCalled();
       });
 
-      it('should maintain session state during setDebuggingStageFromFindError', () => {
+      it('should maintain session state during transition from findError to fixError', () => {
         // Arrange
         setupComponentWithExercise();
+        component.debuggingStage = DebuggingStage.findError;
         component.selectedLineNumber = 5;
         component.foundErroneousLine = true;
         
         // Act
-        component.setDebuggingStageFromFindError(DebuggingStage.fixError);
+        component.progressToNewDebuggingStage(DebuggingStage.fixError);
         
         // Assert
         expect(component.selectedLineNumber).toBeUndefined();
         expect(component.foundErroneousLine).toBeNull();
+        expect(mockSessionManagerService.setFoundErroneousLine).toHaveBeenCalledWith(null);
         expect(mockSessionManagerService.setDebuggingStage).toHaveBeenCalledWith(DebuggingStage.fixError);
       });
     });
@@ -493,6 +528,45 @@ describe('PrimmDebugViewComponent', () => {
         expect(component.predictRunIteration).toBe(1);
         expect(component.studentResponses.get(DebuggingStage.predict)).toEqual(['First test case prediction']);
       });
+
+      it('should handle skip to find the error from first predict stage', () => {
+        // Arrange
+        setupComponentWithExercise();
+        component.debuggingStage = DebuggingStage.predict;
+
+        // Act
+        component.progressToNewDebuggingStage(DebuggingStage.findError);
+
+        // Assert
+        expect(component.debuggingStage).toBe(DebuggingStage.findError);
+        expect(component.userReflectionInput).toBeNull();
+        expect(component.studentResponses.get(DebuggingStage.predict)).toEqual([null]);
+        expect(component.studentResponses.get(DebuggingStage.spotIssue)).toEqual([]);
+        expect(component.studentResponses.get(DebuggingStage.inspectCode)).toEqual([]);
+        expect(component.studentResponses.get(DebuggingStage.findError)).toEqual([]);
+        expect(component.originalNumberOfLines).toEqual([1]);
+      });
+
+      it('should handle skip to find the error from spot the issue', () => {
+        // Arrange
+        setupComponentWithExercise();
+        component.debuggingStage = DebuggingStage.spotIssue;
+        component.studentResponses.set(DebuggingStage.predict, ['Prediction 1']);
+        component.saveStudentResponse("Spotting the issue")
+
+        // Act
+        component.progressToNewDebuggingStage(DebuggingStage.findError);
+
+        // Assert
+        expect(component.debuggingStage).toBe(DebuggingStage.findError);
+        expect(component.userReflectionInput).toBeNull();
+        expect(component.studentResponses.get(DebuggingStage.spotIssue)).toEqual(["Spotting the issue"]);
+        expect(component.studentResponses.get(DebuggingStage.predict)).toEqual(['Prediction 1']);
+        expect(component.studentResponses.get(DebuggingStage.inspectCode)).toEqual([]);
+        expect(component.studentResponses.get(DebuggingStage.findError)).toEqual([]);
+        expect(component.originalNumberOfLines).toEqual([1]);
+      });
+
     });
 
     describe('Session Storage Synchronization', () => {
@@ -502,7 +576,7 @@ describe('PrimmDebugViewComponent', () => {
         const newInput = 'Updated prediction';
         
         // Act
-        component.onStudentInputChange(newInput);
+        component.onUserReflectionChange(newInput);
         
         // Assert
         expect(component.userReflectionInput).toBe(newInput);
@@ -516,7 +590,7 @@ describe('PrimmDebugViewComponent', () => {
         component.debuggingStage = DebuggingStage.spotIssue;
         
         // Act
-        component.nextDebuggingStage();
+        component.progressToNewDebuggingStage(DebuggingStage.inspectCode);
         
         // Assert - Current response should be cleared, previous responses should be saved
         expect(mockSessionManagerService.setCurrentResponse).toHaveBeenCalledWith(null);
@@ -547,7 +621,8 @@ describe('PrimmDebugViewComponent', () => {
         
         // Act
         component.ngOnInit();
-        
+        component.codeEditorFinishedLoading(true);
+
         // Assert
         expect(mockSessionManagerService.setDebuggingStage).toHaveBeenCalledWith(DebuggingStage.predict);
         expect(component.debuggingStage).toBe(DebuggingStage.predict);
@@ -574,6 +649,7 @@ describe('PrimmDebugViewComponent', () => {
         // Arrange
         mockSessionManagerService.getDebuggingStage.and.returnValue(DebuggingStage.findError);
         mockSessionManagerService.getSelectedLineNumber.and.returnValue(3);
+        mockSessionManagerService.getFoundErroneousLine.and.returnValue(null)
         mockSessionManagerService.getCurrentResponse.and.returnValue('Some response');
         setupComponentWithExercise();
         
@@ -621,31 +697,15 @@ describe('PrimmDebugViewComponent', () => {
     });
 
     describe('State Reset Scenarios', () => {
-      
-      it('should properly reset state when retrying exercise', () => {
-        // Arrange
-        setupComponentWithExercise();
-        component.debuggingStage = DebuggingStage.fixError;
-        component.predictRunIteration = 3;
-        component.userReflectionInput = 'Some response';
-        component.selectedLineNumber = 7;
-        
-        // Act
-        component.retryExercise();
-        
-        // Assert
-        expect(component.debuggingStage).toBe(DebuggingStage.predict);
-        expect(component.predictRunIteration).toBe(0);
-      });
-
       it('should clear relevant state when transitioning from findError stage', () => {
         // Arrange
         setupComponentWithExercise();
+        component.debuggingStage = DebuggingStage.findError
         component.selectedLineNumber = 8;
         component.foundErroneousLine = true;
         
         // Act
-        component.setDebuggingStageFromFindError(DebuggingStage.fixError);
+        component.progressToNewDebuggingStage(DebuggingStage.fixError);
         
         // Assert
         expect(component.selectedLineNumber).toBeUndefined();
@@ -681,217 +741,6 @@ describe('PrimmDebugViewComponent', () => {
         component.ngOnInit();
         // Assert
         expect(component.checkSessionStorage).not.toHaveBeenCalled();
-      });
-    });
-  });
-
-  describe('Input Validation', () => {
-    
-    beforeEach(() => {
-      setupComponentWithExercise();
-    });
-
-    describe('isStudentResponseValid', () => {
-      
-      it('should return false when userReflectionInput is null', () => {
-        // Arrange
-        component.userReflectionInput = null;
-        
-        // Act & Assert
-        expect(component.isStudentResponseValid()).toBe(false);
-      });
-
-      it('should return false when userReflectionInput is empty string', () => {
-        // Arrange
-        component.userReflectionInput = '';
-        
-        // Act & Assert
-        expect(component.isStudentResponseValid()).toBe(false);
-      });
-
-      it('should return false when userReflectionInput contains only whitespace', () => {
-        // Arrange
-        component.userReflectionInput = '   ';
-        
-        // Act & Assert
-        expect(component.isStudentResponseValid()).toBe(false);
-      });
-
-      it('should return false when userReflectionInput contains only special characters', () => {
-        // Arrange
-        component.userReflectionInput = '!@#$%^&*()';
-        
-        // Act & Assert
-        expect(component.isStudentResponseValid()).toBe(false);
-      });
-
-      it('should return false when userReflectionInput contains only spaces and special characters', () => {
-        // Arrange
-        component.userReflectionInput = '  !@# $%^  ';
-        
-        // Act & Assert
-        expect(component.isStudentResponseValid()).toBe(false);
-      });
-
-      it('should return true when userReflectionInput contains a number', () => {
-        // Arrange
-        component.userReflectionInput = 'test 123';
-        
-        // Act & Assert
-        expect(component.isStudentResponseValid()).toBe(true);
-      });
-
-      it('should return true when userReflectionInput contains only a single number', () => {
-        // Arrange
-        component.userReflectionInput = '5';
-        
-        // Act & Assert
-        expect(component.isStudentResponseValid()).toBe(true);
-      });
-
-      it('should return true when userReflectionInput contains uppercase letters', () => {
-        // Arrange
-        component.userReflectionInput = 'HELLO WORLD';
-        
-        // Act & Assert
-        expect(component.isStudentResponseValid()).toBe(true);
-      });
-
-      it('should return true when userReflectionInput contains lowercase letters', () => {
-        // Arrange
-        component.userReflectionInput = 'hello world';
-        
-        // Act & Assert
-        expect(component.isStudentResponseValid()).toBe(true);
-      });
-
-      it('should return true when userReflectionInput contains mixed case letters', () => {
-        // Arrange
-        component.userReflectionInput = 'Hello World';
-        
-        // Act & Assert
-        expect(component.isStudentResponseValid()).toBe(true);
-      });
-
-      it('should return true when userReflectionInput contains letters and numbers', () => {
-        // Arrange
-        component.userReflectionInput = 'abc123';
-        
-        // Act & Assert
-        expect(component.isStudentResponseValid()).toBe(true);
-      });
-
-      it('should return true when userReflectionInput has alphanumeric with leading/trailing whitespace', () => {
-        // Arrange
-        component.userReflectionInput = '  hello  ';
-        
-        // Act & Assert
-        expect(component.isStudentResponseValid()).toBe(true);
-      });
-
-      it('should return true when userReflectionInput has alphanumeric with special characters', () => {
-        // Arrange
-        component.userReflectionInput = 'hello! world?';
-        
-        // Act & Assert
-        expect(component.isStudentResponseValid()).toBe(true);
-      });
-
-      it('should return true when userReflectionInput contains single character', () => {
-        // Arrange
-        component.userReflectionInput = 'a';
-        
-        // Act & Assert
-        expect(component.isStudentResponseValid()).toBe(true);
-      });
-
-      it('should return true when userReflectionInput contains single uppercase character', () => {
-        // Arrange
-        component.userReflectionInput = 'A';
-        
-        // Act & Assert
-        expect(component.isStudentResponseValid()).toBe(true);
-      });
-    });
-
-    describe('Button State Integration', () => {
-      
-      beforeEach(() => {
-        setupComponentWithExercise();
-        component.debuggingStage = DebuggingStage.predict;
-        component.useMultipleChoiceOptions = false;
-      });
-
-      it('should return correct validation state for button disabled condition with invalid input', () => {
-        // Arrange
-        component.userReflectionInput = '!@#$';
-        
-        // Act & Assert
-        expect(component.isStudentResponseValid()).toBe(false);
-      });
-
-      it('should return correct validation state for button enabled condition with valid input', () => {
-        // Arrange
-        component.userReflectionInput = 'valid response';
-        
-        // Act & Assert
-        expect(component.isStudentResponseValid()).toBe(true);
-      });
-
-      it('should handle validation state changes from invalid to valid', () => {
-        // Arrange - Start with invalid input
-        component.userReflectionInput = '###';
-        expect(component.isStudentResponseValid()).toBe(false);
-        
-        // Act - Change to valid input
-        component.userReflectionInput = 'now valid';
-        
-        // Assert
-        expect(component.isStudentResponseValid()).toBe(true);
-      });
-
-      it('should handle validation state changes from valid to invalid', () => {
-        // Arrange - Start with valid input
-        component.userReflectionInput = 'valid input';
-        expect(component.isStudentResponseValid()).toBe(true);
-        
-        // Act - Change to invalid input
-        component.userReflectionInput = '!!!';
-        
-        // Assert
-        expect(component.isStudentResponseValid()).toBe(false);
-      });
-
-      it('should validate correctly when multiple choice options exist but are enabled', () => {
-        // Arrange
-        component.useMultipleChoiceOptions = true;
-        component.exercise!.multipleChoiceOptions!.set(DebuggingStage.predict, ['Option 1', 'Option 2']);
-        component.userMultiChoiceInput = null;
-        component.userReflectionInput = 'valid text';
-        
-        // Act & Assert - Text validation should still work but won't be used for button state
-        expect(component.isStudentResponseValid()).toBe(true);
-      });
-
-      it('should validate correctly when multiple choice is disabled', () => {
-        // Arrange
-        component.useMultipleChoiceOptions = false;
-        component.exercise!.multipleChoiceOptions!.set(DebuggingStage.predict, ['Option 1', 'Option 2']);
-        component.userMultiChoiceInput = null;
-        component.userReflectionInput = 'valid text';
-        
-        // Act & Assert
-        expect(component.isStudentResponseValid()).toBe(true);
-      });
-
-      it('should handle edge case with empty input when multiple choice is disabled', () => {
-        // Arrange
-        component.useMultipleChoiceOptions = false;
-        component.userMultiChoiceInput = null;
-        component.userReflectionInput = '';
-        
-        // Act & Assert
-        expect(component.isStudentResponseValid()).toBe(false);
       });
     });
   });
@@ -1073,7 +922,7 @@ describe('PrimmDebugViewComponent', () => {
       setupComponentWithExercise();
       component.debuggingStage = DebuggingStage.predict;
 
-      component.nextDebuggingStage();
+      component.progressToNewDebuggingStage(DebuggingStage.run);
 
       expect(mockSessionManagerService.setChallengeProgress).toHaveBeenCalledWith('test-exercise-id', ChallengeProgress.attempted);
       //expect(mockSessionManagerService.getChallengeProgress('test-exercise-id')).toBe(ChallengeProgress.attempted);

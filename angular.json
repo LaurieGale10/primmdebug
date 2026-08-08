@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "debug-challenger": {
+    "primmdebug": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/debug-challenger",
+            "outputPath": "dist/primmdebug",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -96,10 +96,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "debug-challenger:build:production"
+              "buildTarget": "primmdebug:build:production"
             },
             "development": {
-              "buildTarget": "debug-challenger:build:development"
+              "buildTarget": "primmdebug:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -107,7 +107,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "debug-challenger:build"
+            "buildTarget": "primmdebug:build"
           }
         },
         "test": {
