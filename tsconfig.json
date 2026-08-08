@@ -9,6 +9,7 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
+    "types": ["jasmine"],
     "esModuleInterop": true,
     "sourceMap": true,
     "declaration": false,

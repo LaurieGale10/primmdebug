@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
-import { ChallengeProgress, DebuggingStage, PageToNavigate } from '../types/types';
+import { DebuggingStage, PRIMMDebugProcess, ChallengeProgress, PageToNavigate } from '../types/types';
 import { DebuggingExercise, TestCase } from '../services/debugging-exercise.model';
 import { DocumentReference } from '@angular/fire/firestore';
 import { trigger, transition } from '@angular/animations';
@@ -17,6 +17,7 @@ import {MatRadioModule} from '@angular/material/radio';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatSelectModule} from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {MatTooltipModule} from '@angular/material/tooltip';
 
 import { MatDialog } from '@angular/material/dialog';
 import { FirestoreService } from '../services/firestore.service';
@@ -37,7 +38,7 @@ import { ConfirmNavDialogComponent } from '../toolbar/confirm-nav-dialog/confirm
 @Component({
   selector: 'app-primm-debug-view',
   standalone: true,
-  imports: [NgxConfettiExplosionComponent, MatButtonModule, MatInputModule, MatFormFieldModule, MatIconModule, FormsModule, MatRadioModule, MatDividerModule, MatSelectModule, MatProgressSpinnerModule, CodeEditorComponent, TestCaseDisplayComponent, PreviousHypothesesPaneComponent, HintDisplayComponent, ToolbarComponent, PredictRunTestCasePaneComponent],
+  imports: [NgxConfettiExplosionComponent, MatButtonModule, MatInputModule, MatFormFieldModule, MatIconModule, FormsModule, MatRadioModule, MatDividerModule, MatSelectModule, MatProgressSpinnerModule, CodeEditorComponent, TestCaseDisplayComponent, PreviousHypothesesPaneComponent, HintDisplayComponent, ToolbarComponent, PredictRunTestCasePaneComponent, MatTooltipModule],
   templateUrl: './primm-debug-view.component.html',
   styleUrl: './primm-debug-view.component.sass',
   animations: [
@@ -131,9 +132,6 @@ export class PrimmDebugViewComponent implements OnInit {
         this.setupExerciseLogs();
       }
     }
-    if (!this.sessionManagerService.getDebuggingStage()) {
-        this.sessionManagerService.setDebuggingStage(DebuggingStage.predict);
-    }
   }
 
   getPredictResponses(): string[] {
@@ -153,18 +151,23 @@ export class PrimmDebugViewComponent implements OnInit {
       if (this.sessionManagerService.getPredictRunIteration()) {
         this.predictRunIteration = this.sessionManagerService.getPredictRunIteration()!;
       }
-
       if (this.sessionManagerService.getSelectedLineNumber()) {
         this.selectedLineNumber = this.sessionManagerService.getSelectedLineNumber()!;
+        if (this.sessionManagerService.getFoundErroneousLine() !== null) {
+          this.foundErroneousLine = this.sessionManagerService.getFoundErroneousLine()!;
+        } 
       }
       else if (this.sessionManagerService.getCurrentResponse()) {
         this.userReflectionInput = this.sessionManagerService.getCurrentResponse();
       }
-
       if (this.sessionManagerService.getPreviousResponses()) {
         this.studentResponses = this.sessionManagerService.getPreviousResponses()!;
       }
       this.setDebuggingStage(this.sessionManagerService.getDebuggingStage()!);
+      this.updateCodeEditorForStage(this.sessionManagerService.getDebuggingStage()!)
+    }
+    else {
+        this.sessionManagerService.setDebuggingStage(DebuggingStage.predict);
     }
   }
 
@@ -188,19 +191,16 @@ export class PrimmDebugViewComponent implements OnInit {
       ([DebuggingStage.inspectCode, DebuggingStage.modify].includes(this.debuggingStage)) ||
       (this.debuggingStage == DebuggingStage.findError && this.selectedLineNumber)
     ) {
-      this.nextDebuggingStage();
+      this.progressToNewDebuggingStage(this.getNextDebuggingStage(this.debuggingStage)!);
     }
     return false;
   }
 
-  onStudentInputChange(studentInput: string | null = null) {
-    if (studentInput) {
-      this.userReflectionInput = studentInput;
-    }
-    console.log(this.userReflectionInput!.trim())
-    if (this.userReflectionInput!.trim() !== "") {
-      this.sessionManagerService.setCurrentResponse(this.userReflectionInput!);
-    }
+  onUserReflectionChange(userReflection: string) {
+    this.userReflectionInput = userReflection;
+    console.log("Updating student response to: ", this.userReflectionInput);
+    //TOFIX: Passing in null here; not sure why I have userReflectionInput and studentInput
+    this.sessionManagerService.setCurrentResponse(this.userReflectionInput!);
   }
 
   onSelectedLineNumberChange() {
@@ -219,8 +219,14 @@ export class PrimmDebugViewComponent implements OnInit {
 
   runButtonPressed(event: void) {
     if (this.debuggingStage == DebuggingStage.run) {
+      //Disable "Found error" button here? Check console.
       this.predictRunIteration++;
-      this.nextDebuggingStage();
+      if (this.predictRunIteration < this.exercise!.testCases!.length) {
+        this.progressToNewDebuggingStage(DebuggingStage.predict);
+      }
+      else {
+        this.progressToNewDebuggingStage(DebuggingStage.spotIssue);
+      }
     }
   }
 
@@ -290,24 +296,59 @@ export class PrimmDebugViewComponent implements OnInit {
     return this.userReflectionInput !== null && /[0-9A-Za-z]/.test(this.userReflectionInput);
   }
 
-  setDebuggingStage(debuggingStage: DebuggingStage, previousStageWasFindError: boolean = false) {
-    //Requires a separate function as the foundErroneousLine and selectedLineNumber variables need to be reset.
-    if (previousStageWasFindError) {
-      this.saveStudentResponse("Line "+this.selectedLineNumber!);
-      this.sessionManagerService.setPreviousResponses(JSON.stringify(Array.from(this.studentResponses.entries())));
+  /**
+   * Given a current debugging stage, returns the next debugging stage in the PRIMMDebug process. If the current stage is the last stage, returns null.
+   * @param currentStage The current debugging stage
+   */
+  getNextDebuggingStage(currentStage: DebuggingStage): DebuggingStage | null {
+    const indexCurrentStage: number = PRIMMDebugProcess.indexOf(currentStage);
+    if (indexCurrentStage < PRIMMDebugProcess.length - 1) {
+      return PRIMMDebugProcess[indexCurrentStage + 1];
+    }
+    return null;
+  }
 
+  /**
+   * Saves all the relevant data for a completed stage for state management and logging (if activated).
+   * On the public version of the web app, the users' response is saved in several places before resetting component variables for the next stage:
+   * - A component variable that saves previous responses for **component** state management (e.g., so that users' predictions can be displayed in further stages)
+   * - The `SessionManagerService` for **persistent** state management (i.e., saving users' progress on refreshing)
+   * - The `LoggingService` for saving students' data to a DB (**not present in the public version of the web app**)
+   */
+  saveCurrentStageData() {
+    this.loggingService.saveStageLog(this.createStageLog()).then((docRef: DocumentReference | null) => {
+      if (docRef && this.programLogs && this.programLogs.length > 0) { //TODO: Ideally log program logs with stage logs to avoid having update permission of stage logs
+        this.loggingService.addProgramLogsToStageLogs(docRef, this.programLogs!);
+      }
+      this.programLogs = null;
+    });
+
+    if ([DebuggingStage.predict, DebuggingStage.spotIssue, DebuggingStage.inspectCode, DebuggingStage.fixError, DebuggingStage.modify].includes(this.debuggingStage) || (this.debuggingStage == DebuggingStage.findError && !this.exercise!.lineContainingError)) {
+      if (this.userReflectionInput && this.userReflectionInput.trim() !== "") {
+        this.saveStudentResponse(this.userReflectionInput!);
+      }
+      else {
+        this.saveStudentResponse(null);
+      }
+    }
+    if (this.debuggingStage == DebuggingStage.findError && this.selectedLineNumber) {
+      this.saveStudentResponse("Line "+this.selectedLineNumber!);
+      //Reset stage associated with forced localisation
       this.foundErroneousLine = null;
       this.selectedLineNumber = undefined;
       this.sessionManagerService.setSelectedLineNumber(null);
+      this.sessionManagerService.setFoundErroneousLine(null);
     }
+    this.sessionManagerService.setCurrentResponse(null);
+    this.sessionManagerService.setPreviousResponses(JSON.stringify(Array.from(this.studentResponses.entries())));
+    this.resetUserInput();
+  }
 
-    this.debuggingStage = debuggingStage;
-    this.sessionManagerService.setDebuggingStage(debuggingStage);
-    if (debuggingStage == DebuggingStage.predict || debuggingStage == DebuggingStage.run) {
-      this.sessionManagerService.setPredictRunIteration(this.predictRunIteration);
-    }
-    this.loggingService.setDebuggingStage(this.debuggingStage);
-
+  /**
+   * Updates the display of the code editor for the next stage.
+   * @param stage The PRIMMDebug stage to update the code editor for
+   */
+  updateCodeEditorForStage(stage: DebuggingStage) {
     switch (this.debuggingStage) {
       case DebuggingStage.predict: {
         this.sendToggleRunMessage(true);
@@ -356,6 +397,34 @@ export class PrimmDebugViewComponent implements OnInit {
   }
 
   /**
+   * Similar to `saveCurrentStageData()`, updates the PRIMMDebug stage in the component, `SessionManagerService`, and `LoggingService`.
+   * @param stage The PRIMMDebug stage to be set
+   */
+  setDebuggingStage(stage: DebuggingStage) {
+    console.log("Resetting debugging stage to",stage)
+    this.debuggingStage = stage;
+    this.sessionManagerService.setDebuggingStage(this.debuggingStage);
+    if (this.debuggingStage == DebuggingStage.predict || this.debuggingStage == DebuggingStage.run) {
+      this.sessionManagerService.setPredictRunIteration(this.predictRunIteration);
+    }
+    this.loggingService.setDebuggingStage(this.debuggingStage);
+  }
+
+  /**
+   * Function called to move onto a different PRIMMDebug stage. In doing so, the function:
+   * - Saves all relevant data associated with this stage using `saveCurrentStageData()
+   * - Sets the updated `debuggingStage` variable
+   * - Updates the code editor functionality for the next stage using `updateCodeEditorForStage()`.
+   * @param newDebuggingStage The PRIMMDebug stage to progress to.
+   */
+  progressToNewDebuggingStage(newDebuggingStage: DebuggingStage) {
+    this.sessionManagerService.setChallengeProgress(this.exercise!.id, ChallengeProgress.attempted);
+    this.saveCurrentStageData();
+    this.setDebuggingStage(newDebuggingStage);
+    this.updateCodeEditorForStage(this.debuggingStage);
+  }
+
+  /**
    * Saves a students' response to a particular prompt to the studentResponses variable
    */
   saveStudentResponse(response: string | null) {
@@ -376,7 +445,7 @@ export class PrimmDebugViewComponent implements OnInit {
     if (this.changesSuccessful) {
       this.sessionManagerService.setChallengeProgress(this.exercise!.id, ChallengeProgress.completed);
     }
-    this.nextDebuggingStage();
+    this.progressToNewDebuggingStage(DebuggingStage.completedTest);
   }
 
   checkLineNumber() {
@@ -386,8 +455,8 @@ export class PrimmDebugViewComponent implements OnInit {
     }
     else {
       this.foundErroneousLine = false;
-      this.sessionManagerService.setSelectedLineNumber(null);
     }
+    this.sessionManagerService.setFoundErroneousLine(this.foundErroneousLine);
     this.loggingService.saveStageLog(this.createStageLog());
   }
 
@@ -402,10 +471,7 @@ export class PrimmDebugViewComponent implements OnInit {
       stage: this.loggingService.stringifyDebuggingStageLog(),
       time: new Date()
     }
-    if (this.userMultiChoiceInput) {
-      stageLog.response = this.userMultiChoiceInput!;
-    }
-    else if (this.userReflectionInput && this.userReflectionInput.trim() !== "") {
+    if (this.userReflectionInput && this.userReflectionInput.trim() !== "") {
       stageLog.response = this.userReflectionInput!;
     }
     else if (this.selectedLineNumber) {
@@ -420,78 +486,6 @@ export class PrimmDebugViewComponent implements OnInit {
       timestamp: Date.now()
     })
     return stageLog;
-  }
-
-  nextDebuggingStage() {
-    this.loggingService.saveStageLog(this.createStageLog()).then((docRef: DocumentReference | null) => {
-      if (docRef && this.programLogs && this.programLogs.length > 0) { //TODO: Ideally log program logs with stage logs to avoid having update permission of stage logs
-        this.loggingService.addProgramLogsToStageLogs(docRef, this.programLogs!);
-      }
-      this.programLogs = null;
-    });
-    if (this.exercise?.multipleChoiceOptions?.get(this.debuggingStage) && this.useMultipleChoiceOptions) {
-      this.saveStudentResponse(this.userMultiChoiceInput!);
-    }
-    else if ([DebuggingStage.predict, DebuggingStage.spotIssue, DebuggingStage.inspectCode, DebuggingStage.findError, DebuggingStage.fixError, DebuggingStage.modify].includes(this.debuggingStage)) {
-      if (this.userReflectionInput && this.userReflectionInput.trim() !== "") {
-        this.saveStudentResponse(this.userReflectionInput!);
-      }
-      else {
-        this.saveStudentResponse(null);
-      }
-    }
-    this.sessionManagerService.setCurrentResponse(null);
-    this.sessionManagerService.setPreviousResponses(JSON.stringify(Array.from(this.studentResponses.entries())));
-    this.resetUserInput();
-    switch (this.debuggingStage) {
-      case DebuggingStage.predict: {
-        console.log(this.exercise)//For some reason the ID is undefined; need to fix this
-        this.sessionManagerService.setChallengeProgress(this.exercise!.id, ChallengeProgress.attempted);
-        this.setDebuggingStage(DebuggingStage.run);
-        break;
-      }
-      case DebuggingStage.run: {
-        if (this.predictRunIteration < this.exercise!.testCases!.length) {
-          this.setDebuggingStage(DebuggingStage.predict);
-        }
-        else {
-          this.setDebuggingStage(DebuggingStage.spotIssue);
-        }
-        break;
-      }
-      case DebuggingStage.spotIssue: {
-        this.setDebuggingStage(DebuggingStage.inspectCode);
-        break;
-      }
-      case DebuggingStage.inspectCode: {
-        this.setDebuggingStage(DebuggingStage.findError);
-        break;
-      }
-      case DebuggingStage.findError: {
-        this.setDebuggingStage(DebuggingStage.fixError);
-        break;
-      }
-      case DebuggingStage.fixError: {
-        this.setDebuggingStage(DebuggingStage.test);
-        break;
-      }
-      case DebuggingStage.test: {
-        this.setDebuggingStage(DebuggingStage.completedTest);
-        break;
-      }
-      case DebuggingStage.completedTest: {
-        this.setDebuggingStage(DebuggingStage.modify);
-        break;
-      }
-      case DebuggingStage.modify: {
-        this.setDebuggingStage(DebuggingStage.make);
-        break;
-      }
-    }
-  }
-
-  retryExercise() {
-    this.resetPredictUI();
   }
 
   returnToDashboard() {

@@ -27,7 +27,6 @@ export class TestCaseDisplayComponent {
 
   @Input()
   set debuggingStage(value: any) {
-    console.log("Debugging stage changed detected in test case display");
     this.panelOpenState.set(false);
     this.testCaseIndex = 0;
   }

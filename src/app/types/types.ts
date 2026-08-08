@@ -11,6 +11,19 @@ export enum DebuggingStage {
     make = "make"
 }
 
+export const PRIMMDebugProcess: readonly DebuggingStage[] = [
+    DebuggingStage.predict,
+    DebuggingStage.run,
+    DebuggingStage.spotIssue,
+    DebuggingStage.inspectCode,
+    DebuggingStage.findError,
+    DebuggingStage.fixError,
+    DebuggingStage.test,
+    DebuggingStage.completedTest,
+    DebuggingStage.modify,
+    DebuggingStage.make
+];
+
 export enum ChallengeProgress {
     unattempted = "unattempted",
     attempted = "attempted",

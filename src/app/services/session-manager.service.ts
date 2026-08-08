@@ -90,5 +90,16 @@ export class SessionManagerService {
     return lineNumber ? parseInt(lineNumber) : null;
   }
 
-  //
+  setFoundErroneousLine(foundErroneousLine: boolean | null) {
+    if (foundErroneousLine === null) {
+      sessionStorage.removeItem("foundErroneousLine");
+      return;
+    }
+    sessionStorage.setItem("foundErroneousLine", foundErroneousLine.toString())
+  }
+
+  getFoundErroneousLine(): boolean | null {
+    const foundErroneousLine = sessionStorage.getItem("foundErroneousLine");
+    return foundErroneousLine ? JSON.parse(foundErroneousLine) : null;
+  }
 }
