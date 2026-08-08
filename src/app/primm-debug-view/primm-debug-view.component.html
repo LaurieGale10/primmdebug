@@ -232,6 +232,7 @@
                         @if ([DebuggingStageType.predict, DebuggingStageType.run, DebuggingStageType.spotIssue].includes(debuggingStage)) {
                             <button mat-raised-button matTooltip="Skip to the Find the Error stage if you've already found the error" color="green"
                             (click)="progressToNewDebuggingStage(DebuggingStageType.findError)" [disabled]="programRunning"
+                            [style.visibility]="displaySkipToFindErrorButton ? 'visible' : 'hidden'"
                             class="articulation-pane--button-container--button">
                                 I've found the error
                             </button>

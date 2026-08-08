@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { DebuggingStage, PRIMMDebugProcess, ChallengeProgress, PageToNavigate } from '../types/types';
 import { DebuggingExercise, TestCase } from '../services/debugging-exercise.model';
@@ -98,6 +98,7 @@ export class PrimmDebugViewComponent implements OnInit {
   originalNumberOfLines: number[] | undefined;
   selectedLineNumber: number | undefined;
   foundErroneousLine: boolean | null = null;
+  displaySkipToFindErrorButton: boolean = false;
 
   codeEditorLoading = signal(true);
   codeEditorSuccessfullyLoaded = signal(false);
@@ -215,6 +216,15 @@ export class PrimmDebugViewComponent implements OnInit {
     this.codeEditorLoading.set(false);
     this.codeEditorSuccessfullyLoaded.set(successfullyLoaded);
     this.checkSessionStorage();
+    if (this.debuggingStage == DebuggingStage.predict && this.predictRunIteration == 0) {
+      //Only display "skip to find the error" in first Predict stage after 60 seconds in the first predict stage.
+      setTimeout(() => {
+        this.displaySkipToFindErrorButton = true;
+      }, 60000)
+    }
+    else {
+      this.displaySkipToFindErrorButton = true;
+    }
   }
 
   /**
@@ -352,6 +362,8 @@ export class PrimmDebugViewComponent implements OnInit {
     }
     this.sessionManagerService.setCurrentResponse(null);
     this.sessionManagerService.setPreviousResponses(JSON.stringify(Array.from(this.studentResponses.entries())));
+    this.sessionManagerService.setChallengeProgress(this.exercise!.id, ChallengeProgress.attempted);
+    this.displaySkipToFindErrorButton = true;
     this.resetUserInput();
   }
 
@@ -428,7 +440,6 @@ export class PrimmDebugViewComponent implements OnInit {
    * @param newDebuggingStage The PRIMMDebug stage to progress to.
    */
   progressToNewDebuggingStage(newDebuggingStage: DebuggingStage) {
-    this.sessionManagerService.setChallengeProgress(this.exercise!.id, ChallengeProgress.attempted);
     this.saveCurrentStageData();
     this.setDebuggingStage(newDebuggingStage);
     this.updateCodeEditorForStage(this.debuggingStage);
