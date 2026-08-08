@@ -17,7 +17,7 @@
 
                 <div class="code-editor-display">
                     <app-code-editor #codeEditor [program]="this.exercise.program!" [debuggingStage]="debuggingStage"
-                        (runButtonPressed)="runButtonPressed($event)" (logsReceived)="onLogsReceived($event)" (codeEditorFinishedLoading)="codeEditorFinishedLoading($event)">
+                        (runButtonPressed)="runButtonPressed($event)" (programExecuted)="programExecuted($event)" (logsReceived)="onLogsReceived($event)" (codeEditorFinishedLoading)="codeEditorFinishedLoading($event)">
                     </app-code-editor>
                 </div>
             </div>
@@ -230,7 +230,11 @@
                             </button>
                         }
                         @if ([DebuggingStageType.predict, DebuggingStageType.run, DebuggingStageType.spotIssue].includes(debuggingStage)) {
-                            <button mat-raised-button matTooltip="Skip to the Find the Error stage if you've already found the error" color="green" (click)="progressToNewDebuggingStage(DebuggingStageType.findError)" class="articulation-pane--button-container--button">I've found the error</button>
+                            <button mat-raised-button matTooltip="Skip to the Find the Error stage if you've already found the error" color="green"
+                            (click)="progressToNewDebuggingStage(DebuggingStageType.findError)" [disabled]="programRunning"
+                            class="articulation-pane--button-container--button">
+                                I've found the error
+                            </button>
                         }
                         @if (debuggingStage == DebuggingStageType.findError && exercise.lineContainingError) {
                             @switch (foundErroneousLine) {

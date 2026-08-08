@@ -101,6 +101,7 @@ export class PrimmDebugViewComponent implements OnInit {
 
   codeEditorLoading = signal(true);
   codeEditorSuccessfullyLoaded = signal(false);
+  programRunning: boolean = false;
 
   programLogs: any = null;
 
@@ -198,7 +199,6 @@ export class PrimmDebugViewComponent implements OnInit {
 
   onUserReflectionChange(userReflection: string) {
     this.userReflectionInput = userReflection;
-    console.log("Updating student response to: ", this.userReflectionInput);
     //TOFIX: Passing in null here; not sure why I have userReflectionInput and studentInput
     this.sessionManagerService.setCurrentResponse(this.userReflectionInput!);
   }
@@ -217,9 +217,20 @@ export class PrimmDebugViewComponent implements OnInit {
     this.checkSessionStorage();
   }
 
+  /**
+   * Called when the code editor has started running a program
+   */
   runButtonPressed(event: void) {
+    this.programRunning = true;
+  }
+
+  /**
+   * Called when the code editor has started finished running a program
+   */
+  programExecuted(event: void) {
+    this.programRunning = false;
     if (this.debuggingStage == DebuggingStage.run) {
-      //Disable "Found error" button here? Check console.
+      console.log("Run button pressed")
       this.predictRunIteration++;
       if (this.predictRunIteration < this.exercise!.testCases!.length) {
         this.progressToNewDebuggingStage(DebuggingStage.predict);
@@ -401,7 +412,6 @@ export class PrimmDebugViewComponent implements OnInit {
    * @param stage The PRIMMDebug stage to be set
    */
   setDebuggingStage(stage: DebuggingStage) {
-    console.log("Resetting debugging stage to",stage)
     this.debuggingStage = stage;
     this.sessionManagerService.setDebuggingStage(this.debuggingStage);
     if (this.debuggingStage == DebuggingStage.predict || this.debuggingStage == DebuggingStage.run) {

@@ -552,6 +552,7 @@ describe('PrimmDebugViewComponent', () => {
         setupComponentWithExercise();
         component.debuggingStage = DebuggingStage.spotIssue;
         component.studentResponses.set(DebuggingStage.predict, ['Prediction 1']);
+        component.saveStudentResponse("Spotting the issue")
 
         // Act
         component.progressToNewDebuggingStage(DebuggingStage.findError);
@@ -559,8 +560,8 @@ describe('PrimmDebugViewComponent', () => {
         // Assert
         expect(component.debuggingStage).toBe(DebuggingStage.findError);
         expect(component.userReflectionInput).toBeNull();
-        expect(component.studentResponses.get(DebuggingStage.spotIssue)).toEqual([null]);
-        expect(component.studentResponses.get(DebuggingStage.predict)).toEqual(['Prediction 1', null]);
+        expect(component.studentResponses.get(DebuggingStage.spotIssue)).toEqual(["Spotting the issue"]);
+        expect(component.studentResponses.get(DebuggingStage.predict)).toEqual(['Prediction 1']);
         expect(component.studentResponses.get(DebuggingStage.inspectCode)).toEqual([]);
         expect(component.studentResponses.get(DebuggingStage.findError)).toEqual([]);
         expect(component.originalNumberOfLines).toEqual([1]);
