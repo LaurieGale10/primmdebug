@@ -28,9 +28,12 @@ export class CodeEditorComponent implements AfterViewInit {
 
   @Input({required: true}) debuggingStage: DebuggingStage | null = null;
 
+  //Code editor events that are detected in this component and passed into the parent PRIMMDebugView component
   @Output() runButtonPressed: EventEmitter<void> = new EventEmitter<void>;
 
   @Output() programExecuted: EventEmitter<void> = new EventEmitter<void>;
+
+  @Output() programEdited: EventEmitter<any> = new EventEmitter<string>;
 
   @Output() logsReceived: EventEmitter<any> = new EventEmitter<any>;
 
@@ -135,6 +138,9 @@ export class CodeEditorComponent implements AfterViewInit {
           break;
         case "toggleRun":
           this.programExecuted.emit();
+          break;
+        case "programEdited":
+          this.programEdited.emit(data.data)
           break;
     }
   }

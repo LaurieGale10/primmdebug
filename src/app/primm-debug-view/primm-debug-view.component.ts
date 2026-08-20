@@ -99,6 +99,7 @@ export class PrimmDebugViewComponent implements OnInit {
   selectedLineNumber: number | undefined;
   foundErroneousLine: boolean | null = null;
   displaySkipToFindErrorButton: boolean = false;
+  currentProgram: string | null = null; //The current program in the Ada code editor, updated by message passing via the CodeEditorComponent
 
   codeEditorLoading = signal(true);
   codeEditorSuccessfullyLoaded = signal(false);
@@ -117,6 +118,7 @@ export class PrimmDebugViewComponent implements OnInit {
       if (data) {
         this.exercise = this.firestoreService.parseDebuggingExercise(data);
         this.exercise!.id = this.exerciseId!;
+        this.currentProgram = this.exercise!.program!;
       }
     })
     
@@ -171,6 +173,7 @@ export class PrimmDebugViewComponent implements OnInit {
     else {
         this.sessionManagerService.setDebuggingStage(DebuggingStage.predict);
     }
+    console.log(this.currentProgram)
   }
 
   /**
@@ -251,6 +254,10 @@ export class PrimmDebugViewComponent implements OnInit {
     }
   }
 
+  programEdited(data: string) {
+    this.currentProgram = data;
+  }
+
   onLogsReceived(event: any) {
     this.programLogs = event["snapshots"];
   }
@@ -276,6 +283,7 @@ export class PrimmDebugViewComponent implements OnInit {
   }
 
   resetCodeInEditor() {
+    this.currentProgram = this.exercise!.program;
     this.codeEditor!.sendMessage({
       type: "initialise",
       code:  "",

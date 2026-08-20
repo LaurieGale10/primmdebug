@@ -17,7 +17,12 @@
 
                 <div class="code-editor-display">
                     <app-code-editor #codeEditor [program]="this.exercise.program!" [debuggingStage]="debuggingStage"
-                        (runButtonPressed)="runButtonPressed($event)" (programExecuted)="programExecuted($event)" (logsReceived)="onLogsReceived($event)" (codeEditorFinishedLoading)="codeEditorFinishedLoading($event)">
+                        (runButtonPressed)="runButtonPressed($event)"
+                        (programExecuted)="programExecuted($event)"
+                        (programEdited)="programEdited($event)"
+                        (logsReceived)="onLogsReceived($event)"
+                        (codeEditorFinishedLoading)="codeEditorFinishedLoading($event)"
+                    >
                     </app-code-editor>
                 </div>
             </div>
@@ -219,15 +224,18 @@
                     
                     <div class="articulation-pane--button-container">
                         @if ([DebuggingStageType.predict, DebuggingStageType.spotIssue, DebuggingStageType.inspectCode, DebuggingStageType.fixError, DebuggingStageType.modify].includes(debuggingStage) || debuggingStage == DebuggingStageType.findError && !exercise.lineContainingError) {
-                            <button
-                                mat-raised-button color="green" class="articulation-pane--button-container--button"
-                                (click)="progressToNewDebuggingStage(getNextDebuggingStage(debuggingStage)!)">
-                                {{debuggingStage == DebuggingStageType.predict ? "Let's find out" :
-                                debuggingStage == DebuggingStageType.inspectCode ? "I've found the error" :
-                                debuggingStage == DebuggingStageType.findError ? "Time to debug!" :
-                                debuggingStage == DebuggingStageType.fixError ? "Time to test!" :
-                                "On to the next stage!"}}
-                            </button>
+                            <div matTooltip="Make sure you've edited the program and written a response" [matTooltipDisabled]="debuggingStage!=DebuggingStageType.fixError || (currentProgram != exercise!.program && isStudentResponseValid())">
+                                <button
+                                    mat-raised-button color="green" class="articulation-pane--button-container--button"
+                                    (click)="progressToNewDebuggingStage(getNextDebuggingStage(debuggingStage)!)"
+                                    [disabled]="debuggingStage==DebuggingStageType.fixError && (currentProgram == exercise!.program || !isStudentResponseValid())">
+                                    {{debuggingStage == DebuggingStageType.predict ? "Let's find out" :
+                                    debuggingStage == DebuggingStageType.inspectCode ? "I've found the error" :
+                                    debuggingStage == DebuggingStageType.findError ? "Time to debug!" :
+                                    debuggingStage == DebuggingStageType.fixError ? "Time to test!" :
+                                    "On to the next stage!"}}
+                                </button>
+                            </div>
                         }
                         @if ([DebuggingStageType.predict, DebuggingStageType.run, DebuggingStageType.spotIssue].includes(debuggingStage)) {
                             <button mat-raised-button matTooltip="Skip to the Find the Error stage if you've already found the error" color="green"
