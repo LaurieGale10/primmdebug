@@ -167,13 +167,26 @@ export class PrimmDebugViewComponent implements OnInit {
       if (this.sessionManagerService.getPreviousResponses()) {
         this.studentResponses = this.sessionManagerService.getPreviousResponses()!;
       }
+      if (this.sessionManagerService.getChangesSuccessful()) {
+        this.changesSuccessful = this.sessionManagerService.getChangesSuccessful();
+      }
+      if (this.sessionManagerService.getCurrentProgram()) {
+        this.currentProgram = this.sessionManagerService.getCurrentProgram();
+        if (this.currentProgram != this.exercise!.program) {
+          this.codeEditor!.sendMessage({
+            type: "initialise",
+            code:  this.currentProgram,
+            language: "python",
+            logChanges: true
+          });
+        }
+      }
       this.setDebuggingStage(this.sessionManagerService.getDebuggingStage()!);
       this.updateCodeEditorForStage(this.sessionManagerService.getDebuggingStage()!)
     }
     else {
         this.sessionManagerService.setDebuggingStage(DebuggingStage.predict);
     }
-    console.log(this.currentProgram)
   }
 
   /**
@@ -256,6 +269,7 @@ export class PrimmDebugViewComponent implements OnInit {
 
   programEdited(data: string) {
     this.currentProgram = data;
+    this.sessionManagerService.setCurrentProgram(this.currentProgram);
   }
 
   onLogsReceived(event: any) {
@@ -284,6 +298,7 @@ export class PrimmDebugViewComponent implements OnInit {
 
   resetCodeInEditor() {
     this.currentProgram = this.exercise!.program;
+    this.sessionManagerService.setCurrentProgram(null); //Removing from session storage as we're only storing it there to reload program strings that are different from the original
     this.codeEditor!.sendMessage({
       type: "initialise",
       code:  "",
@@ -337,6 +352,15 @@ export class PrimmDebugViewComponent implements OnInit {
     return null;
   }
 
+  saveStageDataInSessionStorage() {
+
+
+    if (this.debuggingStage == DebuggingStage.findError && this.selectedLineNumber) {
+      this.sessionManagerService.setSelectedLineNumber(null);
+      this.sessionManagerService.setFoundErroneousLine(null);
+    }
+  }
+
   /**
    * Saves all the relevant data for a completed stage for state management and logging (if activated).
    * On the public version of the web app, the users' response is saved in several places before resetting component variables for the next stage:
@@ -351,7 +375,7 @@ export class PrimmDebugViewComponent implements OnInit {
       }
       this.programLogs = null;
     });
-
+    this.saveStageDataInSessionStorage();
     if ([DebuggingStage.predict, DebuggingStage.spotIssue, DebuggingStage.inspectCode, DebuggingStage.fixError, DebuggingStage.modify].includes(this.debuggingStage) || (this.debuggingStage == DebuggingStage.findError && !this.exercise!.lineContainingError)) {
       if (this.userReflectionInput && this.userReflectionInput.trim() !== "") {
         this.saveStudentResponse(this.userReflectionInput!);
@@ -365,12 +389,7 @@ export class PrimmDebugViewComponent implements OnInit {
       //Reset stage associated with forced localisation
       this.foundErroneousLine = null;
       this.selectedLineNumber = undefined;
-      this.sessionManagerService.setSelectedLineNumber(null);
-      this.sessionManagerService.setFoundErroneousLine(null);
     }
-    this.sessionManagerService.setCurrentResponse(null);
-    this.sessionManagerService.setPreviousResponses(JSON.stringify(Array.from(this.studentResponses.entries())));
-    this.sessionManagerService.setChallengeProgress(this.exercise!.id, ChallengeProgress.attempted);
     this.displaySkipToFindErrorButton = true;
     this.resetUserInput();
   }
@@ -407,7 +426,10 @@ export class PrimmDebugViewComponent implements OnInit {
         break;
       }
       case DebuggingStage.fixError: {
-        this.resetCodeInEditor();
+        //If the currentProgram obtained from session storage is different to the original, don't reset the program to its original state
+        if (this.changesSuccessful === false) {
+          this.resetCodeInEditor();
+        }
         this.sendToggleReadOnlyCode(false);
         break;
       }
@@ -434,10 +456,13 @@ export class PrimmDebugViewComponent implements OnInit {
   setDebuggingStage(stage: DebuggingStage) {
     this.debuggingStage = stage;
     this.sessionManagerService.setDebuggingStage(this.debuggingStage);
+    this.loggingService.setDebuggingStage(this.debuggingStage);
     if (this.debuggingStage == DebuggingStage.predict || this.debuggingStage == DebuggingStage.run) {
       this.sessionManagerService.setPredictRunIteration(this.predictRunIteration);
     }
-    this.loggingService.setDebuggingStage(this.debuggingStage);
+    if (this.debuggingStage == DebuggingStage.completedTest && this.changesSuccessful) {
+      this.sessionManagerService.setChallengeProgress(this.exercise!.id, ChallengeProgress.completed);
+    }
   }
 
   /**
@@ -471,9 +496,7 @@ export class PrimmDebugViewComponent implements OnInit {
 
   enterSuccessOfChanges(changesSuccessful: boolean): void {
     this.changesSuccessful = changesSuccessful;
-    if (this.changesSuccessful) {
-      this.sessionManagerService.setChallengeProgress(this.exercise!.id, ChallengeProgress.completed);
-    }
+    this.sessionManagerService.setChangesSuccessful(changesSuccessful);
     this.progressToNewDebuggingStage(DebuggingStage.completedTest);
   }
 

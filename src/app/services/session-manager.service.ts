@@ -24,6 +24,9 @@ export class SessionManagerService {
     sessionStorage.removeItem("previousResponses");
     sessionStorage.removeItem("currentResponse");
     sessionStorage.removeItem("selectedLineNumber");
+    sessionStorage.removeItem("foundErroneousLine");
+    sessionStorage.removeItem("changesSuccessful");
+    sessionStorage.removeItem("currentProgram");
   }
 
   setDebuggingStage(stage: DebuggingStage) {
@@ -99,7 +102,32 @@ export class SessionManagerService {
   }
 
   getFoundErroneousLine(): boolean | null {
-    const foundErroneousLine = sessionStorage.getItem("foundErroneousLine");
+    const foundErroneousLine: string | null = sessionStorage.getItem("foundErroneousLine");
     return foundErroneousLine ? JSON.parse(foundErroneousLine) : null;
+  }
+
+  setChangesSuccessful(changesSuccessful: boolean | null) {
+    if (changesSuccessful === null) {
+      sessionStorage.removeItem("changesSuccessful");
+      return;
+    }
+    sessionStorage.setItem("changesSuccessful", changesSuccessful.toString());
+  }
+
+  getChangesSuccessful(): boolean | null {
+    const changesSuccessful: string | null = sessionStorage.getItem("changesSuccessful");
+    return changesSuccessful ? JSON.parse(changesSuccessful) : null;
+  }
+
+  setCurrentProgram(currentProgram: string | null) {
+    if (currentProgram === null) {
+      sessionStorage.removeItem("currentProgram");
+      return;
+    }
+    sessionStorage.setItem("currentProgram", currentProgram);
+  }
+
+  getCurrentProgram(): string | null {
+    return sessionStorage.getItem("currentProgram");
   }
 }
